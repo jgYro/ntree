@@ -55,8 +55,8 @@ fn calculate() {
 
     // Verify Mermaid output contains expected elements
     assert!(cfg.mermaid.contains("graph TD"));
-    assert!(cfg.mermaid.contains("0[\"ENTRY\"]"));
-    assert!(cfg.mermaid.contains("[\"EXIT\"]"));
+    assert!(cfg.mermaid.contains("0([ENTRY])"));
+    assert!(cfg.mermaid.contains("([EXIT])"));
     assert!(cfg.mermaid.contains("0 --> 1"));
     // Return statement now uses exit edge
     assert!(cfg.mermaid.contains("-.->") || cfg.mermaid.contains("exit"));

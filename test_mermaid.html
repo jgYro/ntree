@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({ startOnLoad: true });</script>
+</head>
+<body>
+    <h1>Mermaid Test - Escaped Quotes</h1>
+    <div class="mermaid">
+graph TD
+    0([ENTRY])
+    1["let test_file = &quot;src/main.rs&quot;;"]
+    2["match list_top_level_items(test_file) { Ok(n) =&gt; println!(&quot;{:#?}&quot;, n), Err(e) =&gt; panic!(&quot;Failed to create tree from file: {:?}&quot;, e), };"]
+    3["match list_functions(test_file) { Ok(f_s) =&gt; { match functions_to_jsonl(&amp;f_s) { Ok(f) =&gt; println!(&quot;{}&quot;, f), Err(e) =&gt; panic!(&quot;Failed to parse out functions: {:?}&quot;, e), }; } Err(e) =&gt; panic!(&quot;Failed to parse out functions: {:?}&quot;, e), };"]
+    4["match generate_cfgs(&quot;src/main.rs&quot;) { Ok(cfgs) =&gt; { for cfg_result in cfgs { println!(&quot;Function: {}&quot;, cfg_result.function_name); // Get Mermaid diagram println!(&quot;Mermaid diagram:\\n{}&quot;, cfg_result.mermaid); // Get JSONL representation println!(&quot;JSONL:\\n{}&quot;, cfg_result.jsonl); } } Err(e) =&gt; panic!(&quot;Failed to generate CFG: {:?}&quot;, e), };"]
+    5["let test = 6;"]
+    6{"test &gt; 5"}
+    7["println!(&quot;Do a thing&quot;);"]
+    8{"test &lt; 7"}
+    9["println!(&quot;Do another things&quot;);"]
+    10(( ))
+    11["println!(&quot;Do the last thing&quot;);"]
+    12(( ))
+    9999([EXIT])
+    0 --> 1
+    1 --> 2
+    2 --> 3
+    3 --> 4
+    4 --> 5
+    5 --> 6
+    6 -->|T| 7
+    7 --> 8
+    8 -->|T| 9
+    9 --> 10
+    8 --> 10
+    6 -->|F| 11
+    10 --> 12
+    11 --> 12
+    12 --> 9999
+    </div>
+</body>
+</html>

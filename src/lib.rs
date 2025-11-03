@@ -12,6 +12,6 @@ pub use models::{CfgEdge, CfgNode, ControlFlowGraph, FunctionSpan, TopLevelItem}
 
 // API exports
 pub use api::{
-    functions_to_jsonl, generate_cfgs, items_to_jsonl, list_functions, list_top_level_items,
-    CfgResult,
+    functions_to_jsonl, generate_cfgs, generate_cfgs_v2, items_to_jsonl, list_functions,
+    list_top_level_items, CfgResult,
 };

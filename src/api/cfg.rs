@@ -1,5 +1,5 @@
 use crate::core::{read_file, NTreeError};
-use crate::extractors::build_cfg_from_block;
+use crate::extractors::cfg::build_cfg_from_block;
 use crate::language::LanguageConfig;
 use std::path::Path;
 use tree_sitter::{Node, Parser};
@@ -12,7 +12,7 @@ pub struct CfgResult {
     pub jsonl: String,
 }
 
-/// Generates Control Flow Graphs for all functions in a Rust file.
+/// Generates Control Flow Graphs with if/else support for all functions in a Rust file.
 ///
 /// # Arguments
 /// * `path` - Path to the Rust source file
@@ -48,6 +48,9 @@ pub fn generate_cfgs<P: AsRef<Path>>(path: P) -> Result<Vec<CfgResult>, NTreeErr
 
     Ok(results)
 }
+
+/// Alias for generate_cfgs to maintain backward compatibility with v2 naming.
+pub use self::generate_cfgs as generate_cfgs_v2;
 
 /// Recursively extracts CFGs from function nodes.
 fn extract_function_cfgs(
