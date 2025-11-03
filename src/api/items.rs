@@ -1,7 +1,6 @@
-use crate::error::NTreeError;
-use crate::extractor::extract_top_level_items;
-use crate::items::TopLevelItem;
-use crate::reader::read_file;
+use crate::core::{read_file, NTreeError};
+use crate::extractors::extract_top_level_items;
+use crate::models::TopLevelItem;
 use std::path::Path;
 use tree_sitter::Parser;
 
@@ -37,25 +36,4 @@ pub fn list_top_level_items<P: AsRef<Path>>(path: P) -> Result<Vec<TopLevelItem>
     let items = extract_top_level_items(file_path, root_node, &content);
 
     Ok(items)
-}
-
-pub fn items_to_jsonl(items: &[TopLevelItem]) -> Result<String, NTreeError> {
-    let mut jsonl = String::new();
-
-    for item in items {
-        match serde_json::to_string(item) {
-            Ok(json) => {
-                jsonl.push_str(&json);
-                jsonl.push('\n');
-            }
-            Err(e) => {
-                return Err(NTreeError::ParseError(format!(
-                    "Failed to serialize item: {}",
-                    e
-                )))
-            }
-        }
-    }
-
-    Ok(jsonl)
 }

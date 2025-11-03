@@ -1,5 +1,5 @@
-use crate::error::NTreeError;
-use crate::reader::read_file;
+use super::error::NTreeError;
+use super::reader::read_file;
 use std::path::Path;
 use tree_sitter::{Node, Parser};
 

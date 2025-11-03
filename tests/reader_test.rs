@@ -1,4 +1,4 @@
-use ntree::reader::read_file;
+use ntree::read_file;
 use std::fs;
 
 #[test]

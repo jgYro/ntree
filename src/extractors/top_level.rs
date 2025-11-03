@@ -1,4 +1,4 @@
-use crate::items::TopLevelItem;
+use crate::models::TopLevelItem;
 use tree_sitter::Node;
 
 pub fn extract_top_level_items(file_path: &str, root_node: Node, source: &str) -> Vec<TopLevelItem> {
