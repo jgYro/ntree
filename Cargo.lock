@@ -65,6 +65,8 @@ checksum = "f52b00d39961fc5b2736ea853c9cc86238e165017a493d1d5c8eac6bdc4cc273"
 name = "ntree"
 version = "0.1.0"
 dependencies = [
+ "serde",
+ "serde_json",
  "tree-sitter",
  "tree-sitter-rust",
 ]
@@ -129,6 +131,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9a8e94ea7f378bd32cbbd37198a4a91436180c5bb472411e48b5ec2e2124ae9e"
 dependencies = [
  "serde_core",
+ "serde_derive",
 ]
 
 [[package]]
