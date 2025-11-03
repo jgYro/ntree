@@ -1,4 +1,4 @@
-use ntree::models::{escape_mermaid_label, validate_mermaid};
+use ntree::{escape_mermaid_label, validate_mermaid};
 
 #[test]
 fn test_escape_single_quotes() {
