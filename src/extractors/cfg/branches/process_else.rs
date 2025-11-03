@@ -1,7 +1,7 @@
 use crate::models::{CfgEdge, CfgNode, ControlFlowGraph};
-use super::cfg_utils::{get_statement_text, is_statement_node};
-use super::cfg_context::CfgContext;
+use super::super::core::{CfgContext, get_statement_text, is_statement_node};
 use super::process_if::process_if;
+use super::control_flow_handler::handle_control_flow_expression;
 use tree_sitter::Node;
 
 /// Process else branch.
@@ -44,6 +44,17 @@ fn process_else_block(
     for stmt in block.named_children(&mut block_cursor) {
         if !is_statement_node(stmt) {
             continue;
+        }
+
+        // Handle control flow expressions
+        if let Some((new_current, new_first)) = handle_control_flow_expression(
+            cfg, ctx, stmt, source, cond_id, current, first, "false"
+        ) {
+            current = new_current;
+            first = new_first;
+            continue;
+        } else if matches!(stmt.kind(), "break_expression" | "continue_expression") {
+            return vec![]; // Terminated
         }
 
         let text = get_statement_text(stmt, source);

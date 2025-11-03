@@ -1,4 +1,4 @@
-use crate::models::{CfgNode, CfgEdge, CfgEdgeWrapper, ControlFlowGraph};
+use crate::models::{CfgEdgeWrapper, ControlFlowGraph};
 
 /// Export a Control Flow Graph to JSONL format.
 pub fn export_jsonl(cfg: &ControlFlowGraph) -> String {

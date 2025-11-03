@@ -1,6 +1,5 @@
 use crate::models::{CfgEdge, CfgNode, ControlFlowGraph};
-use super::cfg_utils::{get_if_condition, get_if_parts};
-use super::cfg_context::CfgContext;
+use super::super::core::{CfgContext, get_if_condition, get_if_parts};
 use super::process_then::process_then_branch;
 use super::process_else::process_else_branch;
 use tree_sitter::Node;

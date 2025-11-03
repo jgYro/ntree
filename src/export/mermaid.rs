@@ -1,4 +1,4 @@
-use crate::models::{CfgNode, CfgEdge, ControlFlowGraph};
+use crate::models::ControlFlowGraph;
 
 /// Utilities for Mermaid diagram generation.
 

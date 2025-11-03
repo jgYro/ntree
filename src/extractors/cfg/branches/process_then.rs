@@ -1,7 +1,7 @@
 use crate::models::{CfgEdge, CfgNode, ControlFlowGraph};
-use super::cfg_utils::{get_statement_text, is_statement_node};
-use super::cfg_context::CfgContext;
-use super::process_if::process_if_with_edge_kind;
+use super::super::core::{CfgContext, get_statement_text, is_statement_node};
+use super::control_flow_handler::handle_control_flow_expression;
+use super::nested_if_handler::{handle_nested_if, handle_expression_if};
 use tree_sitter::Node;
 
 /// Process then branch.
@@ -21,13 +21,24 @@ pub fn process_then_branch(
             continue;
         }
 
-        // Check for nested if expressions
+        // Handle control flow expressions
         if child.kind() == "if_expression" {
             handle_nested_if(cfg, ctx, child, source, cond_id, &mut current, &mut first);
             continue;
         }
 
-        // Check if expression_statement contains an if_expression
+        // Handle other control flow expressions
+        if let Some((new_current, new_first)) = handle_control_flow_expression(
+            cfg, ctx, child, source, cond_id, current, first, "true"
+        ) {
+            current = new_current;
+            first = new_first;
+            continue;
+        } else if matches!(child.kind(), "break_expression" | "continue_expression") {
+            return vec![]; // Terminated
+        }
+
+        // Check if expression_statement contains control flow
         if child.kind() == "expression_statement" {
             if handle_expression_if(cfg, ctx, child, source, cond_id, &mut current, &mut first) {
                 continue;
@@ -62,55 +73,3 @@ pub fn process_then_branch(
     }
 }
 
-/// Handle nested if expression in then branch.
-fn handle_nested_if(
-    cfg: &mut ControlFlowGraph,
-    ctx: &mut CfgContext,
-    if_node: Node,
-    source: &str,
-    cond_id: usize,
-    current: &mut usize,
-    first: &mut bool,
-) {
-    let (entry, edge_kind) = if *first {
-        *first = false;
-        (cond_id, "true")
-    } else {
-        (*current, "next")
-    };
-
-    let exits = process_if_with_edge_kind(cfg, ctx, if_node, source, entry, edge_kind);
-
-    if exits.len() > 1 {
-        let join_id = ctx.alloc_id();
-        cfg.add_node(CfgNode::new(join_id, "join".to_string()));
-        for exit in &exits {
-            if *exit != join_id {
-                cfg.add_edge(CfgEdge::new(*exit, join_id, "next".to_string()));
-            }
-        }
-        *current = join_id;
-    } else if !exits.is_empty() {
-        *current = exits[0];
-    }
-}
-
-/// Handle if expression within expression_statement.
-fn handle_expression_if(
-    cfg: &mut ControlFlowGraph,
-    ctx: &mut CfgContext,
-    stmt: Node,
-    source: &str,
-    cond_id: usize,
-    current: &mut usize,
-    first: &mut bool,
-) -> bool {
-    let mut expr_cursor = stmt.walk();
-    for expr in stmt.named_children(&mut expr_cursor) {
-        if expr.kind() == "if_expression" {
-            handle_nested_if(cfg, ctx, expr, source, cond_id, current, first);
-            return true;
-        }
-    }
-    false
-}

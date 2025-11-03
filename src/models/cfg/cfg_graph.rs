@@ -1,4 +1,4 @@
-use crate::models::{CfgNode, CfgEdge, CfgEdgeWrapper};
+use crate::models::{CfgNode, CfgEdge};
 use crate::export::{export_mermaid, export_jsonl, export_mermaid_validated};
 
 /// Represents a complete Control Flow Graph.

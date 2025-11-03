@@ -1,17 +1,13 @@
 use crate::models::{CfgEdge, CfgNode, ControlFlowGraph};
 use tree_sitter::Node;
 
-mod cfg_context;
-mod cfg_utils;
-mod cfg_branches;
-mod process_if;
-mod process_then;
-mod process_else;
-mod process_expression;
-mod process_block;
+mod core;
+mod branches;
+mod statements;
+mod processors;
 
-use cfg_context::CfgContext;
-use process_block::process_block;
+use core::CfgContext;
+use processors::process_block;
 
 /// Builds a Control Flow Graph from a function body block with if/else support.
 pub fn build_cfg_from_block(block_node: Node, source: &str) -> ControlFlowGraph {

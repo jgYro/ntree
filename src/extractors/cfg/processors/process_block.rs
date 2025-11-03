@@ -1,8 +1,8 @@
 use crate::models::{CfgEdge, CfgNode, ControlFlowGraph};
-use super::cfg_context::CfgContext;
-use super::cfg_utils::{get_statement_text, is_statement_node};
-use super::cfg_branches::process_if;
+use super::super::core::{CfgContext, get_statement_text, is_statement_node};
+use super::super::branches::process_if;
 use super::process_expression::handle_expression_statement;
+use super::super::statements::{process_while, process_break, process_continue, process_match};
 use tree_sitter::Node;
 
 /// Process a block and return exit points.
@@ -41,6 +41,30 @@ pub fn process_block(
                 } else if !exits.is_empty() {
                     current = exits[0];
                 }
+            }
+            "while_expression" => {
+                let exits = process_while(cfg, ctx, child, source, current);
+                if exits.is_empty() {
+                    return vec![];
+                } else if !exits.is_empty() {
+                    current = exits[0];
+                }
+            }
+            "match_expression" => {
+                let exits = process_match(cfg, ctx, child, source, current);
+                if exits.is_empty() {
+                    return vec![];
+                } else if !exits.is_empty() {
+                    current = exits[0];
+                }
+            }
+            "break_expression" => {
+                let exits = process_break(cfg, ctx, child, source, current);
+                return exits; // Path terminated
+            }
+            "continue_expression" => {
+                let exits = process_continue(cfg, ctx, child, source, current);
+                return exits; // Path terminated
             }
             "return_expression" => {
                 let text = get_statement_text(child, source);
