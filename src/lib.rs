@@ -8,9 +8,10 @@ pub mod models;
 pub use core::{create_tree_from_file, read_file, NTreeError};
 
 // Model exports
-pub use models::{FunctionSpan, TopLevelItem};
+pub use models::{CfgEdge, CfgNode, ControlFlowGraph, FunctionSpan, TopLevelItem};
 
 // API exports
 pub use api::{
-    functions_to_jsonl, items_to_jsonl, list_functions, list_top_level_items,
+    functions_to_jsonl, generate_cfgs, items_to_jsonl, list_functions, list_top_level_items,
+    CfgResult,
 };
