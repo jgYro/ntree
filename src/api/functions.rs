@@ -5,6 +5,14 @@ use crate::models::FunctionSpan;
 use std::path::Path;
 use tree_sitter::Parser;
 
+/// Extracts all functions with their spans from a Rust source file.
+///
+/// # Arguments
+/// * `path` - Path to the Rust source file
+///
+/// # Returns
+/// * `Ok(Vec<FunctionSpan>)` - List of functions with their full and body spans
+/// * `Err(NTreeError)` - If file cannot be read or parsed
 pub fn list_functions<P: AsRef<Path>>(path: P) -> Result<Vec<FunctionSpan>, NTreeError> {
     let content = read_file(&path)?;
     let config = LanguageConfig::rust();

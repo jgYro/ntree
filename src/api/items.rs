@@ -4,6 +4,14 @@ use crate::models::TopLevelItem;
 use std::path::Path;
 use tree_sitter::Parser;
 
+/// Lists all top-level items from a Rust source file.
+///
+/// # Arguments
+/// * `path` - Path to the Rust source file
+///
+/// # Returns
+/// * `Ok(Vec<TopLevelItem>)` - List of top-level items with their locations
+/// * `Err(NTreeError)` - If file cannot be read or parsed
 pub fn list_top_level_items<P: AsRef<Path>>(path: P) -> Result<Vec<TopLevelItem>, NTreeError> {
     let file_path = match path.as_ref().to_str() {
         Some(p) => p,

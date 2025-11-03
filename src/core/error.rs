@@ -1,9 +1,12 @@
 use std::fmt;
 use std::io;
 
+/// Error types for ntree operations.
 #[derive(Debug)]
 pub enum NTreeError {
+    /// IO-related errors (file reading, permissions, etc.)
     IoError(io::Error),
+    /// Parsing-related errors (invalid syntax, language setup, etc.)
     ParseError(String),
 }
 

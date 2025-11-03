@@ -1,6 +1,15 @@
 use crate::models::TopLevelItem;
 use tree_sitter::Node;
 
+/// Extracts all top-level items from a parsed syntax tree.
+///
+/// # Arguments
+/// * `file_path` - Path to the source file
+/// * `root_node` - Root node of the syntax tree
+/// * `source` - Source code content
+///
+/// # Returns
+/// List of top-level items with their types, names, and locations
 pub fn extract_top_level_items(file_path: &str, root_node: Node, source: &str) -> Vec<TopLevelItem> {
     let mut items = Vec::new();
     let mut cursor = root_node.walk();
@@ -28,6 +37,7 @@ pub fn extract_top_level_items(file_path: &str, root_node: Node, source: &str) -
     items
 }
 
+/// Extracts the identifier name from a node if it exists.
 fn extract_identifier(node: Node, source: &str) -> Option<String> {
     let mut cursor = node.walk();
 

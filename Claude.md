@@ -14,3 +14,4 @@
 - Create a struct for each data structure leveraged in the codebase
 - Ensure every result or some() is destructured in a match statement where possible
 - Do not have .unwrap() in code
+- Ensure explicit commenting and documentation where possible that is also professional and minimal
