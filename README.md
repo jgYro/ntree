@@ -1,6 +1,6 @@
 # ntree
 
-A minimal Tree-sitter based library for parsing and analyzing Rust source code, including Control Flow Graph generation.
+A language-agnostic library for parsing and analyzing source code, featuring Control Flow Graph generation, cyclomatic complexity analysis, and a unified builder-pattern API.
 
 ## Installation
 
@@ -13,176 +13,251 @@ ntree = "0.1.0"
 
 ## Features
 
-- Parse Rust files using Tree-sitter
-- Extract top-level items (functions, structs, enums, etc.)
-- Extract functions with their body spans
-- Generate Control Flow Graphs (CFG) for functions
-- Output in JSONL and Mermaid diagram formats
+- **Unified API**: Single entry point for all analysis types
+- **Language Agnostic**: Extensible architecture for multiple programming languages
+- **Control Flow Graphs**: Generate CFGs with Mermaid diagram export
+- **Complexity Analysis**: Calculate cyclomatic complexity and detect unreachable code
+- **Multiple Formats**: Export to JSONL, Mermaid, and structured data
+- **Builder Pattern**: Fluent, discoverable API with method chaining
 
-## API Usage
+## Quick Start
 
-### Parse a Rust file
-
-```rust
-use ntree::create_tree_from_file;
-
-let root_node = create_tree_from_file("src/main.rs")?;
-println!("Root node kind: {}", root_node.kind());
-```
-
-### List top-level items
-
-Extract all top-level declarations from a Rust file:
+### Simple Analysis
 
 ```rust
-use ntree::{list_top_level_items, items_to_jsonl};
+use ntree::SourceCode;
 
-let items = list_top_level_items("src/lib.rs")?;
-let jsonl = items_to_jsonl(&items);
-println!("{}", jsonl);
-```
+// Analyze everything with default settings
+let analysis = SourceCode::new("src/main.rs")?.analyze()?;
 
-Output (JSONL format, one JSON object per line):
-```json
-{"file":"src/lib.rs","kind":"use_declaration","identifier":null,"start_line":1,"start_column":1,"end_line":1,"end_column":31}
-{"file":"src/lib.rs","kind":"function_item","identifier":"process_data","start_line":3,"start_column":1,"end_line":5,"end_column":2}
-{"file":"src/lib.rs","kind":"struct_item","identifier":"DataProcessor","start_line":7,"start_column":1,"end_line":9,"end_column":2}
-```
+// Access results
+println!("Functions found: {}", analysis.functions().len());
+println!("High complexity functions:");
 
-### Extract functions with body spans
-
-Get all functions with their full spans and body spans:
-
-```rust
-use ntree::{list_functions, functions_to_jsonl};
-
-let functions = list_functions("src/main.rs")?;
-let jsonl = functions_to_jsonl(&functions);
-println!("{}", jsonl);
-```
-
-Output (JSONL format):
-```json
-{"function":"calculate","span":"2:1–6:2","body":"2:37–6:2"}
-{"function":"check","span":"8:1–20:2","body":"8:35–20:2"}
-```
-
-Note: Coordinates are 1-based in output for human readability. The body span includes the opening and closing braces.
-
-### Generate Control Flow Graphs (CFG)
-
-Generate linear Control Flow Graphs for all functions in a file:
-
-```rust
-use ntree::generate_cfgs;
-
-let cfgs = generate_cfgs("src/main.rs")?;
-
-for cfg_result in cfgs {
-    println!("Function: {}", cfg_result.function_name);
-
-    // Get Mermaid diagram
-    println!("Mermaid diagram:\n{}", cfg_result.mermaid);
-
-    // Get JSONL representation
-    println!("JSONL:\n{}", cfg_result.jsonl);
+for result in analysis.complexity().filter_by_complexity(5) {
+    println!("  {}: complexity {}", result.function, result.cyclomatic);
+    if !result.unreachable.is_empty() {
+        println!("    Unreachable blocks: {:?}", result.unreachable);
+    }
 }
 ```
 
-Example function:
+### Selective Analysis
+
 ```rust
-fn calculate() {
-    let acc = 0;
-    return acc;
+use ntree::SourceCode;
+
+// Enable only specific analyses
+let analysis = SourceCode::new("src/lib.rs")?
+    .with_complexity_analysis(true)
+    .with_cfg_generation(true)
+    .with_basic_blocks(false)
+    .analyze()?;
+
+// Export results
+println!("{}", analysis.to_jsonl()?);
+```
+
+### Advanced Usage
+
+```rust
+use ntree::SourceCode;
+
+let analysis = SourceCode::new("src/main.rs")?.analyze()?;
+
+// Find specific functions
+if let Some(main_fn) = analysis.functions().find_by_name("main") {
+    println!("Found main function: {}", main_fn.span);
 }
+
+// Get CFG for specific function
+if let Some(cfg) = analysis.cfgs().for_function("calculate") {
+    println!("CFG Mermaid:\n{}", cfg.mermaid);
+}
+
+// Filter and export complexity data
+let high_complexity = analysis.complexity()
+    .filter_by_complexity(3)
+    .to_jsonl()?;
 ```
 
-Generates JSONL output:
+## Configuration Options
+
+The `SourceCode` builder supports these configuration methods:
+
+- `.with_complexity_analysis(bool)` - Enable/disable cyclomatic complexity analysis
+- `.with_cfg_generation(bool)` - Enable/disable Control Flow Graph generation
+- `.with_early_exit_analysis(bool)` - Enable/disable early exit pattern analysis
+- `.with_loop_analysis(bool)` - Enable/disable loop structure analysis
+- `.with_basic_blocks(bool)` - Enable/disable basic block generation
+
+**Presets:**
+- `.minimal()` - Only complexity and CFG analysis
+- `.none()` - Disable all analyses (useful for custom configuration)
+
+## Result Access
+
+### Complexity Analysis
+
+```rust
+let complexity = analysis.complexity();
+
+// Filter by complexity threshold
+let high_complexity = complexity.filter_by_complexity(5);
+
+// Filter by function name pattern
+let test_functions = complexity.filter_by_name("test_");
+
+// Find functions with unreachable code
+let with_dead_code = complexity.with_unreachable_code();
+
+// Export to JSONL
+let jsonl = complexity.to_jsonl()?;
+```
+
+### Control Flow Graphs
+
+```rust
+let cfgs = analysis.cfgs();
+
+// Get CFG for specific function
+let main_cfg = cfgs.for_function("main");
+
+// Export all CFGs to Mermaid
+let mermaid_diagrams = cfgs.to_mermaid();
+
+// Export to JSONL
+let jsonl = cfgs.to_jsonl();
+```
+
+### Functions
+
+```rust
+let functions = analysis.functions();
+
+// Filter by name pattern
+let getters = functions.filter_by_name("get_");
+
+// Get all function names
+let names = functions.names();
+```
+
+## Output Formats
+
+### JSONL Format
+Each analysis produces structured JSONL output:
+
+**Complexity Analysis:**
 ```json
-{"cfg_node":0,"label":"ENTRY"}
-{"cfg_node":1,"label":"let acc = 0;"}
-{"cfg_node":2,"label":"return acc;"}
-{"cfg_node":3,"label":"EXIT"}
-{"cfg_edge":{"from":0,"to":1,"kind":"next"}}
-{"cfg_edge":{"from":1,"to":2,"kind":"next"}}
-{"cfg_edge":{"from":2,"to":3,"kind":"next"}}
+{"function":"calculate","cyclomatic":3,"unreachable":["N7","N9"]}
+{"function":"process","cyclomatic":1,"unreachable":[]}
 ```
 
-And Mermaid diagram:
+**CFG Nodes and Edges:**
+```json
+{"type":"CFGNode","func":"main","id":"N1","label":"ENTRY","span":"1:1-1:1"}
+{"type":"CFGEdge","func":"main","from":"N1","to":"N2","kind":"next"}
+```
+
+### Mermaid Diagrams
+CFGs export as Mermaid flowcharts:
+
 ```mermaid
 graph TD
-    0["ENTRY"]
-    1["let acc = 0;"]
-    2["return acc;"]
-    3["EXIT"]
-    0 --> 1
-    1 --> 2
-    2 --> 3
+    N1["ENTRY"]
+    N2["let x = 5;"]
+    N3["if x > 0"]
+    N4["println!(\"positive\")"]
+    N5["EXIT"]
+    N1 --> N2
+    N2 --> N3
+    N3 -->|true| N4
+    N3 -->|false| N5
+    N4 --> N5
+```
+
+## Complexity Analysis (CFG-13)
+
+The complexity analyzer implements cyclomatic complexity calculation and unreachable code detection:
+
+- **Formula**: `E - N + 2` (where E = edges, N = nodes)
+- **Reachability**: DFS traversal from ENTRY node
+- **Output**: Function name, complexity score, list of unreachable node IDs
+
+Example for a function with complexity 3 and unreachable blocks:
+```json
+{"function":"check","cyclomatic":3,"unreachable":["N7","N9"]}
+```
+
+## Legacy API (Still Supported)
+
+For backwards compatibility, the original API remains available:
+
+```rust
+use ntree::{generate_cfgs, list_functions, ComplexityAnalyzer};
+
+// Original CFG generation
+let cfgs = generate_cfgs("src/main.rs")?;
+
+// Original function listing
+let functions = list_functions("src/main.rs")?;
+
+// Direct complexity analysis
+let analyzer = ComplexityAnalyzer::new();
+let result = analyzer.analyze(&cfg_ir)?;
 ```
 
 ## API Reference
 
-### Core Module (`ntree::core`)
+### Primary API
+- `SourceCode::new(path)` - Create analyzer for file
+- `SourceCode::analyze()` - Execute configured analyses
+- `AnalysisResult` - Container for all analysis results
+- `ComplexityResultSet`, `CfgResultSet`, `FunctionResultSet` - Typed result collections
 
-- `create_tree_from_file(path)` - Parse a Rust file and return the root Tree-sitter node
-- `read_file(path)` - Read a file's contents
-- `NTreeError` - Error type for all operations
+### Legacy API
+- `generate_cfgs(path)` - Generate CFGs for all functions
+- `list_functions(path)` - Extract function information
+- `list_top_level_items(path)` - Extract top-level declarations
+- `ComplexityAnalyzer` - Direct complexity analysis
 
-### API Module (`ntree::api`)
-
-#### Top-level Items
-- `list_top_level_items(path)` - Extract all top-level declarations from a file
-- `items_to_jsonl(items)` - Convert top-level items to JSONL format
-
-#### Functions
-- `list_functions(path)` - Extract all functions with their spans and body spans
-- `functions_to_jsonl(functions)` - Convert function spans to JSONL format
-
-#### Control Flow Graphs
-- `generate_cfgs(path)` - Generate CFGs for all functions in a file
-- `CfgResult` - Contains both Mermaid and JSONL representations of a CFG
-
-### Models Module (`ntree::models`)
-
-- `TopLevelItem` - Represents a top-level declaration with position information
-- `FunctionSpan` - Represents a function with full span and body span
-- `CfgNode` - Represents a node in a Control Flow Graph
-- `CfgEdge` - Represents an edge in a Control Flow Graph
-- `ControlFlowGraph` - Complete CFG with nodes and edges
-
-## Coordinate System
-
-- **Internal representation**: 0-based (row and column start at 0)
-- **Output format**: 1-based (row and column start at 1)
-- **Span format**: `row:column–row:column` (e.g., `2:1–6:2`)
-
-## Edge Cases Handled
-
-- Functions with attributes (`#[test]`, `#[derive]`, etc.)
-- Functions with where clauses
-- Async, const, and unsafe functions
-- Functions with braces on new lines
-- Empty function bodies
+### Models
+- `ComplexityResult` - Complexity analysis result
+- `CfgResult` - CFG with Mermaid and JSONL output
+- `FunctionSpan` - Function location information
+- `AnalysisOptions` - Configuration for analyses
 
 ## Error Handling
 
-All functions return `Result<T, NTreeError>` where `NTreeError` can be:
-- `IoError` - File reading errors
-- `ParseError` - Parsing or language setup errors
+All functions return `Result<T, NTreeError>`:
 
-Example error handling:
 ```rust
-use ntree::list_functions;
+use ntree::{SourceCode, NTreeError};
 
-match list_functions("src/main.rs") {
-    Ok(functions) => {
-        for func in functions {
-            println!("Found function: {}", func.function);
+match SourceCode::new("src/main.rs") {
+    Ok(source) => {
+        match source.analyze() {
+            Ok(analysis) => {
+                // Process results
+            }
+            Err(NTreeError::ParseError(msg)) => {
+                eprintln!("Analysis failed: {}", msg);
+            }
+            Err(NTreeError::IoError(err)) => {
+                eprintln!("File error: {}", err);
+            }
         }
     }
-    Err(e) => eprintln!("Error: {}", e),
+    Err(e) => eprintln!("Setup error: {}", e),
 }
 ```
+
+## Language Support
+
+Currently supports:
+- **Rust** - Full feature support
+
+Architecture designed for easy extension to additional languages.
 
 ## License
 

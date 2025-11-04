@@ -1,37 +1,43 @@
-use ntree::{functions_to_jsonl, generate_cfgs, list_functions, list_top_level_items};
+use ntree::SourceCode;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // Use lib.rs as it exists in this project
-    let test_file = "src/lib.rs";
+    println!("=== ntree Usage Example ===\n");
 
-    // List top-level items
-    match list_top_level_items(test_file) {
-        Ok(n) => println!("Top-level items:\n{:#?}\n", n),
-        Err(e) => eprintln!("Failed to list top-level items: {:?}", e),
+    // Use test sample file that has actual functions
+    let test_file = "test_sample.rs";
+
+    // Modern unified API - recommended approach
+    println!("Using Modern API:");
+    let analysis = SourceCode::new(test_file)?.analyze()?;
+
+    // Show basic information
+    println!("  Functions: {}", analysis.functions().len());
+    println!("  CFGs: {}", analysis.cfgs().len());
+    println!("  Complexity results: {}", analysis.complexity().len());
+
+    // Show function details
+    println!("\nFunction Details:");
+    for func in analysis.functions().all() {
+        println!("  - {}: {}", func.function, func.span);
     }
 
-    // List functions
-    match list_functions(test_file) {
-        Ok(f_s) => {
-            match functions_to_jsonl(&f_s) {
-                Ok(f) => println!("Functions JSONL:\n{}\n", f),
-                Err(e) => eprintln!("Failed to convert functions to JSONL: {:?}", e),
-            }
-        }
-        Err(e) => eprintln!("Failed to parse out functions: {:?}", e),
+    // Show complexity results
+    println!("\nComplexity Analysis:");
+    for result in analysis.complexity().all() {
+        println!("  {}: complexity {}", result.function, result.cyclomatic);
     }
 
-    // Generate CFGs
-    let cfgs = generate_cfgs(test_file)?;
+    // Show CFG for first function
+    if let Some(cfg) = analysis.cfgs().all().first() {
+        println!("\nCFG Example ({}): ", cfg.function_name);
+        println!("{}", cfg.mermaid);
+    }
 
-    for cfg_result in cfgs {
-        println!("Function: {}", cfg_result.function_name);
-
-        // Get Mermaid diagram
-        println!("Mermaid diagram:\n{}", cfg_result.mermaid);
-
-        // Get JSONL representation
-        println!("JSONL:\n{}", cfg_result.jsonl);
+    // Export everything to JSONL
+    println!("\nJSONL Export (first 3 lines):");
+    let jsonl = analysis.to_jsonl()?;
+    for (i, line) in jsonl.lines().take(3).enumerate() {
+        println!("  {}: {}", i + 1, line);
     }
 
     Ok(())
