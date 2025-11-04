@@ -1,5 +1,6 @@
 use crate::core::{read_file, NTreeError};
 use crate::extractors::cfg::build_cfg_from_block;
+use crate::extractors::cfg::processors::build_basic_blocks_from_block;
 use crate::language::LanguageConfig;
 use std::path::Path;
 use tree_sitter::{Node, Parser};
@@ -9,6 +10,13 @@ use tree_sitter::{Node, Parser};
 pub struct CfgResult {
     pub function_name: String,
     pub mermaid: String,
+    pub jsonl: String,
+}
+
+/// Result containing basic block representation of a function.
+#[derive(Debug)]
+pub struct BasicBlockResult {
+    pub function_name: String,
     pub jsonl: String,
 }
 
@@ -112,4 +120,43 @@ fn find_body_node<'a>(node: Node<'a>, config: &LanguageConfig) -> Option<Node<'a
     }
 
     None
+}
+
+/// Generate basic block representations for all functions in a Rust file.
+/// Coalesces straight-line statements into basic blocks.
+pub fn generate_basic_blocks<P: AsRef<Path>>(path: P) -> Result<Vec<BasicBlockResult>, NTreeError> {
+    let source = read_file(path)?;
+    let config = LanguageConfig::rust();
+
+    let mut parser = Parser::new();
+    parser.set_language(&config.language).map_err(|e| {
+        NTreeError::ParseError(format!("Failed to set language: {:?}", e))
+    })?;
+
+    let tree = match parser.parse(&source, None) {
+        Some(tree) => tree,
+        None => return Err(NTreeError::ParseError("Failed to parse file".to_string())),
+    };
+
+    let root_node = tree.root_node();
+    let mut results = Vec::new();
+    let mut cursor = root_node.walk();
+
+    for node in root_node.named_children(&mut cursor) {
+        if node.kind() == config.get_function_node_type() {
+            let function_name = extract_function_name(node, &source, &config);
+
+            if let Some(body_node) = find_body_node(node, &config) {
+                let bb_graph = build_basic_blocks_from_block(body_node, &source);
+                let jsonl = bb_graph.to_jsonl();
+
+                results.push(BasicBlockResult {
+                    function_name,
+                    jsonl,
+                });
+            }
+        }
+    }
+
+    Ok(results)
 }

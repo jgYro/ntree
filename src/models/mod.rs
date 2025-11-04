@@ -5,5 +5,5 @@ pub mod item;
 
 pub use cfg::{CfgEdge, CfgEdgeWrapper, CfgNode, ControlFlowGraph};
 pub use function::FunctionSpan;
-pub use ir::{ForLoopIR, LoopKind};
+pub use ir::{BasicBlock, BasicBlockEdge, BasicBlockGraph, ForLoopIR, LoopKind};
 pub use item::TopLevelItem;

@@ -4,7 +4,7 @@ use tree_sitter::Node;
 mod core;
 mod branches;
 mod statements;
-mod processors;
+pub mod processors;
 
 use core::CfgContext;
 use processors::process_block;
