@@ -2,7 +2,7 @@ use crate::core::{read_file, NTreeError};
 use crate::extractors::cfg::build_cfg_from_block;
 use crate::extractors::cfg::ir_converter::CFGToIRConverter;
 use crate::extractors::cfg::processors::build_basic_blocks_from_block;
-use crate::language::LanguageConfig;
+use crate::language::{detect_language_config, LanguageConfig};
 use crate::models::FunctionCFGIR;
 use std::path::Path;
 use tree_sitter::{Node, Parser};
@@ -22,17 +22,18 @@ pub struct BasicBlockResult {
     pub jsonl: String,
 }
 
-/// Generates Control Flow Graphs with if/else support for all functions in a Rust file.
+/// Generates Control Flow Graphs with if/else support for all functions in a source file.
 ///
 /// # Arguments
-/// * `path` - Path to the Rust source file
+/// * `path` - Path to the source file (.rs, .py, etc.)
 ///
 /// # Returns
 /// * `Ok(Vec<CfgResult>)` - CFG results for each function
-/// * `Err(NTreeError)` - If file cannot be read or parsed
+/// * `Err(NTreeError)` - If file cannot be read, parsed, or language unsupported
 pub fn generate_cfgs<P: AsRef<Path>>(path: P) -> Result<Vec<CfgResult>, NTreeError> {
-    let content = read_file(&path)?;
-    let config = LanguageConfig::rust();
+    let path_ref = path.as_ref();
+    let content = read_file(path_ref)?;
+    let config = detect_language_config(path_ref)?;
 
     let mut parser = Parser::new();
     match parser.set_language(&config.language) {
@@ -124,11 +125,12 @@ fn find_body_node<'a>(node: Node<'a>, config: &LanguageConfig) -> Option<Node<'a
     None
 }
 
-/// Generate basic block representations for all functions in a Rust file.
+/// Generate basic block representations for all functions in a source file.
 /// Coalesces straight-line statements into basic blocks.
 pub fn generate_basic_blocks<P: AsRef<Path>>(path: P) -> Result<Vec<BasicBlockResult>, NTreeError> {
-    let source = read_file(path)?;
-    let config = LanguageConfig::rust();
+    let path_ref = path.as_ref();
+    let source = read_file(path_ref)?;
+    let config = detect_language_config(path_ref)?;
 
     let mut parser = Parser::new();
     parser.set_language(&config.language).map_err(|e| {
@@ -166,8 +168,9 @@ pub fn generate_basic_blocks<P: AsRef<Path>>(path: P) -> Result<Vec<BasicBlockRe
 /// Generate language-neutral IR for all functions in a file.
 /// Implements CFG-11: Serialize to a language-neutral IR.
 pub fn generate_cfg_ir<P: AsRef<Path>>(path: P) -> Result<Vec<FunctionCFGIR>, NTreeError> {
-    let source = read_file(&path)?;
-    let config = LanguageConfig::rust();
+    let path_ref = path.as_ref();
+    let source = read_file(path_ref)?;
+    let config = detect_language_config(path_ref)?;
 
     let mut parser = Parser::new();
     parser.set_language(&config.language).map_err(|e| {

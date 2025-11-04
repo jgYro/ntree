@@ -30,6 +30,9 @@ pub use api::{
     ComplexityResultSet, CfgResultSet, FunctionResultSet, BasicBlockResultSet,
 };
 
+// Language exports
+pub use language::{SupportedLanguage, LanguageConfig, detect_language_config};
+
 // Analyzer exports
 pub use analyzers::{
     ComplexityAnalyzer, ComplexityResult, EarlyExitNormalizer, ForLoopNormalizer,

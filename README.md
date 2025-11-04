@@ -254,10 +254,28 @@ match SourceCode::new("src/main.rs") {
 
 ## Language Support
 
-Currently supports:
-- **Rust** - Full feature support
+**Fully Supported Languages:**
+- **Rust** (.rs) - Complete feature support
+- **Python** (.py) - Complete feature support
+- **JavaScript** (.js, .mjs) - Complete feature support
+- **TypeScript** (.ts) - Complete feature support
+- **Java** (.java) - Function detection and basic analysis
+- **C** (.c, .h) - Function detection and complexity analysis
+- **C++** (.cpp, .cc, .cxx, .hpp, .hxx) - Function detection and complexity analysis
 
-Architecture designed for easy extension to additional languages.
+**Automatic Language Detection:**
+ntree automatically detects the programming language based on file extension and uses the appropriate Tree-sitter parser.
+
+```rust
+// Works with any supported language
+let rust_analysis = SourceCode::new("src/main.rs")?.analyze()?;
+let python_analysis = SourceCode::new("script.py")?.analyze()?;
+let js_analysis = SourceCode::new("app.js")?.analyze()?;
+let ts_analysis = SourceCode::new("component.ts")?.analyze()?;
+let java_analysis = SourceCode::new("Main.java")?.analyze()?;
+let c_analysis = SourceCode::new("program.c")?.analyze()?;
+let cpp_analysis = SourceCode::new("program.cpp")?.analyze()?;
+```
 
 ## License
 
