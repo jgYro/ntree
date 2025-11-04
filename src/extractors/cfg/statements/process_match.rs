@@ -1,6 +1,5 @@
 use crate::models::{CfgEdge, CfgNode, ControlFlowGraph};
-use super::super::core::cfg_context::CfgContext;
-use super::super::core::cfg_utils::get_statement_text;
+use super::super::core::{CfgContext, get_statement_text, LabelNormalizer};
 use super::process_match_arm::process_match_arm;
 use tree_sitter::Node;
 
@@ -43,12 +42,12 @@ pub fn process_match(
     // Create match dispatch node
     let dispatch_id = ctx.alloc_id();
     let expr_text = get_statement_text(expr, source);
-    cfg.add_node(CfgNode::new(dispatch_id, format!("match {}", expr_text)));
+    cfg.add_node(CfgNode::new(dispatch_id, LabelNormalizer::match_label(&expr_text)));
     cfg.add_edge(CfgEdge::new(entry, dispatch_id, "next".to_string()));
 
     // Create join node
     let join_id = ctx.alloc_id();
-    cfg.add_node(CfgNode::new(join_id, "match_join".to_string()));
+    cfg.add_node(CfgNode::new(join_id, LabelNormalizer::join_label("match")));
 
     // Process each match arm
     let mut arm_exits = Vec::new();

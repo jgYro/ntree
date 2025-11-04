@@ -1,5 +1,5 @@
 use crate::models::{CfgEdge, CfgNode, ControlFlowGraph};
-use super::super::core::{CfgContext, get_statement_text};
+use super::super::core::{CfgContext, get_statement_text, LabelNormalizer};
 use super::super::processors::process_block;
 use tree_sitter::Node;
 
@@ -39,24 +39,24 @@ pub fn process_while(
         None => return vec![entry], // No body found, fallback
     };
 
-    // Create condition node
+    // Create condition node with normalized label
     let condition_id = ctx.alloc_id();
     let condition_text = get_statement_text(condition, source);
-    cfg.add_node(CfgNode::new(condition_id, format!("while {}", condition_text)));
+    cfg.add_node(CfgNode::new(condition_id, LabelNormalizer::while_loop_label(&condition_text)));
 
     // Connect entry to condition
     cfg.add_edge(CfgEdge::new(entry, condition_id, "next".to_string()));
 
     // Create after-loop node (where false branch and breaks go)
     let after_id = ctx.alloc_id();
-    cfg.add_node(CfgNode::new(after_id, "after_while".to_string()));
+    cfg.add_node(CfgNode::new(after_id, LabelNormalizer::loop_after_label("while_loop")));
 
     // Push loop context for break/continue handling
     ctx.push_loop(condition_id, after_id);
 
     // Process body starting from a new ID
     let body_start_id = ctx.alloc_id();
-    cfg.add_node(CfgNode::new(body_start_id, "while_body".to_string()));
+    cfg.add_node(CfgNode::new(body_start_id, LabelNormalizer::loop_body_label("while_loop")));
 
     // Connect condition to body start (true branch)
     cfg.add_edge(CfgEdge::new(condition_id, body_start_id, "true".to_string()));

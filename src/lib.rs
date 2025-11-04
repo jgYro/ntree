@@ -1,3 +1,4 @@
+pub mod analyzers;
 pub mod api;
 pub mod core;
 pub mod export;
@@ -9,7 +10,7 @@ pub mod models;
 pub use core::{create_tree_from_file, read_file, NTreeError};
 
 // Model exports
-pub use models::{CfgEdge, CfgNode, ControlFlowGraph, FunctionSpan, TopLevelItem};
+pub use models::{CfgEdge, CfgNode, ControlFlowGraph, ForLoopIR, FunctionSpan, LoopKind, TopLevelItem};
 
 // Export format exports
 pub use export::{export_mermaid, export_mermaid_validated, export_jsonl, validate_mermaid, escape_mermaid_label};

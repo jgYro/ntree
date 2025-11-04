@@ -1,7 +1,7 @@
 use crate::models::{CfgEdge, CfgNode, ControlFlowGraph};
 use super::super::core::{CfgContext, get_statement_text};
 use super::super::branches::process_if;
-use super::super::statements::{process_while, process_break, process_continue, process_match};
+use super::super::statements::{process_while, process_for, process_break, process_continue, process_match};
 use tree_sitter::Node;
 
 /// Handle expression statements which may contain control flow expressions.
@@ -38,6 +38,15 @@ pub fn handle_expression_statement(
             }
             "while_expression" => {
                 let exits = process_while(cfg, ctx, child, source, current);
+                if exits.is_empty() {
+                    return Some(usize::MAX); // Signal termination
+                } else if !exits.is_empty() {
+                    return Some(exits[0]);
+                }
+                return Some(current);
+            }
+            "for_expression" => {
+                let (exits, _for_ir) = process_for(cfg, ctx, child, source, current);
                 if exits.is_empty() {
                     return Some(usize::MAX); // Signal termination
                 } else if !exits.is_empty() {

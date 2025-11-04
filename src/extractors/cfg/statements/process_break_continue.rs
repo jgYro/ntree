@@ -1,5 +1,5 @@
 use crate::models::{CfgEdge, CfgNode, ControlFlowGraph};
-use super::super::core::CfgContext;
+use super::super::core::{CfgContext, LabelNormalizer};
 use tree_sitter::Node;
 
 /// Process a break expression and return empty exit points (path terminated).
@@ -13,7 +13,7 @@ pub fn process_break(
 ) -> Vec<usize> {
     // Create break node
     let break_id = ctx.alloc_id();
-    cfg.add_node(CfgNode::new(break_id, "break".to_string()));
+    cfg.add_node(CfgNode::new(break_id, LabelNormalizer::break_label()));
     cfg.add_edge(CfgEdge::new(entry, break_id, "next".to_string()));
 
     // Connect to current loop's after node
@@ -36,7 +36,7 @@ pub fn process_continue(
 ) -> Vec<usize> {
     // Create continue node
     let continue_id = ctx.alloc_id();
-    cfg.add_node(CfgNode::new(continue_id, "continue".to_string()));
+    cfg.add_node(CfgNode::new(continue_id, LabelNormalizer::continue_label()));
     cfg.add_edge(CfgEdge::new(entry, continue_id, "next".to_string()));
 
     // Connect to current loop's condition node

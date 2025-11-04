@@ -2,7 +2,8 @@ use crate::models::{CfgEdge, CfgNode, ControlFlowGraph};
 use super::super::core::{CfgContext, get_statement_text, is_statement_node};
 use super::super::branches::process_if;
 use super::process_expression::handle_expression_statement;
-use super::super::statements::{process_while, process_break, process_continue, process_match};
+use super::loop_handler::{handle_loop_expression, handle_if_with_join};
+use super::super::statements::{process_break, process_continue, process_match};
 use tree_sitter::Node;
 
 /// Process a block and return exit points.
@@ -27,27 +28,13 @@ pub fn process_block(
                 if exits.is_empty() {
                     return vec![];
                 }
-                // Create join node if we have branches that need joining
-                if exits.len() > 1 || (exits.len() == 1 && exits[0] != current) {
-                    let join_id = ctx.alloc_id();
-                    cfg.add_node(CfgNode::new(join_id, "join".to_string()));
-
-                    for exit in &exits {
-                        if *exit != join_id {
-                            cfg.add_edge(CfgEdge::new(*exit, join_id, "next".to_string()));
-                        }
-                    }
-                    current = join_id;
-                } else if !exits.is_empty() {
-                    current = exits[0];
-                }
+                current = handle_if_with_join(cfg, ctx, exits, current);
             }
-            "while_expression" => {
-                let exits = process_while(cfg, ctx, child, source, current);
-                if exits.is_empty() {
-                    return vec![];
-                } else if !exits.is_empty() {
-                    current = exits[0];
+            "while_expression" | "for_expression" => {
+                if let Some(new_current) = handle_loop_expression(cfg, ctx, child, source, current) {
+                    current = new_current;
+                } else {
+                    return vec![]; // Loop terminated
                 }
             }
             "match_expression" => {
