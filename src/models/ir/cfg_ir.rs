@@ -13,6 +13,10 @@ pub struct CFGNodeIR {
     pub label: String,
     /// Source code span information
     pub span: String,
+    /// Data source for this node (e.g., "tree-sitter", "compiler", "lsp")
+    pub source: String,
+    /// Confidence level ("exact", "inferred", "uncertain")
+    pub confidence: String,
 }
 
 /// Language-neutral CFG edge representation.
@@ -28,6 +32,10 @@ pub struct CFGEdgeIR {
     pub to: String,
     /// Edge kind (e.g., "true", "false", "next", "error", "exception")
     pub kind: String,
+    /// Data source for this edge (e.g., "tree-sitter", "compiler", "lsp")
+    pub source: String,
+    /// Confidence level ("exact", "inferred", "uncertain")
+    pub confidence: String,
 }
 
 /// Complete IR representation for a function's CFG.
@@ -44,7 +52,7 @@ pub struct FunctionCFGIR {
 }
 
 impl CFGNodeIR {
-    /// Create a new language-neutral CFG node.
+    /// Create a new language-neutral CFG node with tree-sitter provenance.
     pub fn new(func: String, id: String, label: String, span: String) -> Self {
         CFGNodeIR {
             node_type: "CFGNode".to_string(),
@@ -52,12 +60,34 @@ impl CFGNodeIR {
             id,
             label,
             span,
+            source: "tree-sitter".to_string(),
+            confidence: "exact".to_string(),
+        }
+    }
+
+    /// Create a new CFG node with custom provenance and confidence.
+    pub fn with_provenance(
+        func: String,
+        id: String,
+        label: String,
+        span: String,
+        source: String,
+        confidence: String,
+    ) -> Self {
+        CFGNodeIR {
+            node_type: "CFGNode".to_string(),
+            func,
+            id,
+            label,
+            span,
+            source,
+            confidence,
         }
     }
 }
 
 impl CFGEdgeIR {
-    /// Create a new language-neutral CFG edge.
+    /// Create a new language-neutral CFG edge with tree-sitter provenance.
     pub fn new(func: String, from: String, to: String, kind: String) -> Self {
         CFGEdgeIR {
             edge_type: "CFGEdge".to_string(),
@@ -65,6 +95,28 @@ impl CFGEdgeIR {
             from,
             to,
             kind,
+            source: "tree-sitter".to_string(),
+            confidence: "exact".to_string(),
+        }
+    }
+
+    /// Create a new CFG edge with custom provenance and confidence.
+    pub fn with_provenance(
+        func: String,
+        from: String,
+        to: String,
+        kind: String,
+        source: String,
+        confidence: String,
+    ) -> Self {
+        CFGEdgeIR {
+            edge_type: "CFGEdge".to_string(),
+            func,
+            from,
+            to,
+            kind,
+            source,
+            confidence,
         }
     }
 }
