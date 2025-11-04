@@ -5,14 +5,16 @@ pub mod export;
 pub mod extractors;
 pub mod language;
 pub mod models;
+pub mod storage;
 
 // Core exports
 pub use core::{create_tree_from_file, read_file, NTreeError};
 
 // Model exports
 pub use models::{
-    BasicBlock, BasicBlockEdge, BasicBlockGraph, CfgEdge, CfgNode, ControlFlowGraph,
-    ForLoopIR, FunctionSpan, LoopKind, TopLevelItem,
+    BasicBlock, BasicBlockEdge, BasicBlockGraph, CFGEdgeIR, CFGNodeIR, CfgEdge, CfgNode,
+    ControlFlowGraph, EarlyExitIR, EarlyExitKind, ForLoopIR, FunctionCFGIR, FunctionSpan,
+    LoopKind, TopLevelItem,
 };
 
 // Export format exports
@@ -20,6 +22,12 @@ pub use export::{export_mermaid, export_mermaid_validated, export_jsonl, validat
 
 // API exports
 pub use api::{
-    functions_to_jsonl, generate_basic_blocks, generate_cfgs, generate_cfgs_v2, items_to_jsonl,
-    list_functions, list_top_level_items, BasicBlockResult, CfgResult,
+    functions_to_jsonl, generate_basic_blocks, generate_cfg_ir, generate_cfg_ir_jsonl,
+    generate_cfgs, generate_cfgs_v2, items_to_jsonl, list_functions, list_top_level_items,
+    BasicBlockResult, CfgResult,
+};
+
+// Analyzer exports
+pub use analyzers::{
+    ComplexityAnalyzer, ComplexityResult, EarlyExitNormalizer, ForLoopNormalizer,
 };

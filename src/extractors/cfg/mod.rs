@@ -3,6 +3,7 @@ use tree_sitter::Node;
 
 mod core;
 mod branches;
+pub mod ir_converter;
 mod statements;
 pub mod processors;
 

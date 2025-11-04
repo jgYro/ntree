@@ -2,4 +2,4 @@
 
 pub mod rust;
 
-pub use rust::RustForLoopAnalyzer;
+pub use rust::{RustEarlyExitAnalyzer, RustForLoopAnalyzer};

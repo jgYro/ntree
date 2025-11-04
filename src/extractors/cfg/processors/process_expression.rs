@@ -1,7 +1,10 @@
 use crate::models::{CfgEdge, CfgNode, ControlFlowGraph};
 use super::super::core::{CfgContext, get_statement_text};
 use super::super::branches::process_if;
-use super::super::statements::{process_while, process_for, process_break, process_continue, process_match};
+use super::super::statements::{
+    process_while, process_for, process_break, process_continue, process_match,
+    process_panic_expression, process_try_expression,
+};
 use tree_sitter::Node;
 
 /// Handle expression statements which may contain control flow expressions.
@@ -71,17 +74,29 @@ pub fn handle_expression_statement(
                 let _exits = process_continue(cfg, ctx, child, source, current);
                 return Some(usize::MAX); // Signal termination (continue stops execution)
             }
+            "try_expression" => {
+                let (exits, _early_exit_ir) = process_try_expression(cfg, ctx, child, source, current);
+                if exits.is_empty() {
+                    return Some(usize::MAX); // Signal termination
+                } else {
+                    return Some(exits[0]);
+                }
+            }
             _ => {}
         }
     }
 
-    // Check for return
+    // Check for special statement types
     let text = get_statement_text(stmt, source);
     if text.starts_with("return") {
         let node_id = ctx.alloc_id();
         cfg.add_node(CfgNode::new(node_id, text));
         cfg.add_edge(CfgEdge::new(current, node_id, "next".to_string()));
         cfg.add_edge(CfgEdge::new(node_id, ctx.exit_id, "exit".to_string()));
+        return Some(usize::MAX); // Signal termination
+    } else if text.starts_with("panic!") {
+        // Handle panic! in expression statement
+        let (_exits, _early_exit_ir) = process_panic_expression(cfg, ctx, stmt, source, current);
         return Some(usize::MAX); // Signal termination
     } else if text.starts_with("if") {
         // Already handled above

@@ -1,9 +1,12 @@
 use crate::models::{CfgEdge, CfgNode, ControlFlowGraph};
+use crate::analyzers::language_specific::RustEarlyExitAnalyzer;
 use super::super::core::{CfgContext, get_statement_text, is_statement_node};
 use super::super::branches::process_if;
 use super::process_expression::handle_expression_statement;
 use super::loop_handler::{handle_loop_expression, handle_if_with_join};
-use super::super::statements::{process_break, process_continue, process_match};
+use super::super::statements::{
+    process_break, process_continue, process_match, process_panic_expression, process_try_expression,
+};
 use tree_sitter::Node;
 
 /// Process a block and return exit points.
@@ -53,6 +56,28 @@ pub fn process_block(
                 let exits = process_continue(cfg, ctx, child, source, current);
                 return exits; // Path terminated
             }
+            "try_expression" => {
+                let (exits, _early_exit_ir) = process_try_expression(cfg, ctx, child, source, current);
+                if exits.is_empty() {
+                    return vec![]; // Path terminated
+                } else if !exits.is_empty() {
+                    current = exits[0];
+                }
+            }
+            "macro_invocation" => {
+                // Check if it's a panic! macro
+                let text = get_statement_text(child, source);
+                if text.starts_with("panic!") {
+                    let (exits, _early_exit_ir) = process_panic_expression(cfg, ctx, child, source, current);
+                    return exits; // Path terminated by panic
+                } else {
+                    // Regular macro - treat as statement
+                    let node_id = ctx.alloc_id();
+                    cfg.add_node(CfgNode::new(node_id, text));
+                    cfg.add_edge(CfgEdge::new(current, node_id, "next".to_string()));
+                    current = node_id;
+                }
+            }
             "return_expression" => {
                 let text = get_statement_text(child, source);
                 let node_id = ctx.alloc_id();
@@ -62,8 +87,20 @@ pub fn process_block(
                 return vec![]; // Path terminated
             }
             _ => {
-                // Check for special cases in expression_statement
-                if child.kind() == "expression_statement" {
+                // Check for Rust early-exit constructs first
+                if RustEarlyExitAnalyzer::contains_early_exit(child, source) {
+                    if RustEarlyExitAnalyzer::contains_try_operator(child, source) {
+                        let (exits, _early_exit_ir) = process_try_expression(cfg, ctx, child, source, current);
+                        if exits.is_empty() {
+                            return vec![]; // Path terminated
+                        } else if !exits.is_empty() {
+                            current = exits[0];
+                        }
+                    } else if RustEarlyExitAnalyzer::is_panic_macro(child, source) {
+                        let (_exits, _early_exit_ir) = process_panic_expression(cfg, ctx, child, source, current);
+                        return vec![]; // Path terminated by panic
+                    }
+                } else if child.kind() == "expression_statement" {
                     if let Some(new_current) = handle_expression_statement(cfg, ctx, child, source, current) {
                         if new_current == usize::MAX {
                             return vec![];

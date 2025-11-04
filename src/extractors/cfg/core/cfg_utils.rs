@@ -91,6 +91,7 @@ pub fn is_statement_node(node: Node) -> bool {
             | "for_expression"
             | "loop_expression"
             | "macro_invocation"
+            | "try_expression"
             | "assignment_expression"
     )
 }
