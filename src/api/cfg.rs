@@ -4,11 +4,12 @@ use crate::extractors::cfg::ir_converter::CFGToIRConverter;
 use crate::extractors::cfg::processors::build_basic_blocks_from_block;
 use crate::language::{detect_language_config, LanguageConfig};
 use crate::models::FunctionCFGIR;
+use serde::{Serialize, Deserialize};
 use std::path::Path;
 use tree_sitter::{Node, Parser};
 
 /// Result containing both Mermaid and JSON representations of a CFG.
-#[derive(Debug)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CfgResult {
     pub function_name: String,
     pub mermaid: String,
@@ -16,7 +17,7 @@ pub struct CfgResult {
 }
 
 /// Result containing basic block representation of a function.
-#[derive(Debug)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BasicBlockResult {
     pub function_name: String,
     pub jsonl: String,

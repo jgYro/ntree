@@ -1,0 +1,80 @@
+use std::path::PathBuf;
+use std::collections::HashMap;
+use crate::core::NTreeError;
+use crate::storage::{FileWalker, FileRecord, SymbolStore, TopLevelSymbol};
+use super::options::AnalysisOptions;
+
+/// Workspace-specific analysis methods.
+pub struct WorkspaceMethods;
+
+impl WorkspaceMethods {
+    /// Populate workspace data from file discovery.
+    pub fn populate_workspace_data(
+        workspace_path: &PathBuf,
+        options: &AnalysisOptions,
+        symbol_store: &mut SymbolStore,
+    ) -> Result<(Vec<FileRecord>, HashMap<String, Vec<FileRecord>>), NTreeError> {
+        let walker = FileWalker::new(workspace_path);
+        let file_records = walker.discover_files()?;
+
+        let mut files_by_language = HashMap::new();
+
+        // Process each file
+        for file_record in &file_records {
+            // Group by language
+            files_by_language
+                .entry(file_record.language.clone())
+                .or_insert_with(Vec::new)
+                .push(file_record.clone());
+
+            // Extract basic symbols
+            Self::extract_symbols(&file_record.path, symbol_store)?;
+        }
+
+        Ok((file_records, files_by_language))
+    }
+
+    /// Extract basic symbols from file.
+    fn extract_symbols(file_path: &PathBuf, symbol_store: &mut SymbolStore) -> Result<(), NTreeError> {
+        match crate::api::list_functions(file_path) {
+            Ok(functions) => {
+                for function in functions {
+                    let symbol = TopLevelSymbol::new(
+                        file_path.clone(),
+                        function.function.clone(),
+                        "function".to_string(),
+                        format!("{}::{}", file_path.display(), function.function),
+                        function.span.clone(),
+                    );
+                    symbol_store.add_symbol(symbol);
+                }
+                Ok(())
+            }
+            Err(_) => Ok(()), // Skip files that can't be analyzed
+        }
+    }
+
+    /// Get workspace statistics.
+    pub fn get_workspace_stats(file_records: &[FileRecord]) -> WorkspaceStats {
+        let total_files = file_records.len();
+        let total_size: u64 = file_records.iter().map(|f| f.size).sum();
+
+        WorkspaceStats {
+            total_files,
+            total_size,
+            languages: file_records
+                .iter()
+                .map(|f| f.language.clone())
+                .collect::<std::collections::HashSet<_>>()
+                .len(),
+        }
+    }
+}
+
+/// Statistics about workspace analysis.
+#[derive(Debug, Clone)]
+pub struct WorkspaceStats {
+    pub total_files: usize,
+    pub total_size: u64,
+    pub languages: usize,
+}

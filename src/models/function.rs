@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 ///
 /// # Body Span
 /// The body span includes the opening and closing braces `{` and `}`.
-#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct FunctionSpan {
     pub function: String,
     pub span: String,

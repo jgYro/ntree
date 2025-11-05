@@ -11,6 +11,8 @@ pub struct AnalysisOptions {
     pub loop_analysis: bool,
     /// Enable basic block generation
     pub basic_blocks: bool,
+    /// Enable workspace-wide search and analysis
+    pub workspace_search: bool,
 }
 
 impl Default for AnalysisOptions {
@@ -22,6 +24,7 @@ impl Default for AnalysisOptions {
             early_exit_analysis: true,
             loop_analysis: true,
             basic_blocks: true,
+            workspace_search: false,
         }
     }
 }
@@ -35,6 +38,7 @@ impl AnalysisOptions {
             early_exit_analysis: false,
             loop_analysis: false,
             basic_blocks: false,
+            workspace_search: false,
         }
     }
 
@@ -46,6 +50,7 @@ impl AnalysisOptions {
             early_exit_analysis: false,
             loop_analysis: false,
             basic_blocks: false,
+            workspace_search: false,
         }
     }
 

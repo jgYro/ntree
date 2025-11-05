@@ -1,29 +1,34 @@
 use std::path::{Path, PathBuf};
 use crate::core::NTreeError;
 use super::options::AnalysisOptions;
-use super::results::AnalysisResult;
+use super::unified_analysis::AnalysisResult;
 
 /// Builder for source code analysis with fluent configuration API.
 #[derive(Debug, Clone)]
 pub struct SourceCode {
-    file_path: PathBuf,
+    path: PathBuf,
+    is_workspace: bool,
     options: AnalysisOptions,
 }
 
 impl SourceCode {
-    /// Create a new source code analyzer for the given file path.
+    /// Create a new source code analyzer for file or directory.
     pub fn new<P: AsRef<Path>>(path: P) -> Result<Self, NTreeError> {
-        let file_path = path.as_ref().to_path_buf();
+        let path_buf = path.as_ref().to_path_buf();
 
-        if !file_path.exists() {
+        if !path_buf.exists() {
             return Err(NTreeError::ParseError(format!(
-                "File does not exist: {}",
-                file_path.display()
+                "Path does not exist: {}",
+                path_buf.display()
             )));
         }
 
+        // Auto-detect if this is a workspace (directory) or single file
+        let is_workspace = path_buf.is_dir();
+
         Ok(SourceCode {
-            file_path,
+            path: path_buf,
+            is_workspace,
             options: AnalysisOptions::default(),
         })
     }
@@ -70,6 +75,13 @@ impl SourceCode {
         self
     }
 
+    /// Enable or disable workspace search mode.
+    pub fn search_workspace(mut self, enabled: bool) -> Self {
+        self.options.workspace_search = enabled;
+        self.is_workspace = enabled;
+        self
+    }
+
     /// Execute the configured analyses and return results.
     pub fn analyze(self) -> Result<AnalysisResult, NTreeError> {
         if !self.options.has_any_enabled() {
@@ -78,12 +90,17 @@ impl SourceCode {
             ));
         }
 
-        AnalysisResult::from_source_code(self.file_path, self.options)
+        AnalysisResult::from_source_code(self.path, self.options, self.is_workspace)
     }
 
-    /// Get the current file path.
-    pub fn file_path(&self) -> &Path {
-        &self.file_path
+    /// Get the current path (file or directory).
+    pub fn path(&self) -> &Path {
+        &self.path
+    }
+
+    /// Check if this is workspace mode.
+    pub fn is_workspace(&self) -> bool {
+        self.is_workspace
     }
 
     /// Get the current analysis options.

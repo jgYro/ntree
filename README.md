@@ -13,11 +13,14 @@ ntree = "0.1.0"
 
 ## Features
 
-- **Unified API**: Single entry point for all analysis types
-- **Language Agnostic**: Extensible architecture for multiple programming languages
-- **Control Flow Graphs**: Generate CFGs with Mermaid diagram export
+- **Unified API**: Single `SourceCode` entry point for files and workspaces
+- **Workspace Analysis**: Analyze entire codebases with file discovery and caching
+- **Cross-File Symbol Search**: Find functions, constructors, and patterns across projects
+- **Language Agnostic**: Support for Rust, Python, JavaScript, TypeScript, Java, C, C++
+- **Regex Pattern Matching**: Powerful symbol search with parameterized queries
+- **Control Flow Graphs**: Generate CFGs with proper exception handling (try/catch)
 - **Complexity Analysis**: Calculate cyclomatic complexity and detect unreachable code
-- **Multiple Formats**: Export to JSONL, Mermaid, and structured data
+- **Multiple Export Formats**: JSONL, Mermaid diagrams, structured data
 - **Builder Pattern**: Fluent, discoverable API with method chaining
 
 ## Quick Start
@@ -58,7 +61,68 @@ let analysis = SourceCode::new("src/lib.rs")?
 println!("{}", analysis.to_jsonl()?);
 ```
 
-### Advanced Usage
+### Workspace Analysis
+
+```rust
+use ntree::SourceCode;
+
+// Analyze entire workspace/directory
+let analysis = SourceCode::new("src/")?
+    .search_workspace(true)
+    .with_complexity_analysis(true)
+    .analyze()?;
+
+// Get files by language
+if let Some(files_by_lang) = analysis.files_by_language() {
+    for (lang, files) in files_by_lang {
+        println!("{}: {} files", lang, files.len());
+    }
+}
+
+// Workspace statistics
+if let Some(stats) = analysis.workspace_stats() {
+    println!("Total files: {}", stats.total_files);
+    println!("Languages: {}", stats.languages);
+}
+```
+
+### Symbol Search (Workspace & Single File)
+
+```rust
+use ntree::SourceCode;
+
+let analysis = SourceCode::new("src/")?.search_workspace(true).analyze()?;
+
+// Find exact constructors (not new_iterator, new_panic, etc.)
+let constructors = analysis.symbols()
+    .named("new")
+    .regex(true)
+    .kind("function")
+    .search()?;
+
+// Find getter methods
+let getters = analysis.symbols()
+    .named("^get_\\w+")
+    .regex(true)
+    .search()?;
+
+// Find functions in specific files
+let cfg_functions = analysis.symbols()
+    .in_file("cfg")
+    .kind("function")
+    .search()?;
+
+// Find test functions across all languages
+let tests = analysis.symbols()
+    .named(".*test.*")
+    .regex(true)
+    .search()?;
+
+println!("Found {} constructors, {} getters, {} tests",
+    constructors.len(), getters.len(), tests.len());
+```
+
+### Advanced Single File Usage
 
 ```rust
 use ntree::SourceCode;
@@ -75,21 +139,26 @@ if let Some(cfg) = analysis.cfgs().for_function("calculate") {
     println!("CFG Mermaid:\n{}", cfg.mermaid);
 }
 
-// Filter and export complexity data
-let high_complexity = analysis.complexity()
-    .filter_by_complexity(3)
-    .to_jsonl()?;
+// Symbol search works on single files too
+let local_constructors = analysis.symbols()
+    .named("new")
+    .regex(true)
+    .search()?;
 ```
 
 ## Configuration Options
 
 The `SourceCode` builder supports these configuration methods:
 
+**Analysis Configuration:**
 - `.with_complexity_analysis(bool)` - Enable/disable cyclomatic complexity analysis
 - `.with_cfg_generation(bool)` - Enable/disable Control Flow Graph generation
 - `.with_early_exit_analysis(bool)` - Enable/disable early exit pattern analysis
 - `.with_loop_analysis(bool)` - Enable/disable loop structure analysis
 - `.with_basic_blocks(bool)` - Enable/disable basic block generation
+
+**Workspace Configuration:**
+- `.search_workspace(bool)` - Enable/disable workspace-wide analysis
 
 **Presets:**
 - `.minimal()` - Only complexity and CFG analysis
@@ -142,6 +211,38 @@ let getters = functions.filter_by_name("get_");
 let names = functions.names();
 ```
 
+### Symbol Search
+
+```rust
+// Basic symbol search
+let symbols = analysis.symbols();
+
+// Parameterized search with fluent API
+let exact_constructors = symbols
+    .named("new")
+    .regex(true)           // Use regex matching
+    .kind("function")      // Only functions
+    .search()?;
+
+// Language-agnostic constructor detection
+let all_constructors = symbols
+    .named("^(new|__init__|constructor)$")
+    .regex(true)
+    .search()?;
+
+// Search in specific files
+let api_functions = symbols
+    .in_file("api")
+    .kind("function")
+    .search()?;
+
+// Complex regex patterns
+let test_functions = symbols
+    .named("^(test_|.*_test|should_|it_).*")
+    .regex(true)
+    .search()?;
+```
+
 ## Output Formats
 
 ### JSONL Format
@@ -189,43 +290,40 @@ Example for a function with complexity 3 and unreachable blocks:
 {"function":"check","cyclomatic":3,"unreachable":["N7","N9"]}
 ```
 
-## Legacy API (Still Supported)
-
-For backwards compatibility, the original API remains available:
-
-```rust
-use ntree::{generate_cfgs, list_functions, ComplexityAnalyzer};
-
-// Original CFG generation
-let cfgs = generate_cfgs("src/main.rs")?;
-
-// Original function listing
-let functions = list_functions("src/main.rs")?;
-
-// Direct complexity analysis
-let analyzer = ComplexityAnalyzer::new();
-let result = analyzer.analyze(&cfg_ir)?;
-```
-
 ## API Reference
 
-### Primary API
-- `SourceCode::new(path)` - Create analyzer for file
+### Core API
+- `SourceCode::new(path)` - Create analyzer for file or directory
 - `SourceCode::analyze()` - Execute configured analyses
-- `AnalysisResult` - Container for all analysis results
-- `ComplexityResultSet`, `CfgResultSet`, `FunctionResultSet` - Typed result collections
+- `AnalysisResult` - Unified container for all analysis results
 
-### Legacy API
-- `generate_cfgs(path)` - Generate CFGs for all functions
-- `list_functions(path)` - Extract function information
-- `list_top_level_items(path)` - Extract top-level declarations
-- `ComplexityAnalyzer` - Direct complexity analysis
+### Configuration Methods
+- `.with_complexity_analysis(bool)` - Configure complexity analysis
+- `.with_cfg_generation(bool)` - Configure CFG generation
+- `.search_workspace(bool)` - Enable workspace-wide analysis
+- `.minimal()` - Preset for essential analyses only
 
-### Models
-- `ComplexityResult` - Complexity analysis result
-- `CfgResult` - CFG with Mermaid and JSONL output
-- `FunctionSpan` - Function location information
-- `AnalysisOptions` - Configuration for analyses
+### Result Access Methods
+- `.complexity()` - Access complexity analysis results
+- `.cfgs()` - Access Control Flow Graph results
+- `.functions()` - Access function information
+- `.symbols()` - Access symbol search interface
+- `.files_by_language()` - Access workspace file groupings (workspace mode)
+- `.workspace_stats()` - Access workspace statistics (workspace mode)
+
+### Symbol Search Methods (Parameterized)
+- `.named(pattern)` - Set name pattern for search
+- `.regex(bool)` - Enable/disable regex matching
+- `.kind(type)` - Filter by symbol type (function, class, etc.)
+- `.in_file(pattern)` - Filter by file path pattern
+- `.search()` - Execute search and return results
+
+### Data Types
+- `AnalysisResult` - Unified analysis container
+- `ComplexityResult` - Complexity analysis with cyclomatic complexity and unreachable blocks
+- `CfgResult` - CFG with Mermaid and JSONL representations
+- `TopLevelSymbol` - Cross-file symbol information
+- `WorkspaceStats` - Statistics about workspace analysis
 
 ## Error Handling
 
