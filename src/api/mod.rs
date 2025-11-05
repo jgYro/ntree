@@ -5,6 +5,7 @@ pub mod function_results;
 pub mod functions;
 pub mod items;
 pub mod jsonl;
+pub mod language_extractors;
 pub mod options;
 pub mod result_access;
 pub mod result_sets;

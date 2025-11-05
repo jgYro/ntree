@@ -70,7 +70,9 @@ impl AnalysisResult {
         if options.basic_blocks {
             result.basic_block_data = AnalysisRunner::run_basic_block_generation(&file_path)?;
         }
-
+        // Extract symbols using language-specific extractors
+        use super::language_extractors::LanguageExtractors;
+        LanguageExtractors::extract_symbols(&file_path, &mut result.symbol_store)?;
         Ok(result)
     }
     /// Workspace analysis.

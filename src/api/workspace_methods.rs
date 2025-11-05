@@ -1,8 +1,9 @@
 use std::path::PathBuf;
 use std::collections::HashMap;
 use crate::core::NTreeError;
-use crate::storage::{FileWalker, FileRecord, SymbolStore, TopLevelSymbol};
+use crate::storage::{FileWalker, FileRecord, SymbolStore};
 use super::options::AnalysisOptions;
+use super::language_extractors::LanguageExtractors;
 
 /// Workspace-specific analysis methods.
 pub struct WorkspaceMethods;
@@ -27,32 +28,13 @@ impl WorkspaceMethods {
                 .or_insert_with(Vec::new)
                 .push(file_record.clone());
 
-            // Extract basic symbols
-            Self::extract_symbols(&file_record.path, symbol_store)?;
+            // Extract symbols using language-specific extractors
+            LanguageExtractors::extract_symbols(&file_record.path, symbol_store)?;
         }
 
         Ok((file_records, files_by_language))
     }
 
-    /// Extract basic symbols from file.
-    fn extract_symbols(file_path: &PathBuf, symbol_store: &mut SymbolStore) -> Result<(), NTreeError> {
-        match crate::api::list_functions(file_path) {
-            Ok(functions) => {
-                for function in functions {
-                    let symbol = TopLevelSymbol::new(
-                        file_path.clone(),
-                        function.function.clone(),
-                        "function".to_string(),
-                        format!("{}::{}", file_path.display(), function.function),
-                        function.span.clone(),
-                    );
-                    symbol_store.add_symbol(symbol);
-                }
-                Ok(())
-            }
-            Err(_) => Ok(()), // Skip files that can't be analyzed
-        }
-    }
 
     /// Get workspace statistics.
     pub fn get_workspace_stats(file_records: &[FileRecord]) -> WorkspaceStats {
