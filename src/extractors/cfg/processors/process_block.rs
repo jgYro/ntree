@@ -26,6 +26,7 @@ pub fn process_block(
         }
 
         match child.kind() {
+            // Rust control flow
             "if_expression" => {
                 let exits = process_if(cfg, ctx, child, source, current);
                 if exits.is_empty() {
@@ -34,6 +35,39 @@ pub fn process_block(
                 current = handle_if_with_join(cfg, ctx, exits, current);
             }
             "while_expression" | "for_expression" => {
+                if let Some(new_current) = handle_loop_expression(cfg, ctx, child, source, current) {
+                    current = new_current;
+                } else {
+                    return vec![]; // Loop terminated
+                }
+            }
+            // Python control flow
+            "if_statement" => {
+                let exits = process_if(cfg, ctx, child, source, current);
+                if exits.is_empty() {
+                    return vec![];
+                }
+                current = handle_if_with_join(cfg, ctx, exits, current);
+            }
+            "try_statement" => {
+                // Process try/except as branching control flow
+                let try_id = ctx.alloc_id();
+                cfg.add_node(CfgNode::new(try_id, "try".to_string()));
+                cfg.add_edge(CfgEdge::new(current, try_id, "next".to_string()));
+
+                let except_id = ctx.alloc_id();
+                cfg.add_node(CfgNode::new(except_id, "except".to_string()));
+                cfg.add_edge(CfgEdge::new(try_id, except_id, "exception".to_string()));
+
+                // Both try and except paths merge after
+                let join_id = ctx.alloc_id();
+                cfg.add_node(CfgNode::new(join_id, "join".to_string()));
+                cfg.add_edge(CfgEdge::new(try_id, join_id, "success".to_string()));
+                cfg.add_edge(CfgEdge::new(except_id, join_id, "next".to_string()));
+
+                current = join_id;
+            }
+            "while_statement" | "for_statement" => {
                 if let Some(new_current) = handle_loop_expression(cfg, ctx, child, source, current) {
                     current = new_current;
                 } else {

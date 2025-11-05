@@ -78,10 +78,11 @@ pub fn get_statement_text(node: Node, source: &str) -> String {
     }
 }
 
-/// Check if node is a statement.
+/// Check if node is a statement (language-agnostic).
 pub fn is_statement_node(node: Node) -> bool {
     matches!(
         node.kind(),
+        // Rust statement types
         "let_declaration"
             | "expression_statement"
             | "return_expression"
@@ -93,5 +94,20 @@ pub fn is_statement_node(node: Node) -> bool {
             | "macro_invocation"
             | "try_expression"
             | "assignment_expression"
+        // Python statement types
+            | "if_statement"
+            | "try_statement"
+            | "while_statement"
+            | "for_statement"
+            | "with_statement"
+            | "import_statement"
+            | "return_statement"
+        // JavaScript/TypeScript statement types
+            | "function_declaration"
+            | "variable_declaration"
+        // Java statement types
+            | "method_declaration"
+        // C/C++ statement types
+            | "function_definition"
     )
 }

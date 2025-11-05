@@ -45,20 +45,25 @@ mod multi_language_tests {
 
     #[test]
     fn test_python_analysis() {
-        let python_file = "/Users/jerichogregory/Yro/projects/Maximus/NASH/Individual_Rust_Feats/nash/code/test.py";
+        let python_file = "/Users/jerichogregory/Yro/projects/Maximus/NASH/Individual_Rust_Feats/nash/code/crypto/https/https_request.py";
         let analysis = SourceCode::new(python_file)
             .expect("Valid file")
             .analyze()
             .expect("Analysis should succeed");
 
-        assert_eq!(analysis.functions().len(), 3);
-        assert_eq!(analysis.complexity().len(), 3);
+        // This file has 2 functions with try/except
+        assert_eq!(analysis.functions().len(), 2);
+        assert_eq!(analysis.complexity().len(), 2);
 
         let functions = analysis.functions();
         let names = functions.names();
-        assert!(names.contains(&"add"));
-        assert!(names.contains(&"multiply"));
-        assert!(names.contains(&"factorial"));
+        assert!(names.contains(&"make_https_request"));
+        assert!(names.contains(&"make_https_request_urllib"));
+
+        // Both functions should have complexity 2 due to try/except branching
+        for result in analysis.complexity().all() {
+            assert_eq!(result.cyclomatic, 2, "Python try/except should create complexity 2");
+        }
     }
 
     #[test]
