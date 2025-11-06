@@ -11,7 +11,7 @@ fn calculate() {
 }
 "#;
 
-    let mut temp_file = match NamedTempFile::new() {
+    let mut temp_file = match NamedTempFile::with_suffix(".rs") {
         Ok(f) => f,
         Err(_) => panic!("Failed to create temp file"),
     };
@@ -69,7 +69,7 @@ fn empty() {
 }
 "#;
 
-    let mut temp_file = match NamedTempFile::new() {
+    let mut temp_file = match NamedTempFile::with_suffix(".rs") {
         Ok(f) => f,
         Err(_) => panic!("Failed to create temp file"),
     };
@@ -118,7 +118,7 @@ fn process(x: i32) {
 }
 "#;
 
-    let mut temp_file = match NamedTempFile::new() {
+    let mut temp_file = match NamedTempFile::with_suffix(".rs") {
         Ok(f) => f,
         Err(_) => panic!("Failed to create temp file"),
     };
@@ -162,7 +162,7 @@ fn simple() {
 }
 "#;
 
-    let mut temp_file = match NamedTempFile::new() {
+    let mut temp_file = match NamedTempFile::with_suffix(".rs") {
         Ok(f) => f,
         Err(_) => panic!("Failed to create temp file"),
     };

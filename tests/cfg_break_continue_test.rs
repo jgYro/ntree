@@ -18,7 +18,7 @@ fn test_break() {
 }
 "#;
 
-    let mut temp_file = match NamedTempFile::new() {
+    let mut temp_file = match NamedTempFile::with_suffix(".rs") {
         Ok(f) => f,
         Err(_) => panic!("Failed to create temp file"),
     };
@@ -66,7 +66,7 @@ fn test_continue() {
 }
 "#;
 
-    let mut temp_file = match NamedTempFile::new() {
+    let mut temp_file = match NamedTempFile::with_suffix(".rs") {
         Ok(f) => f,
         Err(_) => panic!("Failed to create temp file"),
     };
@@ -121,7 +121,7 @@ fn test_nested_break_continue() {
 }
 "#;
 
-    let mut temp_file = match NamedTempFile::new() {
+    let mut temp_file = match NamedTempFile::with_suffix(".rs") {
         Ok(f) => f,
         Err(_) => panic!("Failed to create temp file"),
     };
@@ -183,7 +183,7 @@ fn test_multiple_breaks(values: &[i32]) {
 }
 "#;
 
-    let mut temp_file = match NamedTempFile::new() {
+    let mut temp_file = match NamedTempFile::with_suffix(".rs") {
         Ok(f) => f,
         Err(_) => panic!("Failed to create temp file"),
     };
@@ -239,7 +239,7 @@ fn test_complex_control() {
 }
 "#;
 
-    let mut temp_file = match NamedTempFile::new() {
+    let mut temp_file = match NamedTempFile::with_suffix(".rs") {
         Ok(f) => f,
         Err(_) => panic!("Failed to create temp file"),
     };

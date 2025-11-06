@@ -14,7 +14,7 @@ fn early_return(x: i32) -> i32 {
 }
 "#;
 
-    let mut temp_file = match NamedTempFile::new() {
+    let mut temp_file = match NamedTempFile::with_suffix(".rs") {
         Ok(f) => f,
         Err(_) => panic!("Failed to create temp file"),
     };
@@ -53,7 +53,7 @@ fn mid_return() {
 }
 "#;
 
-    let mut temp_file = match NamedTempFile::new() {
+    let mut temp_file = match NamedTempFile::with_suffix(".rs") {
         Ok(f) => f,
         Err(_) => panic!("Failed to create temp file"),
     };
@@ -104,7 +104,7 @@ fn stop_at_return() {
 }
 "#;
 
-    let mut temp_file = match NamedTempFile::new() {
+    let mut temp_file = match NamedTempFile::with_suffix(".rs") {
         Ok(f) => f,
         Err(_) => panic!("Failed to create temp file"),
     };
@@ -156,7 +156,7 @@ fn multi_return(x: i32) -> i32 {
 }
 "#;
 
-    let mut temp_file = match NamedTempFile::new() {
+    let mut temp_file = match NamedTempFile::with_suffix(".rs") {
         Ok(f) => f,
         Err(_) => panic!("Failed to create temp file"),
     };
@@ -195,7 +195,7 @@ fn return_value() -> i32 {
 }
 "#;
 
-    let mut temp_file = match NamedTempFile::new() {
+    let mut temp_file = match NamedTempFile::with_suffix(".rs") {
         Ok(f) => f,
         Err(_) => panic!("Failed to create temp file"),
     };

@@ -1,7 +1,6 @@
 use std::collections::HashMap;
-use std::path::PathBuf;
 use crate::core::NTreeError;
-use crate::storage::{FileRecord, TopLevelSymbol, DataSet};
+use crate::storage::FileRecord;
 use super::unified_analysis::AnalysisResult;
 use super::result_sets::{ComplexityResultSet, CfgResultSet};
 use super::function_results::{FunctionResultSet, BasicBlockResultSet};
@@ -74,20 +73,4 @@ impl AnalysisResult {
     }
 
 
-    /// Helper method to populate symbols from single file.
-    pub(super) fn populate_single_file_symbols(&mut self, file_path: &PathBuf) -> Result<(), NTreeError> {
-        use crate::storage::TopLevelSymbol;
-
-        for function in &self.function_data {
-            let symbol = TopLevelSymbol::new(
-                file_path.clone(),
-                function.function.clone(),
-                "function".to_string(),
-                format!("{}::{}", file_path.display(), function.function),
-                function.span.clone(),
-            );
-            self.symbol_store.add_symbol(symbol);
-        }
-        Ok(())
-    }
 }

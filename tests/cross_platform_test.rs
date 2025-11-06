@@ -38,7 +38,7 @@ mod cross_platform_tests {
 
     #[test]
     fn test_python_file_analysis() {
-        let python_file = "/Users/jerichogregory/Yro/projects/Maximus/NASH/Individual_Rust_Feats/nash/code/test.py";
+        let python_file = "test_samples/test_python_classes.py";
 
         let analysis = SourceCode::new(python_file)
             .expect("Valid Python file")
@@ -52,17 +52,11 @@ mod cross_platform_tests {
         assert!(!functions.all().is_empty(), "Should find Python functions");
         assert!(!complexity.all().is_empty(), "Should have complexity results");
 
-        // Check specific Python functions
-        let function_names = functions.names();
-        assert!(function_names.contains(&"add"));
-        assert!(function_names.contains(&"multiply"));
-        assert!(function_names.contains(&"factorial"));
-
-        // Verify complexity results
-        assert_eq!(complexity.len(), 3);
-        for result in complexity.all() {
-            assert!(result.cyclomatic >= 1, "Complexity should be at least 1");
-        }
+        // Check for Python class constructors
+        let symbols = analysis.symbols();
+        let search = symbols.named("__init__").regex(false);
+        let constructors = search.search().expect("Search should work");
+        assert!(!constructors.is_empty(), "Should find Python constructors");
     }
 
     #[test]
@@ -77,7 +71,7 @@ mod cross_platform_tests {
         assert!(!rust_jsonl.is_empty());
 
         // Test Python
-        let python_file = "/Users/jerichogregory/Yro/projects/Maximus/NASH/Individual_Rust_Feats/nash/code/test.py";
+        let python_file = "test_samples/test_python_classes.py";
         let python_analysis = SourceCode::new(python_file)
             .expect("Valid file")
             .analyze()

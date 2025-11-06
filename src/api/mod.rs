@@ -1,6 +1,7 @@
 pub mod analysis_runner;
 pub mod cfg;
 pub mod data_methods;
+pub mod dependency_extractors;
 pub mod export_utils;
 pub mod function_results;
 pub mod functions;
@@ -11,6 +12,7 @@ pub mod options;
 pub mod result_access;
 pub mod result_sets;
 pub mod source_code;
+pub mod symbol_extractors;
 pub mod symbol_methods;
 pub mod unified_analysis;
 pub mod workspace_methods;

@@ -12,7 +12,7 @@ impl WorkspaceMethods {
     /// Populate workspace data from file discovery.
     pub fn populate_workspace_data(
         workspace_path: &PathBuf,
-        options: &AnalysisOptions,
+        _options: &AnalysisOptions,
         symbol_store: &mut SymbolStore,
     ) -> Result<(Vec<FileRecord>, HashMap<String, Vec<FileRecord>>), NTreeError> {
         let walker = FileWalker::new(workspace_path);

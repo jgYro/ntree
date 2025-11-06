@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::{HashMap, HashSet};
 use super::module_graph::ModuleId;
 
 /// Cycle detection and topological sorting utilities.

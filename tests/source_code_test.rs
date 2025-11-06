@@ -15,7 +15,7 @@ mod source_code_tests {
         assert!(source_code.is_ok());
 
         let sc = source_code.unwrap();
-        assert_eq!(sc.file_path(), Path::new(get_test_file()));
+        assert_eq!(sc.path(), Path::new(get_test_file()));
         assert_eq!(sc.options(), &AnalysisOptions::default());
     }
 

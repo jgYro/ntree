@@ -6,12 +6,8 @@ use crate::analyzers::ComplexityResult;
 use crate::api::{CfgResult, BasicBlockResult};
 use crate::storage::{SymbolStore, FileRecord};
 use super::options::AnalysisOptions;
-use super::result_sets::{ComplexityResultSet, CfgResultSet};
-use super::function_results::{FunctionResultSet, BasicBlockResultSet};
-use super::symbol_methods::SymbolResultSet;
 use super::workspace_methods::{WorkspaceMethods, WorkspaceStats};
 use super::analysis_runner::AnalysisRunner;
-use super::export_utils::ExportUtils;
 /// Unified analysis results supporting both single file and workspace analysis.
 #[derive(Debug)]
 pub struct AnalysisResult {

@@ -2,7 +2,6 @@ use std::path::{Path, PathBuf};
 use std::collections::HashMap;
 use jwalk::{WalkDir, DirEntry};
 use crate::core::NTreeError;
-use crate::language::SupportedLanguage;
 use super::file_record::FileRecord;
 
 /// File walker that discovers source files and respects ignore patterns.
