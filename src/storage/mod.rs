@@ -1,8 +1,16 @@
 /// Storage backends for IR data and symbol tracking.
 
 pub mod constructor_detector;
+pub mod cycle_detector;
+pub mod data_export;
+pub mod dependency_analysis;
+pub mod dependency_edges;
+pub mod dependency_graph;
 pub mod file_record;
 pub mod file_walker;
+pub mod jsonl_exporter;
+pub mod module_graph;
+pub mod module_normalizer;
 pub mod parse_cache;
 pub mod sqlite_storage;
 pub mod symbol_core;
@@ -14,6 +22,13 @@ pub use file_walker::FileWalker;
 pub use parse_cache::{ParseCache, CacheKey, CachedParseResult, EXTRACTOR_VERSION};
 pub use sqlite_storage::SQLiteStorage;
 pub use constructor_detector::ConstructorDetector;
+pub use data_export::{DataSet, DataSetStats};
+pub use dependency_analysis::DependencyAnalysis;
+pub use dependency_edges::{ImportEdge, ExportEdge, ImportType, ExportType};
+pub use dependency_graph::DependencyGraph;
+pub use jsonl_exporter::JsonlExporter;
+pub use module_graph::{Module, ModuleId, ModuleEdge, ModuleType, EdgeKind};
+pub use module_normalizer::ModuleNormalizer;
 pub use symbol_core::{TopLevelSymbol, FunctionFacts, SymbolId, SymbolStoreStats};
 pub use symbol_search::{SymbolQuery, SymbolSearcher};
 pub use symbol_store::SymbolStore;

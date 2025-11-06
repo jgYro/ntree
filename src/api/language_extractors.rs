@@ -1,8 +1,8 @@
 use std::path::PathBuf;
 use crate::core::NTreeError;
 use crate::language::SupportedLanguage;
-use crate::storage::{SymbolStore, TopLevelSymbol};
-use crate::analyzers::language_specific::python::PythonSymbolExtractor;
+use crate::storage::{SymbolStore, TopLevelSymbol, ImportEdge, ExportEdge};
+use crate::analyzers::language_specific::python::{PythonSymbolExtractor, PythonImportExtractor};
 
 /// Language-aware symbol extraction utilities.
 pub struct LanguageExtractors;
@@ -19,6 +19,30 @@ impl LanguageExtractors {
                 // Use generic function extraction for other languages
                 Self::extract_generic_symbols(file_path, symbol_store)
             }
+        }
+    }
+
+    /// Extract imports and exports from file.
+    pub fn extract_dependencies(file_path: &PathBuf) -> Result<(Vec<ImportEdge>, Vec<ExportEdge>), NTreeError> {
+        match SupportedLanguage::from_path(file_path) {
+            Ok(SupportedLanguage::Python) => {
+                Self::extract_python_dependencies(file_path)
+            }
+            _ => {
+                // No import extraction implemented for other languages yet
+                Ok((Vec::new(), Vec::new()))
+            }
+        }
+    }
+
+    /// Extract Python dependencies (imports/exports).
+    fn extract_python_dependencies(file_path: &PathBuf) -> Result<(Vec<ImportEdge>, Vec<ExportEdge>), NTreeError> {
+        match crate::create_tree_from_file(file_path) {
+            Ok(root) => {
+                let source = std::fs::read_to_string(file_path)?;
+                PythonImportExtractor::extract_dependencies(root, &source, file_path)
+            }
+            Err(e) => Err(e),
         }
     }
 

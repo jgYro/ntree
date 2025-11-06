@@ -39,6 +39,10 @@ pub use storage::{
     FileRecord, ContentHash, FileWalker, ParseCache, CacheKey,
     TopLevelSymbol, FunctionFacts, SymbolStore, SymbolId,
     SymbolSearcher, ConstructorDetector,
+    // Module dependency graph
+    DependencyGraph, Module, ModuleId, ModuleEdge, ModuleType, EdgeKind,
+    DependencyAnalysis, ImportEdge, ExportEdge, ImportType, ExportType,
+    DataSet, JsonlExporter,
 };
 
 // Analyzer exports

@@ -1,5 +1,6 @@
 pub mod analysis_runner;
 pub mod cfg;
+pub mod data_methods;
 pub mod export_utils;
 pub mod function_results;
 pub mod functions;

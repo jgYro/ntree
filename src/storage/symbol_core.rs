@@ -58,18 +58,15 @@ impl TopLevelSymbol {
 /// Function-specific facts for detailed analysis.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FunctionFacts {
-    /// Reference to the symbol ID
     pub sym_id: SymbolId,
-    /// Function parameters
     pub params: Vec<String>,
-    /// Function span
     pub span: String,
-    /// Function body span
     pub body_span: Option<String>,
-    /// Cyclomatic complexity
     pub complexity: u32,
-    /// Number of lines of code
     pub loc: u32,
+    pub return_type: Option<String>,
+    pub is_async: bool,
+    pub is_private: bool,
 }
 
 impl FunctionFacts {
@@ -81,11 +78,14 @@ impl FunctionFacts {
     ) -> Self {
         FunctionFacts {
             sym_id: symbol.id.clone(),
-            params: Vec::new(), // TODO: Extract from function_span
+            params: Vec::new(), // TODO: Extract from AST
             span: function_span.span.clone(),
             body_span: function_span.body.clone(),
             complexity: complexity_result.cyclomatic,
-            loc: 0, // TODO: Calculate lines of code
+            loc: 0, // TODO: Calculate from span
+            return_type: None, // TODO: Extract from AST
+            is_async: false, // TODO: Detect from AST
+            is_private: symbol.name.starts_with('_'),
         }
     }
 }
