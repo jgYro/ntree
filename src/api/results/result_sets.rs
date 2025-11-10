@@ -1,11 +1,11 @@
 use crate::core::NTreeError;
 use crate::analyzers::ComplexityResult;
-use crate::api::CfgResult;
+use crate::api::analysis::CfgResult;
 
 /// Filtered view of complexity analysis results.
 #[derive(Debug)]
 pub struct ComplexityResultSet<'a> {
-    pub(super) data: &'a [ComplexityResult],
+    pub(crate) data: &'a [ComplexityResult],
 }
 
 impl<'a> ComplexityResultSet<'a> {
@@ -69,7 +69,7 @@ impl<'a> ComplexityResultSet<'a> {
 /// Filtered view of CFG analysis results.
 #[derive(Debug)]
 pub struct CfgResultSet<'a> {
-    pub(super) data: &'a [CfgResult],
+    pub(crate) data: &'a [CfgResult],
 }
 
 impl<'a> CfgResultSet<'a> {

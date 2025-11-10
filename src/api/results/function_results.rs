@@ -1,10 +1,10 @@
 use crate::models::FunctionSpan;
-use crate::api::BasicBlockResult;
+use crate::api::analysis::BasicBlockResult;
 
 /// Filtered view of function analysis results.
 #[derive(Debug)]
 pub struct FunctionResultSet<'a> {
-    pub(super) data: &'a [FunctionSpan],
+    pub(crate) data: &'a [FunctionSpan],
 }
 
 impl<'a> FunctionResultSet<'a> {
@@ -45,7 +45,7 @@ impl<'a> FunctionResultSet<'a> {
 /// Filtered view of basic block analysis results.
 #[derive(Debug)]
 pub struct BasicBlockResultSet<'a> {
-    pub(super) data: &'a [BasicBlockResult],
+    pub(crate) data: &'a [BasicBlockResult],
 }
 
 impl<'a> BasicBlockResultSet<'a> {

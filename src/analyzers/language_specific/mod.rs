@@ -12,6 +12,6 @@ pub use c::{CSymbolExtractor, CImportExtractor};
 pub use cpp::{CppSymbolExtractor, CppImportExtractor};
 pub use java::{JavaSymbolExtractor, JavaImportExtractor};
 pub use javascript::{JavaScriptSymbolExtractor, JavaScriptImportExtractor};
-pub use python::{PythonSymbolExtractor, PythonAstUtils, PythonImportExtractor};
-pub use rust::{RustEarlyExitAnalyzer, RustForLoopAnalyzer};
+pub use python::{PythonSymbolExtractor, PythonAstUtils, PythonImportExtractor, PythonCallExtractor};
+pub use rust::{RustSymbolExtractor, RustAstUtils, RustImportExtractor, RustCallExtractor, RustEarlyExitAnalyzer, RustForLoopAnalyzer};
 pub use typescript::{TypeScriptSymbolExtractor, TypeScriptImportExtractor};

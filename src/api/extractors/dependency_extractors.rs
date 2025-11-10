@@ -4,6 +4,7 @@ use crate::language::SupportedLanguage;
 use crate::storage::{ImportEdge, ExportEdge};
 use crate::analyzers::language_specific::{
     python::PythonImportExtractor,
+    rust::RustImportExtractor,
     javascript::JavaScriptImportExtractor,
     typescript::TypeScriptImportExtractor,
     java::JavaImportExtractor,
@@ -32,9 +33,9 @@ impl DependencyExtractors {
     /// Extract Rust dependencies.
     fn extract_rust_dependencies(file_path: &PathBuf) -> Result<(Vec<ImportEdge>, Vec<ExportEdge>), NTreeError> {
         match crate::create_tree_from_file(file_path) {
-            Ok(_root) => {
-                // TODO: Implement Rust import extraction (use statements, extern crate)
-                Ok((Vec::new(), Vec::new()))
+            Ok(root) => {
+                let source = std::fs::read_to_string(file_path)?;
+                RustImportExtractor::extract_dependencies(root, &source, file_path)
             }
             Err(_) => Ok((Vec::new(), Vec::new())),
         }

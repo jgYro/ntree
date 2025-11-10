@@ -1,6 +1,6 @@
 use std::path::{Path, PathBuf};
 use crate::core::NTreeError;
-use super::options::AnalysisOptions;
+use crate::api::analysis::AnalysisOptions;
 use super::unified_analysis::AnalysisResult;
 
 /// Builder for source code analysis with fluent configuration API.
@@ -9,6 +9,11 @@ pub struct SourceCode {
     path: PathBuf,
     is_workspace: bool,
     options: AnalysisOptions,
+    // Advanced analysis options (hidden from public API)
+    enable_incremental: bool,
+    enable_cha: bool,
+    enable_rta: bool,
+    enable_external_libs: bool,
 }
 
 impl SourceCode {
@@ -30,6 +35,10 @@ impl SourceCode {
             path: path_buf,
             is_workspace,
             options: AnalysisOptions::default(),
+            enable_incremental: false,
+            enable_cha: false,
+            enable_rta: false,
+            enable_external_libs: false,
         })
     }
 
@@ -106,5 +115,24 @@ impl SourceCode {
     /// Get the current analysis options.
     pub fn options(&self) -> &AnalysisOptions {
         &self.options
+    }
+
+    /// Enable incremental analysis for faster recomputation after edits.
+    pub fn with_incremental_analysis(mut self, enabled: bool) -> Self {
+        self.enable_incremental = enabled;
+        self
+    }
+
+    /// Enable advanced call resolution for OO/trait calls.
+    pub fn with_advanced_call_resolution(mut self, enabled: bool) -> Self {
+        self.enable_cha = enabled;
+        self.enable_rta = enabled;
+        self
+    }
+
+    /// Enable external library analysis and security scanning.
+    pub fn with_external_library_analysis(mut self, enabled: bool) -> Self {
+        self.enable_external_libs = enabled;
+        self
     }
 }

@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::path::PathBuf;
+use crate::core::NTreeError;
 use super::symbol_core::{SymbolId, TopLevelSymbol, FunctionFacts, SymbolStoreStats};
 
 /// Store for managing symbols and their relationships across files.
@@ -79,6 +80,27 @@ impl SymbolStore {
             .values()
             .filter(|symbol| symbol.name == name)
             .collect()
+    }
+
+    /// Find symbol by exact name (first match).
+    pub fn find_by_name(&self, name: &str) -> Result<SymbolId, NTreeError> {
+        for symbol in self.symbols.values() {
+            if symbol.name == name {
+                return Ok(symbol.id.clone());
+            }
+        }
+        Err(NTreeError::InvalidInput(format!("Symbol not found: {}", name)))
+    }
+
+    /// Find symbols matching a pattern.
+    pub fn find_symbols_matching(&self, pattern: &str) -> Result<Vec<SymbolId>, NTreeError> {
+        let mut matches = Vec::new();
+        for symbol in self.symbols.values() {
+            if symbol.name.contains(pattern) {
+                matches.push(symbol.id.clone());
+            }
+        }
+        Ok(matches)
     }
 
     /// Get statistics about the symbol store.

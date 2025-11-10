@@ -2,8 +2,8 @@ use std::path::PathBuf;
 use std::collections::HashMap;
 use crate::core::NTreeError;
 use crate::storage::{FileWalker, FileRecord, SymbolStore};
-use super::options::AnalysisOptions;
-use super::language_extractors::LanguageExtractors;
+use crate::api::analysis::options::AnalysisOptions;
+use crate::api::extractors::language_extractors::LanguageExtractors;
 
 /// Workspace-specific analysis methods.
 pub struct WorkspaceMethods;

@@ -1,7 +1,7 @@
 use crate::core::NTreeError;
 use crate::storage::DataSet;
-use super::unified_analysis::AnalysisResult;
-use super::language_extractors::LanguageExtractors;
+use crate::api::core::unified_analysis::AnalysisResult;
+use crate::api::extractors::language_extractors::LanguageExtractors;
 
 /// Data export methods for AnalysisResult.
 impl AnalysisResult {

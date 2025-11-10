@@ -1,9 +1,10 @@
 use std::path::PathBuf;
 use crate::core::NTreeError;
 use crate::language::SupportedLanguage;
-use crate::storage::{SymbolStore, TopLevelSymbol};
+use crate::storage::SymbolStore;
 use crate::analyzers::language_specific::{
     python::PythonSymbolExtractor,
+    rust::RustSymbolExtractor,
     javascript::JavaScriptSymbolExtractor,
     typescript::TypeScriptSymbolExtractor,
     java::JavaSymbolExtractor,
@@ -29,10 +30,19 @@ impl SymbolExtractors {
         }
     }
 
-    /// Extract Rust symbols.
+    /// Extract Rust symbols including impl methods.
     fn extract_rust_symbols(file_path: &PathBuf, symbol_store: &mut SymbolStore) -> Result<(), NTreeError> {
-        // TODO: Move to rust/symbol_extractor.rs for proper Rust-specific extraction
-        Self::extract_generic_symbols(file_path, symbol_store)
+        match crate::create_tree_from_file(file_path) {
+            Ok(root) => {
+                let source = std::fs::read_to_string(file_path)?;
+                let symbols = RustSymbolExtractor::extract_symbols(root, &source, file_path)?;
+                for symbol in symbols {
+                    symbol_store.add_symbol(symbol);
+                }
+                Ok(())
+            }
+            Err(_) => Ok(()),
+        }
     }
 
     /// Extract Python symbols including class methods.
@@ -125,23 +135,4 @@ impl SymbolExtractors {
         }
     }
 
-    /// Extract symbols using generic function extraction (fallback).
-    fn extract_generic_symbols(file_path: &PathBuf, symbol_store: &mut SymbolStore) -> Result<(), NTreeError> {
-        match crate::api::list_functions(file_path) {
-            Ok(functions) => {
-                for function in functions {
-                    let symbol = TopLevelSymbol::new(
-                        file_path.clone(),
-                        function.function.clone(),
-                        "function".to_string(),
-                        format!("{}::{}", file_path.display(), function.function),
-                        function.span.clone(),
-                    );
-                    symbol_store.add_symbol(symbol);
-                }
-                Ok(())
-            }
-            Err(_) => Ok(()),
-        }
-    }
 }

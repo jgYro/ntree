@@ -2,7 +2,7 @@ use std::path::PathBuf;
 use crate::core::NTreeError;
 use crate::models::FunctionSpan;
 use crate::analyzers::{ComplexityResult, ComplexityAnalyzer};
-use crate::api::{CfgResult, BasicBlockResult, generate_cfg_ir};
+use crate::api::analysis::{CfgResult, BasicBlockResult, generate_cfg_ir};
 
 /// Internal module for running individual analyses.
 pub struct AnalysisRunner;
@@ -30,7 +30,7 @@ impl AnalysisRunner {
 
     /// Run CFG generation if enabled.
     pub fn run_cfg_generation(file_path: &PathBuf) -> Result<Vec<CfgResult>, NTreeError> {
-        match crate::api::generate_cfgs(file_path) {
+        match crate::api::analysis::generate_cfgs(file_path) {
             Ok(cfgs) => Ok(cfgs),
             Err(e) => Err(e),
         }
@@ -38,7 +38,7 @@ impl AnalysisRunner {
 
     /// Run basic block generation if enabled.
     pub fn run_basic_block_generation(file_path: &PathBuf) -> Result<Vec<BasicBlockResult>, NTreeError> {
-        match crate::api::generate_basic_blocks(file_path) {
+        match crate::api::analysis::generate_basic_blocks(file_path) {
             Ok(blocks) => Ok(blocks),
             Err(e) => Err(e),
         }
@@ -46,7 +46,7 @@ impl AnalysisRunner {
 
     /// Run function extraction.
     pub fn run_function_extraction(file_path: &PathBuf) -> Result<Vec<FunctionSpan>, NTreeError> {
-        match crate::api::list_functions(file_path) {
+        match crate::api::results::list_functions(file_path) {
             Ok(functions) => Ok(functions),
             Err(e) => Err(e),
         }

@@ -11,6 +11,11 @@ impl SymbolId {
         SymbolId(format!("{}::{}", file_path.display(), symbol_name))
     }
 
+    /// Create a symbol ID from a string (for testing).
+    pub fn from_string(id: String) -> Self {
+        SymbolId(id)
+    }
+
     /// Get the string representation.
     pub fn as_str(&self) -> &str {
         &self.0

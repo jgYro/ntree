@@ -20,15 +20,12 @@ pub use models::{
 // Export format exports
 pub use export::{export_mermaid, export_mermaid_validated, export_jsonl, validate_mermaid, escape_mermaid_label};
 
-// API exports
+// Simple public API
+pub use api::{SourceCode, AnalysisResult};
+
+// Essential functions for existing tests (not part of main API)
 pub use api::{
-    functions_to_jsonl, generate_basic_blocks, generate_cfg_ir, generate_cfg_ir_jsonl,
-    generate_cfgs, generate_cfgs_v2, items_to_jsonl, list_functions, list_top_level_items,
-    BasicBlockResult, CfgResult,
-    // Unified API
-    SourceCode, AnalysisResult, AnalysisOptions,
-    ComplexityResultSet, CfgResultSet, FunctionResultSet, BasicBlockResultSet,
-    WorkspaceStats,
+    generate_basic_blocks, generate_cfgs, items_to_jsonl, list_top_level_items,
 };
 
 // Language exports
@@ -42,7 +39,20 @@ pub use storage::{
     // Module dependency graph
     DependencyGraph, Module, ModuleId, ModuleEdge, ModuleType, EdgeKind,
     DependencyAnalysis, ImportEdge, ExportEdge, ImportType, ExportType,
-    DataSet, JsonlExporter,
+    DataSet, JsonlExporter, ModuleNormalizer,
+    // Global symbol table
+    NameResolver, NameBinding, ResolutionOrigin, ExportTable,
+    // Interprocedural CFG
+    InterproceduralCFG, InterproceduralEdge, InterproceduralEdgeKind,
+    CallSiteSummary, EntryPoint, ReachabilityInfo, FunctionExit,
+    ExceptionalEdge, ExceptionExitKind,
+    // Incremental & cache
+    IncrementalCache, FuncSummary, EffectKind, ThrowsKind, ParamSummary, ReturnSummary, InvalidationEngine,
+    // Call resolution
+    ClassHierarchyAnalyzer, RapidTypeAnalyzer, TypeInstantiated, Resolution,
+    ResolutionAlgorithm, CallSiteId,
+    // External libraries
+    ExternalLibraryHandler, ExternalSummary, TaintKind, ContractSpec, SecurityRiskLevel, DependencyIndexer,
 };
 
 // Analyzer exports

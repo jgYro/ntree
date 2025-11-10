@@ -19,6 +19,7 @@ ntree = "0.1.0"
 - **Language Agnostic**: Support for Rust, Python, JavaScript, TypeScript, Java, C, C++
 - **Regex Pattern Matching**: Powerful symbol search with parameterized queries
 - **Control Flow Graphs**: Generate CFGs with proper exception handling (try/catch)
+- **Interprocedural Analysis**: Cross-function control flow, reachability, and exception handling
 - **Complexity Analysis**: Calculate cyclomatic complexity and detect unreachable code
 - **Multiple Export Formats**: JSONL, Mermaid diagrams, structured data
 - **Builder Pattern**: Fluent, discoverable API with method chaining
@@ -146,6 +147,50 @@ let local_constructors = analysis.symbols()
     .search()?;
 ```
 
+### Advanced Analysis (Incremental, Interprocedural, External Libraries)
+
+```rust
+use ntree::SourceCode;
+
+// Enable advanced features through simple builder methods
+let analysis = SourceCode::new("src/")?
+    .search_workspace(true)
+    .with_incremental_analysis(true)
+    .with_advanced_call_resolution(true)  // Enables CHA/RTA
+    .with_external_library_analysis(true) // Security & dependency analysis
+    .analyze()?;
+
+// Access advanced results through unified interface
+let interproc = analysis.interprocedural();
+let stats = interproc.call_stats();
+println!("Call graph: {} functions, {} call sites, {} unreachable",
+         stats.total_functions, stats.total_call_sites, stats.unresolved_calls);
+
+// Find dead code
+let unreachable = interproc.unreachable_functions();
+println!("Dead code functions: {:?}", unreachable);
+
+// Entry points (main, tests, etc.)
+let entries = interproc.entry_points();
+println!("Program entry points: {:?}", entries);
+
+// Incremental analysis performance
+let incremental = analysis.incremental();
+let metrics = incremental.performance_metrics();
+println!("Performance: {:.1}% cache hit, {} functions recomputed",
+         incremental.cache_hit_ratio() * 100.0, metrics.recomputed_functions);
+
+// External library and security analysis
+let external = analysis.external_libraries();
+let security = external.security_analysis();
+println!("Security: {} taint sources, {} sinks, {} vulnerabilities",
+         security.taint_sources.len(), security.taint_sinks.len(),
+         security.potential_vulnerabilities.len());
+
+let libs = external.referenced_libraries();
+println!("External libraries: {:?}", libs);
+```
+
 ## Configuration Options
 
 The `SourceCode` builder supports these configuration methods:
@@ -159,6 +204,11 @@ The `SourceCode` builder supports these configuration methods:
 
 **Workspace Configuration:**
 - `.search_workspace(bool)` - Enable/disable workspace-wide analysis
+
+**Advanced Analysis Configuration:**
+- `.with_incremental_analysis(bool)` - Enable file-level caching for fast recomputation
+- `.with_advanced_call_resolution(bool)` - Enable CHA/RTA for precise OO/trait calls
+- `.with_external_library_analysis(bool)` - Enable security analysis and dependency scanning
 
 **Presets:**
 - `.minimal()` - Only complexity and CFG analysis
@@ -297,6 +347,11 @@ Example for a function with complexity 3 and unreachable blocks:
 - `SourceCode::analyze()` - Execute configured analyses
 - `AnalysisResult` - Unified container for all analysis results
 
+### Advanced Analysis Access (through AnalysisResult methods)
+- `.interprocedural()` - Summary edges, reachability, call graph analysis
+- `.incremental()` - Cache performance, dependency impact analysis
+- `.external_libraries()` - Security analysis, external dependencies
+
 ### Configuration Methods
 - `.with_complexity_analysis(bool)` - Configure complexity analysis
 - `.with_cfg_generation(bool)` - Configure CFG generation
@@ -324,6 +379,11 @@ Example for a function with complexity 3 and unreachable blocks:
 - `CfgResult` - CFG with Mermaid and JSONL representations
 - `TopLevelSymbol` - Cross-file symbol information
 - `WorkspaceStats` - Statistics about workspace analysis
+- `InterproceduralResult` - Cross-function analysis results
+- `InterproceduralEdge` - Call/return edges between functions
+- `CallSiteSummary` - Entry/exit mapping for function calls
+- `ReachabilityInfo` - Function reachability from entry points
+- `ExceptionalEdge` - Exception propagation between functions
 
 ## Error Handling
 

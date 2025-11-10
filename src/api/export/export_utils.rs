@@ -1,6 +1,6 @@
 use crate::core::NTreeError;
 use crate::analyzers::ComplexityResult;
-use crate::api::{CfgResult, BasicBlockResult};
+use crate::api::analysis::{CfgResult, BasicBlockResult};
 
 /// Utilities for exporting analysis results to various formats.
 pub struct ExportUtils;

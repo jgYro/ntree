@@ -8,6 +8,8 @@ pub enum NTreeError {
     IoError(io::Error),
     /// Parsing-related errors (invalid syntax, language setup, etc.)
     ParseError(String),
+    /// Invalid input or configuration
+    InvalidInput(String),
 }
 
 impl fmt::Display for NTreeError {
@@ -15,6 +17,7 @@ impl fmt::Display for NTreeError {
         match self {
             NTreeError::IoError(e) => write!(f, "IO Error: {}", e),
             NTreeError::ParseError(msg) => write!(f, "Parse Error: {}", msg),
+            NTreeError::InvalidInput(msg) => write!(f, "Invalid Input: {}", msg),
         }
     }
 }

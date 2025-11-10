@@ -3,25 +3,28 @@ use std::collections::HashMap;
 use crate::core::NTreeError;
 use crate::models::FunctionSpan;
 use crate::analyzers::ComplexityResult;
-use crate::api::{CfgResult, BasicBlockResult};
-use crate::storage::{SymbolStore, FileRecord};
-use super::options::AnalysisOptions;
-use super::workspace_methods::{WorkspaceMethods, WorkspaceStats};
-use super::analysis_runner::AnalysisRunner;
+use crate::api::analysis::{CfgResult, BasicBlockResult};
+use crate::storage::{SymbolStore, FileRecord, CallGraph, NameResolver};
+use crate::api::analysis::AnalysisOptions;
+use crate::api::results::workspace_methods::{WorkspaceMethods, WorkspaceStats};
+use crate::api::analysis::analysis_runner::AnalysisRunner;
 /// Unified analysis results supporting both single file and workspace analysis.
 #[derive(Debug)]
 pub struct AnalysisResult {
     // Analysis data (always present) - accessible to result methods
-    pub(super) complexity_data: Vec<ComplexityResult>,
-    pub(super) cfg_data: Vec<CfgResult>,
-    pub(super) basic_block_data: Vec<BasicBlockResult>,
-    pub(super) function_data: Vec<FunctionSpan>,
+    pub(crate) complexity_data: Vec<ComplexityResult>,
+    pub(crate) cfg_data: Vec<CfgResult>,
+    pub(crate) basic_block_data: Vec<BasicBlockResult>,
+    pub(crate) function_data: Vec<FunctionSpan>,
     // Symbol and workspace data
-    pub(super) symbol_store: SymbolStore,
-    pub(super) file_records: Vec<FileRecord>,
-    pub(super) files_by_language: HashMap<String, Vec<FileRecord>>,
-    pub(super) workspace_stats: Option<WorkspaceStats>,
-    pub(super) is_workspace_mode: bool,
+    pub(crate) symbol_store: SymbolStore,
+    pub(crate) file_records: Vec<FileRecord>,
+    pub(crate) files_by_language: HashMap<String, Vec<FileRecord>>,
+    pub(crate) workspace_stats: Option<WorkspaceStats>,
+    pub(crate) is_workspace_mode: bool,
+    // Call graph and resolution data
+    pub(crate) call_graph: CallGraph,
+    pub(crate) name_resolver: Option<NameResolver>,
 }
 
 impl AnalysisResult {
@@ -50,6 +53,8 @@ impl AnalysisResult {
             files_by_language: HashMap::new(),
             workspace_stats: None,
             is_workspace_mode: false,
+            call_graph: CallGraph::new(),
+            name_resolver: None,
         };
 
         // Run single file analyses
@@ -67,7 +72,7 @@ impl AnalysisResult {
             result.basic_block_data = AnalysisRunner::run_basic_block_generation(&file_path)?;
         }
         // Extract symbols using language-specific extractors
-        use super::language_extractors::LanguageExtractors;
+        use crate::api::extractors::language_extractors::LanguageExtractors;
         LanguageExtractors::extract_symbols(&file_path, &mut result.symbol_store)?;
         Ok(result)
     }
@@ -83,6 +88,8 @@ impl AnalysisResult {
             files_by_language: HashMap::new(),
             workspace_stats: None,
             is_workspace_mode: true,
+            call_graph: CallGraph::new(),
+            name_resolver: None,
         };
 
         // Workspace analysis
