@@ -1,9 +1,11 @@
 use std::path::PathBuf;
 use std::collections::HashMap;
 use crate::core::NTreeError;
-use crate::storage::{FileWalker, FileRecord, SymbolStore};
+use crate::storage::{FileWalker, FileRecord, SymbolStore, NameResolver, InterproceduralCFG};
 use crate::api::analysis::options::AnalysisOptions;
 use crate::api::extractors::language_extractors::LanguageExtractors;
+use crate::analyzers::{WorkspaceDataFlowAnalyzer, WorkspaceDataFlowResult};
+use crate::models::{DataFlowGraph, VariableLifecycleSet, DefUseChainSet, DecisionTreeSet};
 
 /// Workspace-specific analysis methods.
 pub struct WorkspaceMethods;
@@ -35,6 +37,34 @@ impl WorkspaceMethods {
         Ok((file_records, files_by_language))
     }
 
+    /// Perform workspace-wide data flow analysis using existing infrastructure.
+    pub fn analyze_workspace_data_flow(
+        workspace_path: &PathBuf,
+        options: &AnalysisOptions,
+        file_records: &[FileRecord],
+        symbol_store: &SymbolStore,
+    ) -> Result<Option<WorkspaceDataFlowResult>, NTreeError> {
+        // Only run if data flow analysis is enabled
+        if !options.data_flow_analysis && !options.variable_lifecycle_tracking && !options.def_use_chains {
+            return Ok(None);
+        }
+
+        // Create minimal interprocedural CFG and name resolver for data flow analysis
+        let interprocedural_cfg = InterproceduralCFG::new();
+        let name_resolver = NameResolver::new();
+
+        // Use workspace data flow analyzer
+        let mut analyzer = WorkspaceDataFlowAnalyzer::new();
+        let result = analyzer.analyze_workspace(
+            workspace_path,
+            file_records,
+            symbol_store,
+            &name_resolver,
+            &interprocedural_cfg,
+        )?;
+
+        Ok(Some(result))
+    }
 
     /// Get workspace statistics.
     pub fn get_workspace_stats(file_records: &[FileRecord]) -> WorkspaceStats {

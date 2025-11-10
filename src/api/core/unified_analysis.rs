@@ -16,6 +16,12 @@ pub struct AnalysisResult {
     pub(crate) cfg_data: Vec<CfgResult>,
     pub(crate) basic_block_data: Vec<BasicBlockResult>,
     pub(crate) function_data: Vec<FunctionSpan>,
+    // Data flow analysis results
+    pub(crate) data_flow_graphs: Vec<crate::models::DataFlowGraph>,
+    pub(crate) variable_lifecycles: crate::models::VariableLifecycleSet,
+    pub(crate) def_use_chains: crate::models::DefUseChainSet,
+    pub(crate) decision_trees: crate::models::DecisionTreeSet,
+    pub(crate) cross_file_variables: Vec<crate::analyzers::CrossFileVariable>,
     // Symbol and workspace data
     pub(crate) symbol_store: SymbolStore,
     pub(crate) file_records: Vec<FileRecord>,
@@ -48,6 +54,11 @@ impl AnalysisResult {
             cfg_data: Vec::new(),
             basic_block_data: Vec::new(),
             function_data: Vec::new(),
+            data_flow_graphs: Vec::new(),
+            variable_lifecycles: crate::models::VariableLifecycleSet::new(),
+            def_use_chains: crate::models::DefUseChainSet::new(),
+            decision_trees: crate::models::DecisionTreeSet::new(),
+            cross_file_variables: Vec::new(),
             symbol_store: SymbolStore::new(),
             file_records: Vec::new(),
             files_by_language: HashMap::new(),
@@ -71,6 +82,19 @@ impl AnalysisResult {
         if options.basic_blocks {
             result.basic_block_data = AnalysisRunner::run_basic_block_generation(&file_path)?;
         }
+
+        // Data flow analyses for single file
+        if options.data_flow_analysis {
+            result.data_flow_graphs = AnalysisRunner::run_data_flow_analysis(&file_path)?;
+        }
+
+        if options.variable_lifecycle_tracking {
+            result.variable_lifecycles = AnalysisRunner::run_variable_lifecycle_analysis(
+                &file_path,
+                &result.data_flow_graphs,
+            )?;
+        }
+
         // Extract symbols using language-specific extractors
         use crate::api::extractors::language_extractors::LanguageExtractors;
         LanguageExtractors::extract_symbols(&file_path, &mut result.symbol_store)?;
@@ -83,6 +107,11 @@ impl AnalysisResult {
             cfg_data: Vec::new(),
             basic_block_data: Vec::new(),
             function_data: Vec::new(),
+            data_flow_graphs: Vec::new(),
+            variable_lifecycles: crate::models::VariableLifecycleSet::new(),
+            def_use_chains: crate::models::DefUseChainSet::new(),
+            decision_trees: crate::models::DecisionTreeSet::new(),
+            cross_file_variables: Vec::new(),
             symbol_store: SymbolStore::new(),
             file_records: Vec::new(),
             files_by_language: HashMap::new(),
@@ -101,6 +130,21 @@ impl AnalysisResult {
         result.file_records = files;
         result.files_by_language = by_lang;
         result.workspace_stats = Some(WorkspaceMethods::get_workspace_stats(&result.file_records));
+
+        // Workspace data flow analysis (if enabled)
+        if let Some(workspace_data_flow) = WorkspaceMethods::analyze_workspace_data_flow(
+            &workspace_path,
+            &options,
+            &result.file_records,
+            &result.symbol_store,
+        )? {
+            result.data_flow_graphs = workspace_data_flow.data_flow_graphs;
+            result.variable_lifecycles = workspace_data_flow.variable_lifecycles;
+            result.def_use_chains = workspace_data_flow.def_use_chains;
+            result.decision_trees = workspace_data_flow.decision_trees;
+            result.cross_file_variables = workspace_data_flow.cross_file_variables;
+        }
+
         Ok(result)
     }
 }

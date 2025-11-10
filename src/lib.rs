@@ -15,6 +15,12 @@ pub use models::{
     BasicBlock, BasicBlockEdge, BasicBlockGraph, CFGEdgeIR, CFGNodeIR, CfgEdge, CfgNode,
     ControlFlowGraph, EarlyExitIR, EarlyExitKind, ForLoopIR, FunctionCFGIR, FunctionSpan,
     LoopKind, TopLevelItem,
+    // Data flow analysis types
+    DataFlowGraph, DataFlowNode, DataDependencyEdge, DependencyType, VariableDefinition,
+    VariableLifecycle, VariableLifecycleSet, VariableEvent, VariableEventType, VariableScope,
+    DefUseChain, DefUseChainSet, DefUseSite, DefUseSiteType,
+    DecisionTree, DecisionTreeSet, DecisionTreeNode, DecisionAction, DecisionBranch,
+    DecisionCondition, DecisionPath, VariableState, ActionType, BranchType, ConditionOperator,
 };
 
 // Export format exports
@@ -53,9 +59,13 @@ pub use storage::{
     ResolutionAlgorithm, CallSiteId,
     // External libraries
     ExternalLibraryHandler, ExternalSummary, TaintKind, ContractSpec, SecurityRiskLevel, DependencyIndexer,
+    // Project detection
+    ProjectDetector, ProjectInfo, ProjectType,
 };
 
 // Analyzer exports
 pub use analyzers::{
     ComplexityAnalyzer, ComplexityResult, EarlyExitNormalizer, ForLoopNormalizer,
+    DataFlowAnalyzer, VariableLifecycleAnalyzer,
+    WorkspaceDataFlowAnalyzer, WorkspaceDataFlowResult, CrossFileVariable,
 };

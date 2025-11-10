@@ -1,4 +1,5 @@
 pub mod advanced_result_sets;
+pub mod data_flow_result_sets;
 pub mod data_methods;
 pub mod function_results;
 pub mod functions;
@@ -11,6 +12,10 @@ pub mod workspace_methods;
 pub use advanced_result_sets::{
     InterproceduralResultSet, IncrementalResultSet, ExternalLibraryResultSet,
     CallGraphStats, AnalysisMetrics, ExternalCall, SecurityAnalysis,
+};
+pub use data_flow_result_sets::{
+    DataFlowResultSet, VariableLifecycleResultSet, DefUseChainResultSet, DecisionTreeResultSet,
+    CrossFileVariableResultSet,
 };
 pub use function_results::{BasicBlockResultSet, FunctionResultSet};
 pub use functions::list_functions;

@@ -13,6 +13,14 @@ pub struct AnalysisOptions {
     pub basic_blocks: bool,
     /// Enable workspace-wide search and analysis
     pub workspace_search: bool,
+    /// Enable data flow analysis
+    pub data_flow_analysis: bool,
+    /// Enable variable lifecycle tracking
+    pub variable_lifecycle_tracking: bool,
+    /// Enable decision tree mapping
+    pub decision_tree_mapping: bool,
+    /// Enable def-use chain analysis
+    pub def_use_chains: bool,
 }
 
 impl Default for AnalysisOptions {
@@ -25,6 +33,10 @@ impl Default for AnalysisOptions {
             loop_analysis: true,
             basic_blocks: true,
             workspace_search: false,
+            data_flow_analysis: true,
+            variable_lifecycle_tracking: true,
+            decision_tree_mapping: true,
+            def_use_chains: true,
         }
     }
 }
@@ -39,6 +51,10 @@ impl AnalysisOptions {
             loop_analysis: false,
             basic_blocks: false,
             workspace_search: false,
+            data_flow_analysis: false,
+            variable_lifecycle_tracking: false,
+            decision_tree_mapping: false,
+            def_use_chains: false,
         }
     }
 
@@ -51,6 +67,10 @@ impl AnalysisOptions {
             loop_analysis: false,
             basic_blocks: false,
             workspace_search: false,
+            data_flow_analysis: false,
+            variable_lifecycle_tracking: false,
+            decision_tree_mapping: false,
+            def_use_chains: false,
         }
     }
 
@@ -61,5 +81,9 @@ impl AnalysisOptions {
             || self.early_exit_analysis
             || self.loop_analysis
             || self.basic_blocks
+            || self.data_flow_analysis
+            || self.variable_lifecycle_tracking
+            || self.decision_tree_mapping
+            || self.def_use_chains
     }
 }

@@ -72,6 +72,30 @@ impl SourceCode {
         self
     }
 
+    /// Configure data flow analysis (enabled by default).
+    pub fn with_data_flow_analysis(mut self, enabled: bool) -> Self {
+        self.options.data_flow_analysis = enabled;
+        self
+    }
+
+    /// Configure variable lifecycle tracking (enabled by default).
+    pub fn with_variable_lifecycle_tracking(mut self, enabled: bool) -> Self {
+        self.options.variable_lifecycle_tracking = enabled;
+        self
+    }
+
+    /// Configure decision tree mapping (enabled by default).
+    pub fn with_decision_tree_mapping(mut self, enabled: bool) -> Self {
+        self.options.decision_tree_mapping = enabled;
+        self
+    }
+
+    /// Configure def-use chain analysis (enabled by default).
+    pub fn with_def_use_chains(mut self, enabled: bool) -> Self {
+        self.options.def_use_chains = enabled;
+        self
+    }
+
     /// Use minimal analysis configuration (only complexity and CFG).
     pub fn minimal(mut self) -> Self {
         self.options = AnalysisOptions::minimal();

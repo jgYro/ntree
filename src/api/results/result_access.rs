@@ -7,6 +7,7 @@ use super::function_results::{FunctionResultSet, BasicBlockResultSet};
 use super::symbol_methods::SymbolResultSet;
 use super::workspace_methods::WorkspaceStats;
 use super::advanced_result_sets::{InterproceduralResultSet, IncrementalResultSet, ExternalLibraryResultSet};
+use super::data_flow_result_sets::{DataFlowResultSet, VariableLifecycleResultSet, DefUseChainResultSet, DecisionTreeResultSet, CrossFileVariableResultSet};
 use crate::api::export::export_utils::ExportUtils;
 
 /// Implementation of result access methods for unified AnalysisResult.
@@ -112,6 +113,31 @@ impl AnalysisResult {
     /// Get external library analysis results.
     pub fn external_libraries(&self) -> ExternalLibraryResultSet {
         ExternalLibraryResultSet::new(self)
+    }
+
+    /// Get data flow analysis results.
+    pub fn data_flow(&self) -> DataFlowResultSet {
+        DataFlowResultSet::new(&self.data_flow_graphs)
+    }
+
+    /// Get variable lifecycle tracking results.
+    pub fn variables(&self) -> VariableLifecycleResultSet {
+        VariableLifecycleResultSet::new(&self.variable_lifecycles)
+    }
+
+    /// Get def-use chain analysis results.
+    pub fn def_use_chains(&self) -> DefUseChainResultSet {
+        DefUseChainResultSet::new(&self.def_use_chains)
+    }
+
+    /// Get decision tree mapping results.
+    pub fn decision_trees(&self) -> DecisionTreeResultSet {
+        DecisionTreeResultSet::new(&self.decision_trees)
+    }
+
+    /// Get cross-file variable analysis results (workspace mode only).
+    pub fn cross_file_variables(&self) -> CrossFileVariableResultSet {
+        CrossFileVariableResultSet::new(&self.cross_file_variables)
     }
 
 }
