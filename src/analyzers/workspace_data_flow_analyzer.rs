@@ -5,11 +5,10 @@ use crate::models::{
 };
 use crate::storage::{
     FileRecord, SymbolStore, ProjectDetector, ProjectInfo,
-    NameResolver, InterproceduralCFG, CallEdge,
+    NameResolver, InterproceduralCFG,
 };
 use crate::analyzers::{DataFlowAnalyzer, VariableLifecycleAnalyzer};
 use std::path::PathBuf;
-use std::collections::HashMap;
 
 /// Orchestrates workspace-wide data flow analysis using existing infrastructure.
 pub struct WorkspaceDataFlowAnalyzer {
