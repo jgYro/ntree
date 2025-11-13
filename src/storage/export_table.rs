@@ -1,9 +1,10 @@
 use super::module_graph::ModuleId;
 use super::symbol_core::SymbolId;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 /// Maps exported names to their symbol IDs within modules.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ExportTable {
     /// module_id -> exported_name -> symbol_id
     exports: HashMap<ModuleId, HashMap<String, SymbolId>>,

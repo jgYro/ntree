@@ -3,6 +3,7 @@ use crate::api::analysis::options::AnalysisOptions;
 use crate::api::extractors::language_extractors::LanguageExtractors;
 use crate::core::NTreeError;
 use crate::storage::{FileRecord, FileWalker, InterproceduralCFG, NameResolver, SymbolStore};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::PathBuf;
 
@@ -86,7 +87,7 @@ impl WorkspaceMethods {
 }
 
 /// Statistics about workspace analysis.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WorkspaceStats {
     pub total_files: usize,
     pub total_size: u64,

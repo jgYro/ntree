@@ -1,10 +1,11 @@
 use super::symbol_core::{FunctionFacts, SymbolId, SymbolStoreStats, TopLevelSymbol};
 use crate::core::NTreeError;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::PathBuf;
 
 /// Store for managing symbols and their relationships across files.
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct SymbolStore {
     symbols: HashMap<SymbolId, TopLevelSymbol>,
     functions: HashMap<SymbolId, FunctionFacts>,

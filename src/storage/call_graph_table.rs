@@ -1,9 +1,10 @@
 use super::call_edge::{CallConfidence, CallEdge};
 use super::symbol_core::SymbolId;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 /// Call graph table mapping callers to their call sites.
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct CallGraph {
     /// caller_sym -> list of call edges
     call_edges: HashMap<SymbolId, Vec<CallEdge>>,
@@ -79,7 +80,7 @@ impl CallGraph {
 }
 
 /// Call graph statistics.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CallGraphStats {
     pub total_call_sites: usize,
     pub direct_calls: usize,

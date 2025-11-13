@@ -6,10 +6,11 @@ use crate::api::results::workspace_methods::{WorkspaceMethods, WorkspaceStats};
 use crate::core::NTreeError;
 use crate::models::FunctionSpan;
 use crate::storage::{CallGraph, FileRecord, NameResolver, SymbolStore};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::PathBuf;
 /// Unified analysis results supporting both single file and workspace analysis.
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct AnalysisResult {
     // Analysis data (always present) - accessible to result methods
     pub(crate) complexity_data: Vec<ComplexityResult>,
@@ -180,5 +181,37 @@ impl AnalysisResult {
         }
 
         Ok(result)
+    }
+}
+
+impl AnalysisResult {
+    /// Export the entire analysis result to JSON.
+    pub fn to_json(&self) -> Result<String, NTreeError> {
+        serde_json::to_string_pretty(self).map_err(|e| {
+            NTreeError::ParseError(format!("Failed to serialize AnalysisResult to JSON: {}", e))
+        })
+    }
+
+    /// Import an analysis result from JSON.
+    pub fn from_json(json: &str) -> Result<Self, NTreeError> {
+        serde_json::from_str(json).map_err(|e| {
+            NTreeError::ParseError(format!("Failed to deserialize AnalysisResult from JSON: {}", e))
+        })
+    }
+
+    /// Save analysis result to a JSON file.
+    pub fn save_to_file<P: AsRef<std::path::Path>>(&self, path: P) -> Result<(), NTreeError> {
+        let json = self.to_json()?;
+        std::fs::write(path, json).map_err(|e| {
+            NTreeError::ParseError(format!("Failed to write analysis result to file: {}", e))
+        })
+    }
+
+    /// Load analysis result from a JSON file.
+    pub fn load_from_file<P: AsRef<std::path::Path>>(path: P) -> Result<Self, NTreeError> {
+        let json = std::fs::read_to_string(path).map_err(|e| {
+            NTreeError::ParseError(format!("Failed to read analysis result file: {}", e))
+        })?;
+        Self::from_json(&json)
     }
 }

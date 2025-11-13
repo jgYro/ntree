@@ -4,11 +4,12 @@ use super::module_graph::ModuleId;
 use super::name_binding::NameBinding;
 use super::symbol_core::SymbolId;
 use crate::core::NTreeError;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::PathBuf;
 
 /// Cross-file name resolver with confidence tracking.
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct NameResolver {
     export_table: ExportTable,
     /// file_path -> imported_alias -> (module_id, original_name)

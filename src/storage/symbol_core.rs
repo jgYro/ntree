@@ -96,7 +96,7 @@ impl FunctionFacts {
 }
 
 /// Statistics about the symbol store.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SymbolStoreStats {
     pub total_symbols: usize,
     pub total_functions: usize,

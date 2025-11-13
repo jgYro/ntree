@@ -16,7 +16,7 @@ pub struct WorkspaceDataFlowAnalyzer {
 }
 
 /// Results from workspace data flow analysis.
-#[derive(Debug)]
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct WorkspaceDataFlowResult {
     /// Data flow graphs for all functions across workspace
     pub data_flow_graphs: Vec<DataFlowGraph>,
@@ -31,7 +31,7 @@ pub struct WorkspaceDataFlowResult {
 }
 
 /// Represents a variable that crosses file boundaries.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct CrossFileVariable {
     /// Variable name
     pub name: String,
