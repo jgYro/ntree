@@ -15,13 +15,11 @@ pub use decision_tree::{
     ActionType, BranchType, ConditionOperator, DecisionAction, DecisionBranch, DecisionCondition,
     DecisionPath, DecisionTree, DecisionTreeNode, DecisionTreeSet, VariableState,
 };
-pub use def_use_chain::{
-    DefUseChain, DefUseChainSet, DefUseSite, DefUseSiteType,
-};
+pub use def_use_chain::{DefUseChain, DefUseChainSet, DefUseSite, DefUseSiteType};
 pub use function::FunctionSpan;
 pub use ir::{
-    BasicBlock, BasicBlockEdge, BasicBlockGraph, CFGEdgeIR, CFGNodeIR,
-    EarlyExitIR, EarlyExitKind, ForLoopIR, FunctionCFGIR, LoopKind,
+    BasicBlock, BasicBlockEdge, BasicBlockGraph, CFGEdgeIR, CFGNodeIR, EarlyExitIR, EarlyExitKind,
+    ForLoopIR, FunctionCFGIR, LoopKind,
 };
 pub use item::TopLevelItem;
 pub use variable_lifecycle::{

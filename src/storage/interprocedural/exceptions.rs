@@ -1,10 +1,8 @@
-use std::collections::HashMap;
+use super::types::{CallSiteSummary, ExceptionExitKind, ExceptionalEdge, FunctionExit};
 use crate::core::NTreeError;
 use crate::models::ControlFlowGraph;
 use crate::storage::SymbolId;
-use super::types::{
-    FunctionExit, ExceptionalEdge, ExceptionExitKind, CallSiteSummary
-};
+use std::collections::HashMap;
 
 /// Exception flow analyzer for interprocedural analysis.
 #[derive(Debug)]
@@ -24,14 +22,15 @@ impl ExceptionAnalyzer {
 
     /// Initialize function exit info.
     pub fn add_function(&mut self, symbol_id: SymbolId) {
-        self.function_exits.insert(symbol_id.clone(), FunctionExit::new(symbol_id));
+        self.function_exits
+            .insert(symbol_id.clone(), FunctionExit::new(symbol_id));
     }
 
     /// Generate exceptional control flow edges.
     pub fn generate_exceptional_edges(
         &mut self,
         function_cfgs: &HashMap<SymbolId, ControlFlowGraph>,
-        call_sites: &HashMap<usize, CallSiteSummary>
+        call_sites: &HashMap<usize, CallSiteSummary>,
     ) -> Result<(), NTreeError> {
         let function_syms: Vec<SymbolId> = function_cfgs.keys().cloned().collect();
         for function_sym in function_syms {
@@ -48,7 +47,7 @@ impl ExceptionAnalyzer {
     fn analyze_function_exceptions(
         &mut self,
         function_sym: SymbolId,
-        cfg: &ControlFlowGraph
+        cfg: &ControlFlowGraph,
     ) -> Result<(), NTreeError> {
         let mut function_exit = FunctionExit::new(function_sym.clone());
 
@@ -68,7 +67,10 @@ impl ExceptionAnalyzer {
     }
 
     /// Connect exceptional control flow across function boundaries.
-    fn connect_interprocedural_exceptions(&mut self, call_sites: &HashMap<usize, CallSiteSummary>) -> Result<(), NTreeError> {
+    fn connect_interprocedural_exceptions(
+        &mut self,
+        call_sites: &HashMap<usize, CallSiteSummary>,
+    ) -> Result<(), NTreeError> {
         for summary in call_sites.values() {
             if let Some(callee_exits) = self.function_exits.get(&summary.callee_sym) {
                 for (exception_kind, exit_nodes) in &callee_exits.exceptional_exit_nodes {
@@ -76,7 +78,7 @@ impl ExceptionAnalyzer {
                         match self.find_exception_handler(
                             summary.caller_sym.clone(),
                             summary.caller_node,
-                            exception_kind
+                            exception_kind,
                         ) {
                             Some(handler_node) => {
                                 let exc_edge = ExceptionalEdge::new(
@@ -86,10 +88,14 @@ impl ExceptionAnalyzer {
                                     summary.caller_sym.clone(),
                                 );
                                 self.exceptional_edges.push(exc_edge);
-                            },
+                            }
                             None => {
-                                if let Some(caller_exits) = self.function_exits.get(&summary.caller_sym) {
-                                    if let Some(caller_exc_exits) = caller_exits.exceptional_exit_nodes.get(exception_kind) {
+                                if let Some(caller_exits) =
+                                    self.function_exits.get(&summary.caller_sym)
+                                {
+                                    if let Some(caller_exc_exits) =
+                                        caller_exits.exceptional_exit_nodes.get(exception_kind)
+                                    {
                                         for &caller_exit in caller_exc_exits {
                                             let exc_edge = ExceptionalEdge::new(
                                                 exit_node,
@@ -111,9 +117,12 @@ impl ExceptionAnalyzer {
     }
 
     fn is_exception_node(&self, label: &str) -> bool {
-        label.contains("throw") || label.contains("raise") ||
-        label.contains("panic") || label.contains("?") ||
-        label.contains("unwrap") || label.contains("expect")
+        label.contains("throw")
+            || label.contains("raise")
+            || label.contains("panic")
+            || label.contains("?")
+            || label.contains("unwrap")
+            || label.contains("expect")
     }
 
     fn is_normal_exit(&self, label: &str) -> bool {
@@ -130,7 +139,12 @@ impl ExceptionAnalyzer {
         }
     }
 
-    fn find_exception_handler(&self, _caller_sym: SymbolId, _call_node: usize, _exception_kind: &ExceptionExitKind) -> Option<usize> {
+    fn find_exception_handler(
+        &self,
+        _caller_sym: SymbolId,
+        _call_node: usize,
+        _exception_kind: &ExceptionExitKind,
+    ) -> Option<usize> {
         None
     }
 

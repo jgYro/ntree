@@ -1,5 +1,5 @@
-use crate::models::{CfgNode, CfgEdge};
-use crate::export::{export_mermaid, export_jsonl, export_mermaid_validated};
+use crate::export::{export_jsonl, export_mermaid, export_mermaid_validated};
+use crate::models::{CfgEdge, CfgNode};
 
 /// Represents a complete Control Flow Graph.
 #[derive(Debug, Clone)]

@@ -1,7 +1,7 @@
+use super::file_record::ContentHash;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::PathBuf;
-use serde::{Deserialize, Serialize};
-use super::file_record::ContentHash;
 
 /// Version of the extractor for cache invalidation.
 pub const EXTRACTOR_VERSION: &str = "1.0.0";

@@ -74,8 +74,8 @@ impl CFGToIRConverter {
             if let Ok(node) = serde_json::from_str::<CFGNodeIR>(line) {
                 // Ensure we have a function for this node
                 if current_function.is_none()
-                    || current_function.as_ref().unwrap().function_name != node.func {
-
+                    || current_function.as_ref().unwrap().function_name != node.func
+                {
                     // Finish previous function if exists
                     if let Some(func) = current_function.take() {
                         functions.push(func);

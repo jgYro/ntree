@@ -80,7 +80,12 @@ impl RustEarlyExitAnalyzer {
             if child.kind() == "token_tree" {
                 let args_text = Self::extract_text(child, source);
                 // Remove parentheses and extract message
-                return Some(args_text.trim_start_matches('(').trim_end_matches(')').to_string());
+                return Some(
+                    args_text
+                        .trim_start_matches('(')
+                        .trim_end_matches(')')
+                        .to_string(),
+                );
             }
         }
 
@@ -88,7 +93,11 @@ impl RustEarlyExitAnalyzer {
     }
 
     /// Extract try operator from a regular statement containing ?.
-    fn extract_try_from_statement(stmt: Node, source: &str, exit_id: String) -> Option<EarlyExitIR> {
+    fn extract_try_from_statement(
+        stmt: Node,
+        source: &str,
+        exit_id: String,
+    ) -> Option<EarlyExitIR> {
         let text = Self::extract_text(stmt, source);
         // For statements like "let result = foo()?;", extract "foo()?"
         if let Some(question_pos) = text.find('?') {
@@ -97,13 +106,20 @@ impl RustEarlyExitAnalyzer {
                 let try_expr = &expr_part[equals_pos + 1..].trim();
                 return Some(EarlyExitIR::new_try_operator(exit_id, try_expr.to_string()));
             }
-            return Some(EarlyExitIR::new_try_operator(exit_id, expr_part.to_string()));
+            return Some(EarlyExitIR::new_try_operator(
+                exit_id,
+                expr_part.to_string(),
+            ));
         }
         None
     }
 
     /// Extract panic macro from a regular statement.
-    fn extract_panic_from_statement(stmt: Node, source: &str, exit_id: String) -> Option<EarlyExitIR> {
+    fn extract_panic_from_statement(
+        stmt: Node,
+        source: &str,
+        exit_id: String,
+    ) -> Option<EarlyExitIR> {
         let text = Self::extract_text(stmt, source);
         if text.starts_with("panic!") {
             let message = Self::extract_panic_message_from_text(&text);

@@ -1,16 +1,20 @@
-use std::path::PathBuf;
+use crate::analyzers::{
+    ComplexityAnalyzer, ComplexityResult, DataFlowAnalyzer, VariableLifecycleAnalyzer,
+};
+use crate::api::analysis::{generate_cfg_ir, BasicBlockResult, CfgResult};
 use crate::core::NTreeError;
 use crate::models::FunctionSpan;
-use crate::analyzers::{ComplexityResult, ComplexityAnalyzer, DataFlowAnalyzer, VariableLifecycleAnalyzer};
-use crate::api::analysis::{CfgResult, BasicBlockResult, generate_cfg_ir};
-use crate::models::{DataFlowGraph, VariableLifecycleSet, DefUseChainSet, DecisionTreeSet, ControlFlowGraph};
+use crate::models::{ControlFlowGraph, DataFlowGraph, VariableLifecycleSet};
+use std::path::PathBuf;
 
 /// Internal module for running individual analyses.
 pub struct AnalysisRunner;
 
 impl AnalysisRunner {
     /// Run complexity analysis on CFG IR data.
-    pub fn run_complexity_analysis(file_path: &PathBuf) -> Result<Vec<ComplexityResult>, NTreeError> {
+    pub fn run_complexity_analysis(
+        file_path: &PathBuf,
+    ) -> Result<Vec<ComplexityResult>, NTreeError> {
         // Generate CFG IR data if needed for complexity analysis
         let cfg_ir_results = match generate_cfg_ir(file_path) {
             Ok(results) => results,
@@ -22,7 +26,12 @@ impl AnalysisRunner {
         for cfg_ir in cfg_ir_results {
             match analyzer.analyze(&cfg_ir) {
                 Ok(result) => complexity_data.push(result),
-                Err(e) => return Err(NTreeError::ParseError(format!("Complexity analysis failed: {}", e))),
+                Err(e) => {
+                    return Err(NTreeError::ParseError(format!(
+                        "Complexity analysis failed: {}",
+                        e
+                    )))
+                }
             }
         }
 
@@ -38,7 +47,9 @@ impl AnalysisRunner {
     }
 
     /// Run basic block generation if enabled.
-    pub fn run_basic_block_generation(file_path: &PathBuf) -> Result<Vec<BasicBlockResult>, NTreeError> {
+    pub fn run_basic_block_generation(
+        file_path: &PathBuf,
+    ) -> Result<Vec<BasicBlockResult>, NTreeError> {
         match crate::api::analysis::generate_basic_blocks(file_path) {
             Ok(blocks) => Ok(blocks),
             Err(e) => Err(e),

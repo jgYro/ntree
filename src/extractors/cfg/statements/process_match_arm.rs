@@ -1,6 +1,6 @@
-use crate::models::{CfgEdge, CfgNode, ControlFlowGraph};
-use super::super::core::{CfgContext, get_statement_text, LabelNormalizer};
+use super::super::core::{get_statement_text, CfgContext, LabelNormalizer};
 use super::super::processors::process_block;
+use crate::models::{CfgEdge, CfgNode, ControlFlowGraph};
 use tree_sitter::Node;
 
 /// Process a single match arm and return exit points.
@@ -38,7 +38,10 @@ pub fn process_match_arm(
         Some(body_node) => {
             // Create arm start node
             let arm_start_id = ctx.alloc_id();
-            cfg.add_node(CfgNode::new(arm_start_id, LabelNormalizer::match_arm_label(&pattern_text)));
+            cfg.add_node(CfgNode::new(
+                arm_start_id,
+                LabelNormalizer::match_arm_label(&pattern_text),
+            ));
             cfg.add_edge(CfgEdge::new(dispatch_id, arm_start_id, pattern_text));
 
             // Process the arm body
@@ -48,7 +51,10 @@ pub fn process_match_arm(
         None => {
             // Expression arm (no block)
             let arm_id = ctx.alloc_id();
-            cfg.add_node(CfgNode::new(arm_id, LabelNormalizer::match_arm_label(&pattern_text)));
+            cfg.add_node(CfgNode::new(
+                arm_id,
+                LabelNormalizer::match_arm_label(&pattern_text),
+            ));
             cfg.add_edge(CfgEdge::new(dispatch_id, arm_id, pattern_text));
             vec![arm_id]
         }

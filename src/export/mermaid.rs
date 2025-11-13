@@ -43,7 +43,7 @@ pub fn validate_mermaid(mermaid: &str) -> Result<(), String> {
             // Extract content between brackets
             if let Some(start) = line.find('[') {
                 if let Some(end) = line.rfind(']') {
-                    let label = &line[start+1..end];
+                    let label = &line[start + 1..end];
 
                     // Check for problematic characters
                     if label.contains('\'') && !label.contains("&apos;") {
@@ -73,7 +73,10 @@ pub fn export_mermaid(cfg: &ControlFlowGraph) -> String {
             // Diamond shape for condition nodes
             let condition = label.trim_start_matches("if (").trim_end_matches(')');
             let escaped_condition = escape_mermaid_label(condition);
-            mermaid.push_str(&format!("    {}{{\"{}\"}}\n", node.cfg_node, escaped_condition));
+            mermaid.push_str(&format!(
+                "    {}{{\"{}\"}}\n",
+                node.cfg_node, escaped_condition
+            ));
         } else if label == "ENTRY" || label == "EXIT" {
             // Rounded rectangle for entry/exit
             mermaid.push_str(&format!("    {}([{}])\n", node.cfg_node, label));
@@ -90,22 +93,13 @@ pub fn export_mermaid(cfg: &ControlFlowGraph) -> String {
         // Use different arrow styles and labels for different edge types
         match edge.kind.as_str() {
             "true" => {
-                mermaid.push_str(&format!(
-                    "    {} -->|T| {}\n",
-                    edge.from, edge.to
-                ));
+                mermaid.push_str(&format!("    {} -->|T| {}\n", edge.from, edge.to));
             }
             "false" => {
-                mermaid.push_str(&format!(
-                    "    {} -->|F| {}\n",
-                    edge.from, edge.to
-                ));
+                mermaid.push_str(&format!("    {} -->|F| {}\n", edge.from, edge.to));
             }
             "exit" => {
-                mermaid.push_str(&format!(
-                    "    {} -.-> {}\n",
-                    edge.from, edge.to
-                ));
+                mermaid.push_str(&format!("    {} -.-> {}\n", edge.from, edge.to));
             }
             _ => {
                 // Regular next edges

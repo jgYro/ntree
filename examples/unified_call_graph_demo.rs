@@ -10,14 +10,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .analyze()?;
 
     println!("📊 Complete Analysis Results:");
-    println!("  Files: {}", analysis.files_by_language().map(|f| f.len()).unwrap_or(0));
+    println!(
+        "  Files: {}",
+        analysis.files_by_language().map(|f| f.len()).unwrap_or(0)
+    );
     println!("  Symbols: {}", analysis.symbol_count());
 
     // All functionality through single result object
     println!("\n🔍 Symbol Analysis:");
-    let constructors = analysis.symbols()
-        .named("^(new|__init__)$")
-        .regex(true);
+    let constructors = analysis.symbols().named("^(new|__init__)$").regex(true);
     let constructor_results = constructors.search()?;
     println!("  Constructors found: {}", constructor_results.len());
 

@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use crate::storage::SymbolId;
+use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 
 /// Effect types for function analysis.

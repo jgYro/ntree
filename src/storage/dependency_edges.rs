@@ -1,6 +1,6 @@
-use std::path::PathBuf;
-use serde::{Deserialize, Serialize};
 use super::symbol_core::SymbolId;
+use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
 
 /// Import relationship between files or modules.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]

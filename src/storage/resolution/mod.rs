@@ -4,4 +4,4 @@ pub mod types;
 
 pub use cha::ClassHierarchyAnalyzer;
 pub use rta::RapidTypeAnalyzer;
-pub use types::{TypeInstantiated, Resolution, ResolutionAlgorithm, CallSiteId};
+pub use types::{CallSiteId, Resolution, ResolutionAlgorithm, TypeInstantiated};

@@ -1,14 +1,13 @@
-use std::path::Path;
-use std::collections::HashMap;
-use crate::core::NTreeError;
-use crate::storage::{
-    InterproceduralCFG, SymbolStore, SymbolId,
-    InterproceduralEdge, CallSiteSummary, EntryPoint, ReachabilityInfo,
-    ExceptionalEdge, FunctionExit
-};
-use crate::models::ControlFlowGraph;
 use crate::api::analysis::AnalysisOptions;
 use crate::api::core::AnalysisResult;
+use crate::core::NTreeError;
+use crate::models::ControlFlowGraph;
+use crate::storage::{
+    CallSiteSummary, EntryPoint, ExceptionalEdge, FunctionExit, InterproceduralCFG,
+    InterproceduralEdge, ReachabilityInfo, SymbolId, SymbolStore,
+};
+use std::collections::HashMap;
+use std::path::Path;
 
 /// Results from interprocedural control flow analysis.
 #[derive(Debug)]
@@ -32,7 +31,8 @@ pub struct InterproceduralResult {
 impl InterproceduralResult {
     /// Get summary edges (call and return edges).
     pub fn get_summary_edges(&self) -> Vec<&InterproceduralEdge> {
-        self.interprocedural_cfg.get_interprocedural_edges()
+        self.interprocedural_cfg
+            .get_interprocedural_edges()
             .iter()
             .collect()
     }
@@ -202,8 +202,12 @@ fn build_interprocedural_cfg(
 
     // Generate summary edges if enabled
     if options.summary_edges {
-        let call_edges: Vec<_> = workspace_result.call_graph().get_all_call_edges()
-            .into_iter().cloned().collect();
+        let call_edges: Vec<_> = workspace_result
+            .call_graph()
+            .get_all_call_edges()
+            .into_iter()
+            .cloned()
+            .collect();
         interprocedural_cfg.generate_summary_edges(&call_edges, symbol_store)?;
     }
 
@@ -214,10 +218,8 @@ fn build_interprocedural_cfg(
 
     for entry_name in &options.manual_entry_points {
         if let Ok(symbol_id) = symbol_store.find_by_name(entry_name) {
-            interprocedural_cfg.add_entry_point(
-                symbol_id,
-                format!("Manual entry point: {}", entry_name),
-            )?;
+            interprocedural_cfg
+                .add_entry_point(symbol_id, format!("Manual entry point: {}", entry_name))?;
         }
     }
 
@@ -245,7 +247,7 @@ fn build_interprocedural_cfg(
 
 /// Create a placeholder CFG for demonstration.
 fn create_placeholder_cfg(function_name: &str) -> ControlFlowGraph {
-    use crate::models::{CfgNode, CfgEdge};
+    use crate::models::{CfgEdge, CfgNode};
 
     let entry = CfgNode::new(0, format!("entry: {}", function_name));
     let exit = CfgNode::new(1, format!("exit: {}", function_name));
@@ -257,8 +259,6 @@ fn create_placeholder_cfg(function_name: &str) -> ControlFlowGraph {
     }
 }
 
-
-
 /// Auto-detect common entry points.
 fn add_auto_detected_entries(
     interprocedural_cfg: &mut InterproceduralCFG,
@@ -266,8 +266,7 @@ fn add_auto_detected_entries(
 ) -> Result<(), NTreeError> {
     // Common entry point names
     let entry_names = vec![
-        "main",
-        "test_",  // Rust test prefix
+        "main", "test_",  // Rust test prefix
         "bench_", // Rust benchmark prefix
     ];
 
@@ -282,7 +281,7 @@ fn add_auto_detected_entries(
             };
 
             match interprocedural_cfg.add_entry_point(symbol_id, reason) {
-                Ok(_) => {},
+                Ok(_) => {}
                 Err(_) => continue, // Skip if CFG not found for this symbol
             }
         }

@@ -1,4 +1,7 @@
-use ntree::{functions_to_jsonl, generate_cfgs, list_functions, list_top_level_items, ComplexityAnalyzer, generate_cfg_ir};
+use ntree::{
+    functions_to_jsonl, generate_cfg_ir, generate_cfgs, list_functions, list_top_level_items,
+    ComplexityAnalyzer,
+};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("=== Legacy API Demo (still supported) ===\n");
@@ -10,7 +13,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     match list_top_level_items(test_file) {
         Ok(items) => {
             for item in items {
-                println!("   {:?}: {} at {}:{}",
+                println!(
+                    "   {:?}: {} at {}:{}",
                     item.kind,
                     item.identifier.unwrap_or_else(|| "unnamed".to_string()),
                     item.start_line,
@@ -24,17 +28,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // List functions using legacy API
     println!("\n2. Functions:");
     match list_functions(test_file) {
-        Ok(functions) => {
-            match functions_to_jsonl(&functions) {
-                Ok(jsonl) => {
-                    println!("   JSONL format:");
-                    for line in jsonl.lines() {
-                        println!("     {}", line);
-                    }
+        Ok(functions) => match functions_to_jsonl(&functions) {
+            Ok(jsonl) => {
+                println!("   JSONL format:");
+                for line in jsonl.lines() {
+                    println!("     {}", line);
                 }
-                Err(e) => eprintln!("Failed to convert functions to JSONL: {:?}", e),
             }
-        }
+            Err(e) => eprintln!("Failed to convert functions to JSONL: {:?}", e),
+        },
         Err(e) => eprintln!("Failed to parse functions: {:?}", e),
     }
 
@@ -55,8 +57,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     for cfg_ir in cfg_ir_results {
         match analyzer.analyze(&cfg_ir) {
             Ok(result) => {
-                println!("   {}: complexity {}, unreachable {:?}",
-                    result.function, result.cyclomatic, result.unreachable);
+                println!(
+                    "   {}: complexity {}, unreachable {:?}",
+                    result.function, result.cyclomatic, result.unreachable
+                );
             }
             Err(e) => eprintln!("   Complexity analysis failed: {}", e),
         }

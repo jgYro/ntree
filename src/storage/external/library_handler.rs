@@ -1,6 +1,6 @@
+use super::summary::ExternalSummary;
 use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
-use super::summary::ExternalSummary;
 
 /// Handler for external library analysis and stub generation.
 #[derive(Debug)]
@@ -34,8 +34,8 @@ impl ExternalLibraryHandler {
 
     /// Load Rust standard library summaries.
     fn load_rust_stdlib(&mut self) {
-        use super::summary::{TaintKind, ContractSpec};
         use super::super::incremental::func_summary::EffectKind;
+        use super::summary::{ContractSpec, TaintKind};
 
         let mut rust_summaries = HashMap::new();
 
@@ -54,48 +54,57 @@ impl ExternalLibraryHandler {
         rust_summaries.insert("panic!".to_string(), panic_summary);
 
         // Vec::new - pure allocation
-        let vec_new_summary = ExternalSummary::new("std::vec::Vec::new".to_string(), "std".to_string())
-            .with_effect(EffectKind::Allocation);
+        let vec_new_summary =
+            ExternalSummary::new("std::vec::Vec::new".to_string(), "std".to_string())
+                .with_effect(EffectKind::Allocation);
         rust_summaries.insert("Vec::new".to_string(), vec_new_summary);
 
-        self.stdlib_summaries.insert("rust".to_string(), rust_summaries);
+        self.stdlib_summaries
+            .insert("rust".to_string(), rust_summaries);
     }
 
     /// Load Python standard library summaries.
     fn load_python_stdlib(&mut self) {
-        use super::summary::{TaintKind, ContractSpec};
         use super::super::incremental::func_summary::EffectKind;
+        use super::summary::{ContractSpec, TaintKind};
 
         let mut python_summaries = HashMap::new();
 
         // print() - I/O operation
-        let print_summary = ExternalSummary::new("builtins.print".to_string(), "builtins".to_string())
-            .with_effect(EffectKind::IoOperation)
-            .with_taint(TaintKind::Sink);
+        let print_summary =
+            ExternalSummary::new("builtins.print".to_string(), "builtins".to_string())
+                .with_effect(EffectKind::IoOperation)
+                .with_taint(TaintKind::Sink);
         python_summaries.insert("print".to_string(), print_summary);
 
         // input() - I/O source
-        let input_summary = ExternalSummary::new("builtins.input".to_string(), "builtins".to_string())
-            .with_effect(EffectKind::IoOperation)
-            .with_taint(TaintKind::Source);
+        let input_summary =
+            ExternalSummary::new("builtins.input".to_string(), "builtins".to_string())
+                .with_effect(EffectKind::IoOperation)
+                .with_taint(TaintKind::Source);
         python_summaries.insert("input".to_string(), input_summary);
 
         // eval() - dangerous sink
-        let eval_summary = ExternalSummary::new("builtins.eval".to_string(), "builtins".to_string())
-            .with_effect(EffectKind::External)
-            .with_taint(TaintKind::Sink)
-            .may_not_terminate()
-            .with_contract(ContractSpec::new()
-                .with_precondition("Input should be sanitized".to_string())
-                .with_exception("Can raise any exception".to_string()));
+        let eval_summary =
+            ExternalSummary::new("builtins.eval".to_string(), "builtins".to_string())
+                .with_effect(EffectKind::External)
+                .with_taint(TaintKind::Sink)
+                .may_not_terminate()
+                .with_contract(
+                    ContractSpec::new()
+                        .with_precondition("Input should be sanitized".to_string())
+                        .with_exception("Can raise any exception".to_string()),
+                );
         python_summaries.insert("eval".to_string(), eval_summary);
 
-        self.stdlib_summaries.insert("python".to_string(), python_summaries);
+        self.stdlib_summaries
+            .insert("python".to_string(), python_summaries);
     }
 
     /// Add external library summary.
     pub fn add_summary(&mut self, summary: ExternalSummary) {
-        self.external_summaries.insert(summary.qualname.clone(), summary);
+        self.external_summaries
+            .insert(summary.qualname.clone(), summary);
     }
 
     /// Get summary for external function.

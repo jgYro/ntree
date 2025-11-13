@@ -1,4 +1,4 @@
-use ntree::generate_cfgs_v2;
+use ntree::generate_cfgs;
 use std::io::Write;
 use tempfile::NamedTempFile;
 
@@ -25,7 +25,7 @@ fn check_value(x: i32) {
         Err(_) => panic!("Failed to write to temp file"),
     }
 
-    let cfgs = match generate_cfgs_v2(temp_file.path()) {
+    let cfgs = match generate_cfgs(temp_file.path()) {
         Ok(c) => c,
         Err(e) => panic!("Failed to generate CFGs: {:?}", e),
     };
@@ -73,7 +73,7 @@ fn check_positive(x: i32) {
         Err(_) => panic!("Failed to write to temp file"),
     }
 
-    let cfgs = match generate_cfgs_v2(temp_file.path()) {
+    let cfgs = match generate_cfgs(temp_file.path()) {
         Ok(c) => c,
         Err(e) => panic!("Failed to generate CFGs: {:?}", e),
     };
@@ -93,7 +93,9 @@ fn check_positive(x: i32) {
 
     // Check that we have edges going to the join node
     // Find the join node ID first
-    let join_node_line = cfg.jsonl.lines()
+    let join_node_line = cfg
+        .jsonl
+        .lines()
         .find(|line| line.contains("\"label\":\"join\""))
         .expect("Should have a join node");
 
@@ -106,12 +108,18 @@ fn check_positive(x: i32) {
         .expect("Should parse join node ID");
 
     // Count edges going TO the join node
-    let to_join_count = cfg.jsonl.lines()
+    let to_join_count = cfg
+        .jsonl
+        .lines()
         .filter(|line| line.contains(&format!("\"to\":{}", join_id)))
         .count();
 
     // Should have at least 2 edges to join (true path and false path)
-    assert!(to_join_count >= 2, "Expected at least 2 edges to join node, got {}", to_join_count);
+    assert!(
+        to_join_count >= 2,
+        "Expected at least 2 edges to join node, got {}",
+        to_join_count
+    );
 }
 
 #[test]
@@ -138,7 +146,7 @@ fn classify(x: i32) -> &'static str {
         Err(_) => panic!("Failed to write to temp file"),
     }
 
-    let cfgs = match generate_cfgs_v2(temp_file.path()) {
+    let cfgs = match generate_cfgs(temp_file.path()) {
         Ok(c) => c,
         Err(e) => panic!("Failed to generate CFGs: {:?}", e),
     };
@@ -201,7 +209,7 @@ fn nested_check(x: i32, y: i32) {
         Err(_) => panic!("Failed to write to temp file"),
     }
 
-    let cfgs = match generate_cfgs_v2(temp_file.path()) {
+    let cfgs = match generate_cfgs(temp_file.path()) {
         Ok(c) => c,
         Err(e) => panic!("Failed to generate CFGs: {:?}", e),
     };
@@ -247,7 +255,7 @@ fn early_exit(x: i32) -> i32 {
         Err(_) => panic!("Failed to write to temp file"),
     }
 
-    let cfgs = match generate_cfgs_v2(temp_file.path()) {
+    let cfgs = match generate_cfgs(temp_file.path()) {
         Ok(c) => c,
         Err(e) => panic!("Failed to generate CFGs: {:?}", e),
     };

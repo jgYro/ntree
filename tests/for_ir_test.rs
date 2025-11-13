@@ -4,11 +4,8 @@ use ntree::{ForLoopIR, LoopKind};
 #[test]
 fn test_rust_for_iterator_ir() {
     // Test creating iterator-style IR directly
-    let iterator_ir = ForLoopIR::new_iterator(
-        "L1".to_string(),
-        "item".to_string(),
-        "items".to_string(),
-    );
+    let iterator_ir =
+        ForLoopIR::new_iterator("L1".to_string(), "item".to_string(), "items".to_string());
 
     // Verify IR structure
     assert_eq!(iterator_ir.loop_type, "Loop");

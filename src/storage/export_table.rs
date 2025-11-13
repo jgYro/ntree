@@ -1,6 +1,6 @@
-use std::collections::HashMap;
-use super::symbol_core::SymbolId;
 use super::module_graph::ModuleId;
+use super::symbol_core::SymbolId;
+use std::collections::HashMap;
 
 /// Maps exported names to their symbol IDs within modules.
 #[derive(Debug, Clone)]
@@ -18,12 +18,7 @@ impl ExportTable {
     }
 
     /// Add an exported symbol to a module.
-    pub fn add_export(
-        &mut self,
-        module_id: ModuleId,
-        exported_name: String,
-        symbol_id: SymbolId,
-    ) {
+    pub fn add_export(&mut self, module_id: ModuleId, exported_name: String, symbol_id: SymbolId) {
         self.exports
             .entry(module_id)
             .or_insert_with(HashMap::new)
@@ -31,11 +26,7 @@ impl ExportTable {
     }
 
     /// Find symbol ID for an exported name in a module.
-    pub fn resolve_export(
-        &self,
-        module_id: &ModuleId,
-        name: &str,
-    ) -> Option<&SymbolId> {
+    pub fn resolve_export(&self, module_id: &ModuleId, name: &str) -> Option<&SymbolId> {
         self.exports
             .get(module_id)
             .and_then(|module_exports| module_exports.get(name))
@@ -66,10 +57,7 @@ impl ExportTable {
     /// Get statistics about exports.
     pub fn stats(&self) -> ExportTableStats {
         let total_modules = self.exports.len();
-        let total_exports = self.exports
-            .values()
-            .map(|exports| exports.len())
-            .sum();
+        let total_exports = self.exports.values().map(|exports| exports.len()).sum();
 
         ExportTableStats {
             modules_with_exports: total_modules,

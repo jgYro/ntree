@@ -1,8 +1,8 @@
-use std::path::{Path, PathBuf};
-use std::collections::HashMap;
-use crate::core::NTreeError;
-use super::file_walker::FileWalker;
 use super::file_record::FileRecord;
+use super::file_walker::FileWalker;
+use crate::core::NTreeError;
+use std::collections::HashMap;
+use std::path::{Path, PathBuf};
 
 /// Detects project roots and boundaries within a workspace.
 pub struct ProjectDetector {
@@ -16,34 +16,43 @@ impl ProjectDetector {
         let mut manifest_files = HashMap::new();
 
         manifest_files.insert("rust".to_string(), vec!["Cargo.toml".to_string()]);
-        manifest_files.insert("python".to_string(), vec![
-            "requirements.txt".to_string(),
-            "pyproject.toml".to_string(),
-            "Pipfile".to_string(),
-            "setup.py".to_string(),
-        ]);
-        manifest_files.insert("javascript".to_string(), vec![
-            "package.json".to_string(),
-            "package-lock.json".to_string(),
-        ]);
-        manifest_files.insert("typescript".to_string(), vec![
-            "package.json".to_string(),
-            "tsconfig.json".to_string(),
-        ]);
-        manifest_files.insert("java".to_string(), vec![
-            "pom.xml".to_string(),
-            "build.gradle".to_string(),
-            "build.gradle.kts".to_string(),
-        ]);
-        manifest_files.insert("c".to_string(), vec![
-            "CMakeLists.txt".to_string(),
-            "Makefile".to_string(),
-            "configure.ac".to_string(),
-        ]);
-        manifest_files.insert("cpp".to_string(), vec![
-            "CMakeLists.txt".to_string(),
-            "Makefile".to_string(),
-        ]);
+        manifest_files.insert(
+            "python".to_string(),
+            vec![
+                "requirements.txt".to_string(),
+                "pyproject.toml".to_string(),
+                "Pipfile".to_string(),
+                "setup.py".to_string(),
+            ],
+        );
+        manifest_files.insert(
+            "javascript".to_string(),
+            vec!["package.json".to_string(), "package-lock.json".to_string()],
+        );
+        manifest_files.insert(
+            "typescript".to_string(),
+            vec!["package.json".to_string(), "tsconfig.json".to_string()],
+        );
+        manifest_files.insert(
+            "java".to_string(),
+            vec![
+                "pom.xml".to_string(),
+                "build.gradle".to_string(),
+                "build.gradle.kts".to_string(),
+            ],
+        );
+        manifest_files.insert(
+            "c".to_string(),
+            vec![
+                "CMakeLists.txt".to_string(),
+                "Makefile".to_string(),
+                "configure.ac".to_string(),
+            ],
+        );
+        manifest_files.insert(
+            "cpp".to_string(),
+            vec!["CMakeLists.txt".to_string(), "Makefile".to_string()],
+        );
 
         ProjectDetector { manifest_files }
     }
@@ -64,7 +73,9 @@ impl ProjectDetector {
                     continue;
                 }
 
-                if let Some(project_info) = self.detect_project_in_directory(parent_dir, &file_records)? {
+                if let Some(project_info) =
+                    self.detect_project_in_directory(parent_dir, &file_records)?
+                {
                     projects.push(project_info);
                     processed_dirs.insert(parent_dir);
                 }
@@ -111,7 +122,11 @@ impl ProjectDetector {
     }
 
     /// Collect source files belonging to a project.
-    fn collect_project_files(&self, project_root: &Path, all_files: &[FileRecord]) -> Vec<FileRecord> {
+    fn collect_project_files(
+        &self,
+        project_root: &Path,
+        all_files: &[FileRecord],
+    ) -> Vec<FileRecord> {
         all_files
             .iter()
             .filter(|file| file.path.starts_with(project_root))

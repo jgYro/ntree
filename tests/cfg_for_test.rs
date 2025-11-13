@@ -37,7 +37,9 @@ fn test_for() {
     println!("{}", cfg.jsonl);
 
     // Verify for loop structure in JSONL (normalized labels)
-    assert!(cfg.jsonl.contains("\"for_loop(cond: 0..10.has_next, pattern: i)\""));
+    assert!(cfg
+        .jsonl
+        .contains("\"for_loop(cond: 0..10.has_next, pattern: i)\""));
     assert!(cfg.jsonl.contains("\"for_loop_body\""));
     assert!(cfg.jsonl.contains("\"after_for_loop\""));
 

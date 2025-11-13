@@ -1,6 +1,6 @@
 use ntree::SourceCode;
-use tempfile::TempDir;
 use std::fs;
+use tempfile::TempDir;
 
 /// Create a test workspace with multiple files and a Cargo.toml (Rust project).
 fn create_test_workspace() -> Result<TempDir, std::io::Error> {
@@ -116,10 +116,10 @@ fn test_workspace_data_flow_analysis() {
     // Test workspace analysis with data flow enabled
     let analysis = SourceCode::new(workspace_path)
         .expect("Valid workspace path")
-        .search_workspace(true)                    // Enable workspace mode
-        .with_data_flow_analysis(true)            // Enable data flow
-        .with_variable_lifecycle_tracking(true)   // Enable variable tracking
-        .with_def_use_chains(true)               // Enable def-use analysis
+        .search_workspace(true) // Enable workspace mode
+        .with_data_flow_analysis(true) // Enable data flow
+        .with_variable_lifecycle_tracking(true) // Enable variable tracking
+        .with_def_use_chains(true) // Enable def-use analysis
         .analyze()
         .expect("Workspace analysis should succeed");
 
@@ -127,24 +127,43 @@ fn test_workspace_data_flow_analysis() {
     assert!(analysis.is_workspace_mode(), "Should be in workspace mode");
 
     // Verify workspace statistics
-    let workspace_stats = analysis.workspace_stats().expect("Should have workspace stats");
-    assert!(workspace_stats.total_files >= 3, "Should find at least 3 source files"); // main.rs, utils.rs, calculator.rs
-    assert_eq!(workspace_stats.languages, 1, "Should detect 1 language (Rust)");
+    let workspace_stats = analysis
+        .workspace_stats()
+        .expect("Should have workspace stats");
+    assert!(
+        workspace_stats.total_files >= 3,
+        "Should find at least 3 source files"
+    ); // main.rs, utils.rs, calculator.rs
+    assert_eq!(
+        workspace_stats.languages, 1,
+        "Should detect 1 language (Rust)"
+    );
 
     // Verify files grouped by language
-    let files_by_lang = analysis.files_by_language().expect("Should have files by language");
+    let files_by_lang = analysis
+        .files_by_language()
+        .expect("Should have files by language");
     assert!(files_by_lang.contains_key("rust"), "Should have Rust files");
-    assert!(files_by_lang.get("rust").unwrap().len() >= 3, "Should have multiple Rust files");
+    assert!(
+        files_by_lang.get("rust").unwrap().len() >= 3,
+        "Should have multiple Rust files"
+    );
 
     // Test data flow analysis results
     let data_flow = analysis.data_flow();
     println!("Workspace data flow graphs: {}", data_flow.all().len());
-    assert!(data_flow.all().len() >= 3, "Should have data flow for multiple functions");
+    assert!(
+        data_flow.all().len() >= 3,
+        "Should have data flow for multiple functions"
+    );
 
     // Test variable lifecycle results
     let variables = analysis.variables();
     println!("Workspace variables: {}", variables.all().len());
-    assert!(variables.all().len() >= 5, "Should track variables across files");
+    assert!(
+        variables.all().len() >= 5,
+        "Should track variables across files"
+    );
 
     // Test cross-file variable tracking
     let cross_file_vars = analysis.cross_file_variables();
@@ -174,15 +193,24 @@ fn test_workspace_project_detection() {
 
     // Verify existing workspace functionality still works
     assert!(analysis.is_workspace_mode());
-    assert!(analysis.complexity().len() > 0, "Should have complexity results");
+    assert!(
+        analysis.complexity().len() > 0,
+        "Should have complexity results"
+    );
     assert!(analysis.cfgs().len() > 0, "Should have CFG results");
-    assert!(analysis.functions().len() > 0, "Should have function results");
+    assert!(
+        analysis.functions().len() > 0,
+        "Should have function results"
+    );
 
     // Symbol search should work across the workspace
     let symbols = analysis.symbols();
     let function_search = symbols.kind("function");
     let all_functions = function_search.search().expect("Symbol search should work");
-    assert!(all_functions.len() >= 4, "Should find functions across multiple files");
+    assert!(
+        all_functions.len() >= 4,
+        "Should find functions across multiple files"
+    );
 }
 
 #[test]
@@ -217,7 +245,10 @@ fn test_workspace_vs_single_file_consistency() {
 
     // Workspace should have cross-file capabilities
     let cross_file_vars = workspace_analysis.cross_file_variables();
-    println!("Cross-file variables in workspace: {}", cross_file_vars.all().len());
+    println!(
+        "Cross-file variables in workspace: {}",
+        cross_file_vars.all().len()
+    );
 }
 
 #[test]
@@ -243,5 +274,9 @@ fn test_data_flow_disabled_in_workspace() {
     let variables = analysis.variables();
 
     assert_eq!(data_flow.all().len(), 0, "Data flow should be disabled");
-    assert_eq!(variables.all().len(), 0, "Variable tracking should be disabled");
+    assert_eq!(
+        variables.all().len(),
+        0,
+        "Variable tracking should be disabled"
+    );
 }

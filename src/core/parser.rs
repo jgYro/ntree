@@ -31,16 +31,26 @@ pub fn create_tree_from_file<P: AsRef<Path>>(path: P) -> Result<Node<'static>, N
     // Set language based on file extension
     match parser.set_language(&language_config.language) {
         Ok(_) => {}
-        Err(e) => return Err(NTreeError::ParseError(format!("Failed to set language: {:?}", e))),
+        Err(e) => {
+            return Err(NTreeError::ParseError(format!(
+                "Failed to set language: {:?}",
+                e
+            )))
+        }
     }
 
     // Parse the content
     let tree = match parser.parse(&content, None) {
         Some(t) => t,
-        None => return Err(NTreeError::ParseError(format!(
-            "Failed to parse {} file",
-            path_ref.extension().and_then(|e| e.to_str()).unwrap_or("unknown")
-        ))),
+        None => {
+            return Err(NTreeError::ParseError(format!(
+                "Failed to parse {} file",
+                path_ref
+                    .extension()
+                    .and_then(|e| e.to_str())
+                    .unwrap_or("unknown")
+            )))
+        }
     };
 
     // Leak tree to get 'static lifetime for the root node

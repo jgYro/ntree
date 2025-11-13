@@ -1,7 +1,7 @@
-use tree_sitter::Node;
-use crate::core::NTreeError;
-use crate::storage::{CallEdge, SymbolId, CallType};
 use super::ast_utils::PythonAstUtils;
+use crate::core::NTreeError;
+use crate::storage::{CallEdge, CallType, SymbolId};
+use tree_sitter::Node;
 
 /// Python-specific call site extractor.
 pub struct PythonCallExtractor;
@@ -53,11 +53,10 @@ impl PythonCallExtractor {
         // Extract function name being called
         let function_name = Self::extract_function_name(call_node, source);
 
-        Some(CallEdge::new(
-            caller_sym.clone(),
-            span,
-            call_text,
-        ).with_dynamic_hints(vec![function_name])) // Python calls are dynamic by default
+        Some(
+            CallEdge::new(caller_sym.clone(), span, call_text)
+                .with_dynamic_hints(vec![function_name]),
+        ) // Python calls are dynamic by default
     }
 
     /// Extract the function name from call expression.

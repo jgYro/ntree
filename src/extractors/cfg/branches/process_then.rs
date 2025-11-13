@@ -1,7 +1,7 @@
-use crate::models::{CfgEdge, CfgNode, ControlFlowGraph};
-use super::super::core::{CfgContext, get_statement_text, is_statement_node};
+use super::super::core::{get_statement_text, is_statement_node, CfgContext};
 use super::control_flow_handler::handle_control_flow_expression;
-use super::nested_if_handler::{handle_nested_if, handle_expression_if};
+use super::nested_if_handler::{handle_expression_if, handle_nested_if};
+use crate::models::{CfgEdge, CfgNode, ControlFlowGraph};
 use tree_sitter::Node;
 
 /// Process then branch.
@@ -28,9 +28,9 @@ pub fn process_then_branch(
         }
 
         // Handle other control flow expressions
-        if let Some((new_current, new_first)) = handle_control_flow_expression(
-            cfg, ctx, child, source, cond_id, current, first, "true"
-        ) {
+        if let Some((new_current, new_first)) =
+            handle_control_flow_expression(cfg, ctx, child, source, cond_id, current, first, "true")
+        {
             current = new_current;
             first = new_first;
             continue;
@@ -72,4 +72,3 @@ pub fn process_then_branch(
         vec![current]
     }
 }
-

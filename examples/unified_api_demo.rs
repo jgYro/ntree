@@ -21,7 +21,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .with_complexity_analysis(true)
         .analyze()?;
 
-    println!("  Mode: {}", if workspace_analysis.is_workspace_mode() { "Workspace" } else { "Single File" });
+    println!(
+        "  Mode: {}",
+        if workspace_analysis.is_workspace_mode() {
+            "Workspace"
+        } else {
+            "Single File"
+        }
+    );
 
     if let Some(files_by_lang) = workspace_analysis.files_by_language() {
         for (lang, files) in files_by_lang {
@@ -39,7 +46,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("\n🔍 Symbol Search Examples:");
 
     // Exact constructor search with proper lifetimes
-    let search1 = workspace_analysis.symbols()
+    let search1 = workspace_analysis
+        .symbols()
         .named("new")
         .regex(true)
         .kind("function");
@@ -48,17 +56,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("  Exact 'new' constructors: {}", exact_constructors.len());
 
     // Getter functions search
-    let search2 = workspace_analysis.symbols()
-        .named("get_")
-        .regex(true);
+    let search2 = workspace_analysis.symbols().named("get_").regex(true);
     let getters = search2.search()?;
 
     println!("  Getter functions: {}", getters.len());
 
     // Functions in specific file
-    let search3 = workspace_analysis.symbols()
-        .in_file("cfg")
-        .kind("function");
+    let search3 = workspace_analysis.symbols().in_file("cfg").kind("function");
     let cfg_functions = search3.search()?;
 
     println!("  Functions in cfg files: {}", cfg_functions.len());
@@ -66,7 +70,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Show some example results
     println!("\n📋 Sample Symbol Search Results:");
     for (i, symbol) in exact_constructors.iter().take(3).enumerate() {
-        println!("  {}. {} in {}",
+        println!(
+            "  {}. {} in {}",
             i + 1,
             symbol.name,
             symbol.file_path.file_name().unwrap().to_string_lossy()

@@ -1,5 +1,5 @@
+use super::super::core::{get_statement_text, CfgContext};
 use crate::models::{BasicBlock, BasicBlockEdge, BasicBlockGraph};
-use super::super::core::{CfgContext, get_statement_text};
 use tree_sitter::Node;
 
 /// Builder for coalescing straight-line statements into basic blocks.

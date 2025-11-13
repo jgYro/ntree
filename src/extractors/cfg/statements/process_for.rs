@@ -1,7 +1,7 @@
-use crate::models::{ControlFlowGraph, ForLoopIR};
-use crate::analyzers::ForLoopNormalizer;
 use super::super::core::CfgContext;
 use super::for_cfg_builder::{build_for_loop_cfg, extract_for_body};
+use crate::analyzers::ForLoopNormalizer;
+use crate::models::{ControlFlowGraph, ForLoopIR};
 use tree_sitter::Node;
 
 /// Process a for expression and return exit points with IR normalization.

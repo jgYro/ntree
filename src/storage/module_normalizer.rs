@@ -46,7 +46,7 @@ impl ModuleNormalizer {
     fn normalize_c(path: &str) -> ModuleId {
         if path.starts_with('<') && path.ends_with('>') {
             // System header
-            ModuleId::new(format!("c:system:{}", &path[1..path.len()-1]))
+            ModuleId::new(format!("c:system:{}", &path[1..path.len() - 1]))
         } else {
             // Local header
             ModuleId::new(format!("c:local:{}", path.trim_matches('"')))
@@ -57,10 +57,10 @@ impl ModuleNormalizer {
     pub fn extract_version(path: &str) -> Option<String> {
         if let Some(at_pos) = path.find('@') {
             if let Some(colon_pos) = path[at_pos..].find(':') {
-                let version = &path[at_pos+1..at_pos+colon_pos];
+                let version = &path[at_pos + 1..at_pos + colon_pos];
                 Some(version.to_string())
             } else {
-                let version = &path[at_pos+1..];
+                let version = &path[at_pos + 1..];
                 Some(version.to_string())
             }
         } else {

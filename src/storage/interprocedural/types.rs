@@ -1,7 +1,6 @@
-use serde::{Deserialize, Serialize};
 use crate::storage::symbol_core::SymbolId;
+use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
-
 
 /// Type of interprocedural edge.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]

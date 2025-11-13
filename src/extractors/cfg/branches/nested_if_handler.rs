@@ -1,6 +1,6 @@
-use crate::models::{CfgEdge, CfgNode, ControlFlowGraph};
 use super::super::core::CfgContext;
 use super::process_if::process_if_with_edge_kind;
+use crate::models::{CfgEdge, CfgNode, ControlFlowGraph};
 use tree_sitter::Node;
 
 /// Handle nested if expression in branches.

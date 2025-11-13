@@ -10,12 +10,12 @@ pub mod symbol_methods;
 pub mod workspace_methods;
 
 pub use advanced_result_sets::{
-    InterproceduralResultSet, IncrementalResultSet, ExternalLibraryResultSet,
-    CallGraphStats, AnalysisMetrics, ExternalCall, SecurityAnalysis,
+    AnalysisMetrics, CallGraphStats, ExternalCall, ExternalLibraryResultSet, IncrementalResultSet,
+    InterproceduralResultSet, SecurityAnalysis,
 };
 pub use data_flow_result_sets::{
-    DataFlowResultSet, VariableLifecycleResultSet, DefUseChainResultSet, DecisionTreeResultSet,
-    CrossFileVariableResultSet,
+    CrossFileVariableResultSet, DataFlowResultSet, DecisionTreeResultSet, DefUseChainResultSet,
+    VariableLifecycleResultSet,
 };
 pub use function_results::{BasicBlockResultSet, FunctionResultSet};
 pub use functions::list_functions;

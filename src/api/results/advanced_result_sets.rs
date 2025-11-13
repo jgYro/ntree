@@ -1,6 +1,4 @@
 use crate::api::core::AnalysisResult;
-use crate::storage::{SymbolId, Resolution};
-use std::collections::HashMap;
 
 /// Result set for interprocedural analysis.
 pub struct InterproceduralResultSet<'a> {
@@ -35,7 +33,9 @@ impl<'a> InterproceduralResultSet<'a> {
     /// Get entry points found in the program.
     pub fn entry_points(&self) -> Vec<String> {
         // Find main functions, test functions, etc.
-        self.analysis.functions().all()
+        self.analysis
+            .functions()
+            .all()
             .iter()
             .filter(|f| f.function.contains("main") || f.function.contains("test"))
             .map(|f| f.function.clone())
@@ -75,9 +75,9 @@ impl<'a> IncrementalResultSet<'a> {
     pub fn performance_metrics(&self) -> AnalysisMetrics {
         AnalysisMetrics {
             total_functions: self.analysis.symbol_count(),
-            cached_functions: 0, // Placeholder
+            cached_functions: 0,     // Placeholder
             recomputed_functions: 0, // Placeholder
-            analysis_time_ms: 0, // Placeholder
+            analysis_time_ms: 0,     // Placeholder
         }
     }
 }
@@ -109,8 +109,23 @@ impl<'a> ExternalLibraryResultSet<'a> {
 
     /// Get libraries referenced by the code.
     pub fn referenced_libraries(&self) -> Vec<String> {
-        // Placeholder - would extract library dependencies
-        Vec::new()
+        // Extract library names from symbol store
+        let mut libraries = std::collections::HashSet::new();
+
+        // Get external symbols from the analysis
+        let symbols = self.analysis.symbol_store();
+        let all_symbols = symbols.get_all_symbols();
+
+        for symbol in all_symbols {
+            // Extract potential library name from qualname (e.g., "std::vec::Vec" -> "std")
+            if let Some(first_part) = symbol.qualname.split("::").next() {
+                if first_part != symbol.name && !first_part.is_empty() {
+                    libraries.insert(first_part.to_string());
+                }
+            }
+        }
+
+        libraries.into_iter().collect()
     }
 }
 

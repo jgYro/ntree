@@ -37,9 +37,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .with_basic_blocks(false)
         .analyze()?;
 
-    println!("   CFGs: {}, Complexity: {}",
-             cfg_only.cfgs().len(),
-             cfg_only.complexity().len());
+    println!(
+        "   CFGs: {}, Complexity: {}",
+        cfg_only.cfgs().len(),
+        cfg_only.complexity().len()
+    );
 
     // Show CFG for specific function
     if let Some(cfg) = cfg_only.cfgs().for_function("complex_function") {

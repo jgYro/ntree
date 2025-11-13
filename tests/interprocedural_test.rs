@@ -1,10 +1,9 @@
-use ntree::{
-    InterproceduralOptions, analyze_interprocedural_cfg,
-    generate_summary_edges, compute_program_reachability,
-    analyze_exceptional_control_flow,
+use ntree::api::{
+    analyze_exceptional_control_flow, analyze_interprocedural_cfg, compute_program_reachability,
+    generate_summary_edges, InterproceduralOptions,
 };
-use tempfile::TempDir;
 use std::fs;
+use tempfile::TempDir;
 
 /// Helper to create a test workspace with sample files.
 fn create_test_workspace() -> Result<TempDir, std::io::Error> {
@@ -116,16 +115,22 @@ fn test_basic_interprocedural_analysis() {
             let stats = analysis.get_call_graph_stats();
 
             // Should have found some functions
-            assert!(stats.total_functions > 0, "Should find functions in the workspace");
+            assert!(
+                stats.total_functions > 0,
+                "Should find functions in the workspace"
+            );
 
             // Should have some entry points (main, tests)
             assert!(stats.entry_points > 0, "Should find entry points");
 
             println!("Interprocedural analysis stats: {:?}", stats);
-        },
+        }
         Err(e) => {
             // For now, we'll just print the error as the implementation may not be complete
-            println!("Interprocedural analysis failed (expected during development): {}", e);
+            println!(
+                "Interprocedural analysis failed (expected during development): {}",
+                e
+            );
         }
     }
 }
@@ -142,9 +147,12 @@ fn test_summary_edges_generation() {
             println!("Generated {} summary edges", edges.len());
             // The actual number depends on the implementation completeness
             // For now, just verify the function doesn't crash
-        },
+        }
         Err(e) => {
-            println!("Summary edge generation failed (expected during development): {}", e);
+            println!(
+                "Summary edge generation failed (expected during development): {}",
+                e
+            );
         }
     }
 }
@@ -161,18 +169,22 @@ fn test_reachability_computation() {
             println!("Computed reachability for {} functions", reachability.len());
 
             // Check if some functions are marked as reachable
-            let reachable_count = reachability.values()
-                .filter(|info| info.reachable)
-                .count();
+            let reachable_count = reachability.values().filter(|info| info.reachable).count();
 
             if reachable_count > 0 {
-                println!("{} functions are reachable from entry points", reachable_count);
+                println!(
+                    "{} functions are reachable from entry points",
+                    reachable_count
+                );
             } else {
                 println!("No functions marked as reachable (may need implementation completion)");
             }
-        },
+        }
         Err(e) => {
-            println!("Reachability computation failed (expected during development): {}", e);
+            println!(
+                "Reachability computation failed (expected during development): {}",
+                e
+            );
         }
     }
 }
@@ -189,16 +201,20 @@ fn test_exceptional_control_flow_analysis() {
             println!("Found {} exceptional control flow edges", edges.len());
 
             // Check if we found some panic or error handling patterns
-            let panic_edges = edges.iter()
+            let panic_edges = edges
+                .iter()
                 .filter(|edge| matches!(edge.kind, ntree::ExceptionExitKind::Panic))
                 .count();
 
             if panic_edges > 0 {
                 println!("Found {} panic-related exceptional edges", panic_edges);
             }
-        },
+        }
         Err(e) => {
-            println!("Exceptional control flow analysis failed (expected during development): {}", e);
+            println!(
+                "Exceptional control flow analysis failed (expected during development): {}",
+                e
+            );
         }
     }
 }
@@ -218,9 +234,11 @@ fn test_interprocedural_options() {
     assert!(!options_summary.exceptional_control_flow);
     assert!(!options_summary.auto_detect_entries);
 
-    let options_custom = InterproceduralOptions::default()
-        .with_entry_point("custom_main".to_string());
-    assert!(options_custom.manual_entry_points.contains(&"custom_main".to_string()));
+    let options_custom =
+        InterproceduralOptions::default().with_entry_point("custom_main".to_string());
+    assert!(options_custom
+        .manual_entry_points
+        .contains(&"custom_main".to_string()));
 }
 
 /// Test that creates a minimal workspace to verify the API works.
@@ -242,7 +260,8 @@ fn helper() -> i32 {
     42
 }
 "#,
-    ).expect("Failed to write lib.rs");
+    )
+    .expect("Failed to write lib.rs");
 
     fs::write(
         base_path.join("Cargo.toml"),
@@ -252,7 +271,8 @@ name = "minimal"
 version = "0.1.0"
 edition = "2021"
 "#,
-    ).expect("Failed to write Cargo.toml");
+    )
+    .expect("Failed to write Cargo.toml");
 
     let options = InterproceduralOptions {
         summary_edges: true,
@@ -269,7 +289,7 @@ edition = "2021"
             println!("Minimal analysis completed successfully");
             let stats = analysis.get_call_graph_stats();
             println!("Stats: {:?}", stats);
-        },
+        }
         Err(e) => {
             println!("Minimal analysis failed: {}", e);
             // Don't fail the test - implementation may be incomplete

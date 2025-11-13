@@ -94,7 +94,11 @@ impl DataFlowGraph {
     }
 
     /// Set reaching definitions for a node.
-    pub fn set_reaching_definitions(&mut self, node_id: String, definitions: Vec<VariableDefinition>) {
+    pub fn set_reaching_definitions(
+        &mut self,
+        node_id: String,
+        definitions: Vec<VariableDefinition>,
+    ) {
         self.reaching_definitions.insert(node_id, definitions);
     }
 
@@ -109,7 +113,8 @@ impl DataFlowGraph {
 
     /// Get dependencies for a specific variable.
     pub fn get_variable_dependencies(&self, variable: &str) -> Vec<&DataDependencyEdge> {
-        self.edges.iter()
+        self.edges
+            .iter()
             .filter(|edge| edge.variable == variable)
             .collect()
     }

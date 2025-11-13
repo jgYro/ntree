@@ -7,18 +7,54 @@ mod multi_language_tests {
     #[test]
     fn test_all_language_detection() {
         // Test all supported extensions
-        assert_eq!(SupportedLanguage::from_path("test.rs").unwrap(), SupportedLanguage::Rust);
-        assert_eq!(SupportedLanguage::from_path("test.py").unwrap(), SupportedLanguage::Python);
-        assert_eq!(SupportedLanguage::from_path("test.js").unwrap(), SupportedLanguage::JavaScript);
-        assert_eq!(SupportedLanguage::from_path("test.mjs").unwrap(), SupportedLanguage::JavaScript);
-        assert_eq!(SupportedLanguage::from_path("test.ts").unwrap(), SupportedLanguage::TypeScript);
-        assert_eq!(SupportedLanguage::from_path("Test.java").unwrap(), SupportedLanguage::Java);
-        assert_eq!(SupportedLanguage::from_path("test.c").unwrap(), SupportedLanguage::C);
-        assert_eq!(SupportedLanguage::from_path("test.h").unwrap(), SupportedLanguage::C);
-        assert_eq!(SupportedLanguage::from_path("test.cpp").unwrap(), SupportedLanguage::Cpp);
-        assert_eq!(SupportedLanguage::from_path("test.cc").unwrap(), SupportedLanguage::Cpp);
-        assert_eq!(SupportedLanguage::from_path("test.cxx").unwrap(), SupportedLanguage::Cpp);
-        assert_eq!(SupportedLanguage::from_path("test.hpp").unwrap(), SupportedLanguage::Cpp);
+        assert_eq!(
+            SupportedLanguage::from_path("test.rs").unwrap(),
+            SupportedLanguage::Rust
+        );
+        assert_eq!(
+            SupportedLanguage::from_path("test.py").unwrap(),
+            SupportedLanguage::Python
+        );
+        assert_eq!(
+            SupportedLanguage::from_path("test.js").unwrap(),
+            SupportedLanguage::JavaScript
+        );
+        assert_eq!(
+            SupportedLanguage::from_path("test.mjs").unwrap(),
+            SupportedLanguage::JavaScript
+        );
+        assert_eq!(
+            SupportedLanguage::from_path("test.ts").unwrap(),
+            SupportedLanguage::TypeScript
+        );
+        assert_eq!(
+            SupportedLanguage::from_path("Test.java").unwrap(),
+            SupportedLanguage::Java
+        );
+        assert_eq!(
+            SupportedLanguage::from_path("test.c").unwrap(),
+            SupportedLanguage::C
+        );
+        assert_eq!(
+            SupportedLanguage::from_path("test.h").unwrap(),
+            SupportedLanguage::C
+        );
+        assert_eq!(
+            SupportedLanguage::from_path("test.cpp").unwrap(),
+            SupportedLanguage::Cpp
+        );
+        assert_eq!(
+            SupportedLanguage::from_path("test.cc").unwrap(),
+            SupportedLanguage::Cpp
+        );
+        assert_eq!(
+            SupportedLanguage::from_path("test.cxx").unwrap(),
+            SupportedLanguage::Cpp
+        );
+        assert_eq!(
+            SupportedLanguage::from_path("test.hpp").unwrap(),
+            SupportedLanguage::Cpp
+        );
     }
 
     #[test]
@@ -62,7 +98,10 @@ mod multi_language_tests {
 
         // Both functions should have complexity 2 due to try/except branching
         for result in analysis.complexity().all() {
-            assert_eq!(result.cyclomatic, 2, "Python try/except should create complexity 2");
+            assert_eq!(
+                result.cyclomatic, 2,
+                "Python try/except should create complexity 2"
+            );
         }
     }
 
@@ -103,8 +142,11 @@ mod multi_language_tests {
         // Java parsing is working, functions are detected
         assert!(analysis.functions().len() >= 3);
         // Note: Complexity analysis may need Java-specific CFG improvements
-        println!("Java functions: {}, complexity: {}",
-                analysis.functions().len(), analysis.complexity().len());
+        println!(
+            "Java functions: {}, complexity: {}",
+            analysis.functions().len(),
+            analysis.complexity().len()
+        );
     }
 
     #[test]
@@ -118,8 +160,11 @@ mod multi_language_tests {
         assert!(analysis.functions().len() >= 3);
         assert!(analysis.complexity().len() >= 3);
 
-        println!("C functions: {}, complexity: {}",
-                analysis.functions().len(), analysis.complexity().len());
+        println!(
+            "C functions: {}, complexity: {}",
+            analysis.functions().len(),
+            analysis.complexity().len()
+        );
     }
 
     #[test]
@@ -135,8 +180,14 @@ mod multi_language_tests {
 
     #[test]
     fn test_multi_language_complexity_comparison() {
-        let rust_analysis = SourceCode::new("test_sample.rs").unwrap().analyze().unwrap();
-        let js_analysis = SourceCode::new("test_samples/test_sample.js").unwrap().analyze().unwrap();
+        let rust_analysis = SourceCode::new("test_sample.rs")
+            .unwrap()
+            .analyze()
+            .unwrap();
+        let js_analysis = SourceCode::new("test_samples/test_sample.js")
+            .unwrap()
+            .analyze()
+            .unwrap();
 
         // Both should have complexity results
         assert!(!rust_analysis.complexity().all().is_empty());

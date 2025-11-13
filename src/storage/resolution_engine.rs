@@ -1,9 +1,9 @@
+use super::export_table::ExportTable;
+use super::module_graph::ModuleId;
+use super::name_binding::NameBinding;
+use super::symbol_core::SymbolId;
 use std::collections::HashMap;
 use std::path::PathBuf;
-use super::symbol_core::SymbolId;
-use super::module_graph::ModuleId;
-use super::export_table::ExportTable;
-use super::name_binding::NameBinding;
 
 /// Core resolution engine for name binding.
 pub struct ResolutionEngine<'a> {
@@ -24,12 +24,7 @@ impl<'a> ResolutionEngine<'a> {
     }
 
     /// Resolve a name usage to symbol ID with confidence.
-    pub fn resolve_name(
-        &self,
-        file_path: &PathBuf,
-        name: &str,
-        site_span: String,
-    ) -> NameBinding {
+    pub fn resolve_name(&self, file_path: &PathBuf, name: &str, site_span: String) -> NameBinding {
         let binding = NameBinding::new(site_span, file_path.clone(), name.to_string());
 
         // Try exact resolution through imports

@@ -28,21 +28,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         // Show complexity summary
                         let complexity_results = analysis.complexity();
                         if !complexity_results.all().is_empty() {
-                            let total_complexity: u32 = complexity_results
-                                .all()
-                                .iter()
-                                .map(|c| c.cyclomatic)
-                                .sum();
-                            let avg_complexity = total_complexity as f32 / complexity_results.len() as f32;
+                            let total_complexity: u32 =
+                                complexity_results.all().iter().map(|c| c.cyclomatic).sum();
+                            let avg_complexity =
+                                total_complexity as f32 / complexity_results.len() as f32;
                             println!("     Average complexity: {:.1}", avg_complexity);
 
                             // Show highest complexity function
-                            if let Some(max_complexity) = complexity_results
-                                .all()
-                                .iter()
-                                .max_by_key(|c| c.cyclomatic) {
-                                println!("     Most complex: {} ({})",
-                                    max_complexity.function, max_complexity.cyclomatic);
+                            if let Some(max_complexity) =
+                                complexity_results.all().iter().max_by_key(|c| c.cyclomatic)
+                            {
+                                println!(
+                                    "     Most complex: {} ({})",
+                                    max_complexity.function, max_complexity.cyclomatic
+                                );
                             }
                         }
                     }
@@ -60,12 +59,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Demonstrate cross-language JSON output
     println!("📊 Cross-Language Complexity Comparison:");
-    println!("{:<12} {:<10} {:<10} {:<15}", "Language", "Functions", "CFGs", "Avg Complexity");
+    println!(
+        "{:<12} {:<10} {:<10} {:<15}",
+        "Language", "Functions", "CFGs", "Avg Complexity"
+    );
     println!("{}", "-".repeat(50));
 
-    for (language, file_path) in &test_files[..5] {  // Test first 5 languages
-        match SourceCode::new(file_path)
-            .and_then(|s| s.analyze()) {
+    for (language, file_path) in &test_files[..5] {
+        // Test first 5 languages
+        match SourceCode::new(file_path).and_then(|s| s.analyze()) {
             Ok(analysis) => {
                 let complexity_results = analysis.complexity();
                 let avg_complexity = if !complexity_results.all().is_empty() {
@@ -75,15 +77,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     0.0
                 };
 
-                println!("{:<12} {:<10} {:<10} {:<15.1}",
-                         language,
-                         analysis.functions().len(),
-                         analysis.cfgs().len(),
-                         avg_complexity);
+                println!(
+                    "{:<12} {:<10} {:<10} {:<15.1}",
+                    language,
+                    analysis.functions().len(),
+                    analysis.cfgs().len(),
+                    avg_complexity
+                );
             }
             Err(_) => {
-                println!("{:<12} {:<10} {:<10} {:<15}",
-                         language, "Error", "Error", "Error");
+                println!(
+                    "{:<12} {:<10} {:<10} {:<15}",
+                    language, "Error", "Error", "Error"
+                );
             }
         }
     }

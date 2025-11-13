@@ -7,6 +7,6 @@ pub use exceptions::ExceptionAnalyzer;
 pub use reachability::ReachabilityAnalyzer;
 pub use summary_edges::SummaryEdgeGenerator;
 pub use types::{
-    InterproceduralEdge, InterproceduralEdgeKind, CallSiteSummary, EntryPoint,
-    ReachabilityInfo, FunctionExit, ExceptionalEdge, ExceptionExitKind
+    CallSiteSummary, EntryPoint, ExceptionExitKind, ExceptionalEdge, FunctionExit,
+    InterproceduralEdge, InterproceduralEdgeKind, ReachabilityInfo,
 };

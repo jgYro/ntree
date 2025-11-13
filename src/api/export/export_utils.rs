@@ -1,6 +1,6 @@
-use crate::core::NTreeError;
 use crate::analyzers::ComplexityResult;
-use crate::api::analysis::{CfgResult, BasicBlockResult};
+use crate::api::analysis::{BasicBlockResult, CfgResult};
+use crate::core::NTreeError;
 
 /// Utilities for exporting analysis results to various formats.
 pub struct ExportUtils;
@@ -30,7 +30,12 @@ impl ExportUtils {
                     jsonl.push_str(&json);
                     jsonl.push('\n');
                 }
-                Err(e) => return Err(NTreeError::ParseError(format!("JSON serialization failed: {}", e))),
+                Err(e) => {
+                    return Err(NTreeError::ParseError(format!(
+                        "JSON serialization failed: {}",
+                        e
+                    )))
+                }
             }
         }
 

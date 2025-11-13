@@ -1,8 +1,8 @@
+use super::ast_utils::PythonAstUtils;
+use crate::core::NTreeError;
+use crate::storage::TopLevelSymbol;
 use std::path::PathBuf;
 use tree_sitter::Node;
-use crate::storage::TopLevelSymbol;
-use crate::core::NTreeError;
-use super::ast_utils::PythonAstUtils;
 
 /// Python-specific symbol extractor for classes and methods.
 pub struct PythonSymbolExtractor;
@@ -21,7 +21,9 @@ impl PythonSymbolExtractor {
             match child.kind() {
                 "function_definition" => {
                     // Top-level function
-                    symbols.push(Self::create_function_symbol(child, source, file_path, None)?);
+                    symbols.push(Self::create_function_symbol(
+                        child, source, file_path, None,
+                    )?);
                 }
                 "class_definition" => {
                     // Class and its methods

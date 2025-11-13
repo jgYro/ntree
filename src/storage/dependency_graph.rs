@@ -1,9 +1,9 @@
-use std::collections::HashMap;
-use crate::core::NTreeError;
-use super::module_graph::{Module, ModuleId, ModuleEdge};
-use super::dependency_edges::ImportEdge;
 use super::cycle_detector::CycleDetector;
 use super::dependency_analysis::DependencyAnalysis;
+use super::dependency_edges::ImportEdge;
+use super::module_graph::{Module, ModuleEdge, ModuleId};
+use crate::core::NTreeError;
+use std::collections::HashMap;
 
 /// Directed module dependency graph with cycle detection.
 #[derive(Debug)]

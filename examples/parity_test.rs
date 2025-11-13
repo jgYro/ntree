@@ -5,8 +5,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Test Rust analysis
     println!("🦀 Rust Analysis:");
-    let rust_analysis = SourceCode::new("test_samples/test_rust_structures.rs")?
-        .analyze()?;
+    let rust_analysis = SourceCode::new("test_samples/test_rust_structures.rs")?.analyze()?;
 
     println!("  Functions: {}", rust_analysis.functions().len());
     println!("  Symbols: {}", rust_analysis.symbol_count());
@@ -22,8 +21,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Test Python analysis
     println!("\n🐍 Python Analysis:");
-    let python_analysis = SourceCode::new("test_samples/test_python_classes.py")?
-        .analyze()?;
+    let python_analysis = SourceCode::new("test_samples/test_python_classes.py")?.analyze()?;
 
     println!("  Functions: {}", python_analysis.functions().len());
     println!("  Symbols: {}", python_analysis.symbol_count());
@@ -63,11 +61,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("  Call sites: {}", call_stats.total_call_sites);
 
     // Cross-language constructors
-    let constructor_search = workspace_analysis.symbols()
+    let constructor_search = workspace_analysis
+        .symbols()
         .named("^(new|__init__|constructor)$")
         .regex(true);
     let mixed_constructors = constructor_search.search()?;
-    println!("  Cross-language constructors: {}", mixed_constructors.len());
+    println!(
+        "  Cross-language constructors: {}",
+        mixed_constructors.len()
+    );
 
     println!("\n✅ Rust & Python Parity Achieved:");
     println!("  ✅ Symbol extraction (structs/classes, methods/functions)");

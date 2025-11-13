@@ -43,9 +43,7 @@ impl BasicBlockGraph {
 
         // Add edges
         for edge in &self.edges {
-            let wrapper = BasicBlockEdgeWrapper {
-                edge: edge.clone(),
-            };
+            let wrapper = BasicBlockEdgeWrapper { edge: edge.clone() };
             match serde_json::to_string(&wrapper) {
                 Ok(json) => {
                     jsonl.push_str(&json);

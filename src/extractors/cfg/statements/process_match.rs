@@ -1,6 +1,6 @@
-use crate::models::{CfgEdge, CfgNode, ControlFlowGraph};
-use super::super::core::{CfgContext, get_statement_text, LabelNormalizer};
+use super::super::core::{get_statement_text, CfgContext, LabelNormalizer};
 use super::process_match_arm::process_match_arm;
+use crate::models::{CfgEdge, CfgNode, ControlFlowGraph};
 use tree_sitter::Node;
 
 /// Process a match expression and return exit points.
@@ -42,7 +42,10 @@ pub fn process_match(
     // Create match dispatch node
     let dispatch_id = ctx.alloc_id();
     let expr_text = get_statement_text(expr, source);
-    cfg.add_node(CfgNode::new(dispatch_id, LabelNormalizer::match_label(&expr_text)));
+    cfg.add_node(CfgNode::new(
+        dispatch_id,
+        LabelNormalizer::match_label(&expr_text),
+    ));
     cfg.add_edge(CfgEdge::new(entry, dispatch_id, "next".to_string()));
 
     // Create join node
@@ -55,7 +58,8 @@ pub fn process_match(
 
     for child in body.named_children(&mut cursor) {
         if child.kind() == "match_arm" {
-            let arm_exits_for_this_arm = process_match_arm(cfg, ctx, child, source, dispatch_id, join_id);
+            let arm_exits_for_this_arm =
+                process_match_arm(cfg, ctx, child, source, dispatch_id, join_id);
             arm_exits.extend(arm_exits_for_this_arm);
         }
     }

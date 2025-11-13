@@ -51,8 +51,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         "uncertain".to_string(),
     );
 
-    println!("Tree-sitter edge: {}", serde_json::to_string(&tree_sitter_edge)?);
-    println!("Compiler edge:    {}", serde_json::to_string(&compiler_edge)?);
+    println!(
+        "Tree-sitter edge: {}",
+        serde_json::to_string(&tree_sitter_edge)?
+    );
+    println!(
+        "Compiler edge:    {}",
+        serde_json::to_string(&compiler_edge)?
+    );
     println!("LSP edge:         {}", serde_json::to_string(&lsp_edge)?);
 
     println!("\n3. CFG-14 Specification Match:");

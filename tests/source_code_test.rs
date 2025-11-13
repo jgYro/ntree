@@ -1,4 +1,4 @@
-use ntree::{SourceCode, AnalysisOptions};
+use ntree::{AnalysisOptions, SourceCode};
 use std::path::Path;
 
 #[cfg(test)]
@@ -75,9 +75,7 @@ mod source_code_tests {
 
     #[test]
     fn test_none_configuration() {
-        let source_code = SourceCode::new(get_test_file())
-            .expect("Valid file")
-            .none();
+        let source_code = SourceCode::new(get_test_file()).expect("Valid file").none();
 
         let options = source_code.options();
         assert!(!options.complexity_analysis);

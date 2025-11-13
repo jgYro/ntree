@@ -1,5 +1,5 @@
 use crate::core::NTreeError;
-use crate::storage::{SymbolStore, TopLevelSymbol, SymbolSearcher, ConstructorDetector};
+use crate::storage::{ConstructorDetector, SymbolSearcher, SymbolStore, TopLevelSymbol};
 
 /// Symbol search result set with fluent builder pattern.
 pub struct SymbolResultSet<'a> {

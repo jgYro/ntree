@@ -1,8 +1,7 @@
+use crate::core::NTreeError;
+use crate::storage::SymbolStore;
 use std::collections::HashMap;
 use std::path::PathBuf;
-use crate::core::NTreeError;
-use crate::storage::{SymbolStore, SymbolId};
-use super::summary::ExternalSummary;
 
 /// Types of dependencies that can be indexed.
 #[derive(Debug, Clone, PartialEq)]
@@ -42,9 +41,10 @@ impl DependencyIndexer {
         &mut self,
         library_name: String,
         dependency_path: PathBuf,
-        index_source: bool
+        index_source: bool,
     ) -> Result<(), NTreeError> {
-        let mut dependency_info = DependencyInfo::new(library_name.clone(), dependency_path.clone());
+        let mut dependency_info =
+            DependencyInfo::new(library_name.clone(), dependency_path.clone());
 
         // Detect dependency type
         dependency_info.dependency_type = self.detect_dependency_type(&dependency_path);
@@ -54,24 +54,25 @@ impl DependencyIndexer {
             match dependency_info.dependency_type {
                 DependencyType::CargoPackage => {
                     self.index_rust_crate(&dependency_path, &mut dependency_info)?;
-                },
+                }
                 DependencyType::NodeModule => {
                     self.index_npm_package(&dependency_path, &mut dependency_info)?;
-                },
+                }
                 DependencyType::JavaJar => {
                     // JAR indexing would require additional tooling
                     dependency_info.has_source = false;
-                },
+                }
                 DependencyType::PythonPackage => {
                     self.index_python_package(&dependency_path, &mut dependency_info)?;
-                },
+                }
                 DependencyType::Unknown => {
                     dependency_info.has_source = false;
-                },
+                }
             }
         }
 
-        self.indexed_dependencies.insert(library_name, dependency_info);
+        self.indexed_dependencies
+            .insert(library_name, dependency_info);
         Ok(())
     }
 
@@ -91,7 +92,11 @@ impl DependencyIndexer {
     }
 
     /// Index Rust crate source.
-    fn index_rust_crate(&mut self, _path: &PathBuf, dependency_info: &mut DependencyInfo) -> Result<(), NTreeError> {
+    fn index_rust_crate(
+        &mut self,
+        _path: &PathBuf,
+        dependency_info: &mut DependencyInfo,
+    ) -> Result<(), NTreeError> {
         // Placeholder: would use existing ntree analysis on dependency source
         dependency_info.has_source = true;
         dependency_info.exported_symbols = vec!["example::function".to_string()];
@@ -99,7 +104,11 @@ impl DependencyIndexer {
     }
 
     /// Index NPM package source.
-    fn index_npm_package(&mut self, _path: &PathBuf, dependency_info: &mut DependencyInfo) -> Result<(), NTreeError> {
+    fn index_npm_package(
+        &mut self,
+        _path: &PathBuf,
+        dependency_info: &mut DependencyInfo,
+    ) -> Result<(), NTreeError> {
         // Placeholder: would analyze JS/TS files
         dependency_info.has_source = true;
         dependency_info.exported_symbols = vec!["default".to_string()];
@@ -107,7 +116,11 @@ impl DependencyIndexer {
     }
 
     /// Index Python package source.
-    fn index_python_package(&mut self, _path: &PathBuf, dependency_info: &mut DependencyInfo) -> Result<(), NTreeError> {
+    fn index_python_package(
+        &mut self,
+        _path: &PathBuf,
+        dependency_info: &mut DependencyInfo,
+    ) -> Result<(), NTreeError> {
         // Placeholder: would analyze Python files
         dependency_info.has_source = true;
         dependency_info.exported_symbols = vec!["__init__".to_string()];
@@ -130,7 +143,9 @@ impl DependencyIndexer {
     /// Get indexer statistics.
     pub fn get_stats(&self) -> IndexerStats {
         let total_dependencies = self.indexed_dependencies.len();
-        let with_source = self.indexed_dependencies.values()
+        let with_source = self
+            .indexed_dependencies
+            .values()
             .filter(|info| info.has_source)
             .count();
 

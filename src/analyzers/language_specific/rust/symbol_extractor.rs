@@ -1,8 +1,8 @@
+use super::ast_utils::RustAstUtils;
+use crate::core::NTreeError;
+use crate::storage::TopLevelSymbol;
 use std::path::PathBuf;
 use tree_sitter::Node;
-use crate::storage::TopLevelSymbol;
-use crate::core::NTreeError;
-use super::ast_utils::RustAstUtils;
 
 /// Rust-specific symbol extractor for structs, impls, and functions.
 pub struct RustSymbolExtractor;
@@ -20,10 +20,14 @@ impl RustSymbolExtractor {
         for child in root.children(&mut cursor) {
             match child.kind() {
                 "function_item" => {
-                    symbols.push(Self::create_symbol(child, source, file_path, None, "function")?);
+                    symbols.push(Self::create_symbol(
+                        child, source, file_path, None, "function",
+                    )?);
                 }
                 "struct_item" => {
-                    symbols.push(Self::create_symbol(child, source, file_path, None, "struct")?);
+                    symbols.push(Self::create_symbol(
+                        child, source, file_path, None, "struct",
+                    )?);
                 }
                 "impl_item" => {
                     symbols.extend(Self::extract_impl_symbols(child, source, file_path)?);
@@ -75,11 +79,23 @@ impl RustSymbolExtractor {
         let (kind, qualname) = match parent {
             Some(parent_name) => {
                 let kind = RustAstUtils::get_method_type(&name, true);
-                (kind.to_string(), format!("{}::{}::{}", file_path.display(), parent_name, name))
+                (
+                    kind.to_string(),
+                    format!("{}::{}::{}", file_path.display(), parent_name, name),
+                )
             }
-            None => (default_kind.to_string(), format!("{}::{}", file_path.display(), name)),
+            None => (
+                default_kind.to_string(),
+                format!("{}::{}", file_path.display(), name),
+            ),
         };
 
-        Ok(TopLevelSymbol::new(file_path.clone(), name, kind, qualname, span))
+        Ok(TopLevelSymbol::new(
+            file_path.clone(),
+            name,
+            kind,
+            qualname,
+            span,
+        ))
     }
 }

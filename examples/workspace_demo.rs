@@ -4,9 +4,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("=== Workspace Analysis Demo ===");
 
     // Analyze the current ntree codebase using unified API
-    let analysis = SourceCode::new("src/")?
-        .search_workspace(true)
-        .analyze()?;
+    let analysis = SourceCode::new("src/")?.search_workspace(true).analyze()?;
 
     println!("Discovering and analyzing files in src/...");
 
@@ -35,10 +33,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let some_symbols = symbol_search.search()?;
 
     for (i, symbol) in some_symbols.iter().take(5).enumerate() {
-        println!("  {}. {} in {} ({})",
+        println!(
+            "  {}. {} in {} ({})",
             i + 1,
             symbol.name,
-            symbol.file_path.file_name().map(|n| n.to_string_lossy()).unwrap_or("unknown".into()),
+            symbol
+                .file_path
+                .file_name()
+                .map(|n| n.to_string_lossy())
+                .unwrap_or("unknown".into()),
             symbol.span
         );
     }

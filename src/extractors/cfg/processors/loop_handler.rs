@@ -1,6 +1,6 @@
-use crate::models::{CfgEdge, CfgNode, ControlFlowGraph};
 use super::super::core::CfgContext;
-use super::super::statements::{process_while, process_for};
+use super::super::statements::{process_for, process_while};
+use crate::models::{CfgEdge, CfgNode, ControlFlowGraph};
 use tree_sitter::Node;
 
 /// Handle different types of loop expressions in blocks.

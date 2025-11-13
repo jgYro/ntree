@@ -1,7 +1,7 @@
-use crate::models::BasicBlockGraph;
-use super::basic_block_builder::BasicBlockBuilder;
 use super::super::core::is_statement_node;
+use super::basic_block_builder::BasicBlockBuilder;
 use super::terminator_handler::process_terminator;
+use crate::models::BasicBlockGraph;
 use tree_sitter::Node;
 
 /// Process a function block to create basic blocks by coalescing straight-line statements.
@@ -62,4 +62,3 @@ fn process_block_statements(
 
     current_block_id
 }
-

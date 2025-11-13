@@ -1,7 +1,7 @@
+use super::symbol_core::{FunctionFacts, SymbolId, SymbolStoreStats, TopLevelSymbol};
+use crate::core::NTreeError;
 use std::collections::HashMap;
 use std::path::PathBuf;
-use crate::core::NTreeError;
-use super::symbol_core::{SymbolId, TopLevelSymbol, FunctionFacts, SymbolStoreStats};
 
 /// Store for managing symbols and their relationships across files.
 #[derive(Debug)]
@@ -89,7 +89,10 @@ impl SymbolStore {
                 return Ok(symbol.id.clone());
             }
         }
-        Err(NTreeError::InvalidInput(format!("Symbol not found: {}", name)))
+        Err(NTreeError::InvalidInput(format!(
+            "Symbol not found: {}",
+            name
+        )))
     }
 
     /// Find symbols matching a pattern.

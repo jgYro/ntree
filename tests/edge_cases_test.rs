@@ -1,4 +1,5 @@
-use ntree::{list_functions, functions_to_jsonl};
+use ntree::api::list_functions;
+use ntree::items_to_jsonl;
 use std::fs;
 
 #[test]
@@ -127,7 +128,11 @@ pub unsafe fn unsafe_function() {
 
     // All should have body spans
     for function in &functions {
-        assert!(function.body.is_some(), "Function {} should have body span", function.function);
+        assert!(
+            function.body.is_some(),
+            "Function {} should have body span",
+            function.function
+        );
     }
 
     match fs::remove_file(test_file) {
@@ -162,7 +167,11 @@ fn third() {}
 
     // Verify one line per function
     let lines: Vec<&str> = jsonl.lines().collect();
-    assert_eq!(lines.len(), 3, "Should have exactly 3 lines for 3 functions");
+    assert_eq!(
+        lines.len(),
+        3,
+        "Should have exactly 3 lines for 3 functions"
+    );
 
     // Verify each line is valid JSON
     for line in lines {

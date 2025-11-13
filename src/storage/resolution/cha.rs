@@ -1,7 +1,7 @@
-use std::collections::{HashMap, HashSet};
-use crate::storage::SymbolId;
+use super::types::{CallSiteId, Resolution};
 use crate::core::NTreeError;
-use super::types::{Resolution, CallSiteId, ResolutionAlgorithm};
+use crate::storage::SymbolId;
+use std::collections::{HashMap, HashSet};
 
 /// Class Hierarchy Analysis for OO/trait call resolution.
 #[derive(Debug)]
@@ -34,7 +34,8 @@ impl ClassHierarchyAnalyzer {
 
     /// Add method implementation.
     pub fn add_method(&mut self, type_id: SymbolId, method_name: String, implementation: SymbolId) {
-        self.method_implementations.insert((type_id, method_name), implementation);
+        self.method_implementations
+            .insert((type_id, method_name), implementation);
     }
 
     /// Add method override relationship.
@@ -60,12 +61,15 @@ impl ClassHierarchyAnalyzer {
         receiver_type: &SymbolId,
         method_name: &str,
         caller: SymbolId,
-        call_expr: String
+        call_expr: String,
     ) -> Result<Resolution, NTreeError> {
         let mut candidates = HashSet::new();
 
         // Find base implementation
-        if let Some(base_impl) = self.method_implementations.get(&(receiver_type.clone(), method_name.to_string())) {
+        if let Some(base_impl) = self
+            .method_implementations
+            .get(&(receiver_type.clone(), method_name.to_string()))
+        {
             candidates.insert(base_impl.clone());
 
             // Add all overrides
@@ -76,11 +80,17 @@ impl ClassHierarchyAnalyzer {
 
         // Check trait implementations
         for (trait_id, implementors) in &self.trait_implementations {
-            if let Some(_trait_method) = self.method_implementations.get(&(trait_id.clone(), method_name.to_string())) {
+            if let Some(_trait_method) = self
+                .method_implementations
+                .get(&(trait_id.clone(), method_name.to_string()))
+            {
                 // Check if receiver type implements this trait
                 if self.implements_trait(receiver_type, trait_id) {
                     for implementor in implementors {
-                        if let Some(impl_method) = self.method_implementations.get(&(implementor.clone(), method_name.to_string())) {
+                        if let Some(impl_method) = self
+                            .method_implementations
+                            .get(&(implementor.clone(), method_name.to_string()))
+                        {
                             candidates.insert(impl_method.clone());
                         }
                     }
@@ -91,7 +101,10 @@ impl ClassHierarchyAnalyzer {
         // Get all subtypes of receiver that might override the method
         let subtypes = self.get_all_subtypes(receiver_type);
         for subtype in subtypes {
-            if let Some(override_impl) = self.method_implementations.get(&(subtype, method_name.to_string())) {
+            if let Some(override_impl) = self
+                .method_implementations
+                .get(&(subtype, method_name.to_string()))
+            {
                 candidates.insert(override_impl.clone());
             }
         }

@@ -98,7 +98,7 @@ impl DefUseSite {
         statement: String,
         line: u32,
         column: u32,
-        site_type: DefUseSiteType
+        site_type: DefUseSiteType,
     ) -> Self {
         DefUseSite {
             span,
@@ -118,18 +118,18 @@ impl DefUseSite {
 
     /// Check if this is a definition site.
     pub fn is_definition(&self) -> bool {
-        matches!(self.site_type,
-            DefUseSiteType::Declaration |
-            DefUseSiteType::Assignment |
-            DefUseSiteType::Parameter)
+        matches!(
+            self.site_type,
+            DefUseSiteType::Declaration | DefUseSiteType::Assignment | DefUseSiteType::Parameter
+        )
     }
 
     /// Check if this is a use site.
     pub fn is_use(&self) -> bool {
-        matches!(self.site_type,
-            DefUseSiteType::Use |
-            DefUseSiteType::Expression |
-            DefUseSiteType::Return)
+        matches!(
+            self.site_type,
+            DefUseSiteType::Use | DefUseSiteType::Expression | DefUseSiteType::Return
+        )
     }
 }
 
@@ -156,18 +156,25 @@ impl DefUseChainSet {
 
     /// Get all chains.
     pub fn all(&self) -> Vec<&DefUseChain> {
-        self.chains.values().flat_map(|chains| chains.iter()).collect()
+        self.chains
+            .values()
+            .flat_map(|chains| chains.iter())
+            .collect()
     }
 
     /// Get chains for a specific function.
     pub fn for_function(&self, function_name: &str) -> Vec<&DefUseChain> {
-        self.chains.get(function_name)
+        self.chains
+            .get(function_name)
             .map(|chains| chains.iter().collect())
             .unwrap_or_default()
     }
 
     /// Get all dead definitions (definitions with no uses).
     pub fn dead_definitions(&self) -> Vec<&DefUseChain> {
-        self.all().into_iter().filter(|chain| chain.is_dead()).collect()
+        self.all()
+            .into_iter()
+            .filter(|chain| chain.is_dead())
+            .collect()
     }
 }

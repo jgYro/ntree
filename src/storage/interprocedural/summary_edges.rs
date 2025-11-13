@@ -1,10 +1,8 @@
-use std::collections::{HashMap, HashSet};
+use super::types::{CallSiteSummary, InterproceduralEdge};
 use crate::core::NTreeError;
 use crate::models::ControlFlowGraph;
 use crate::storage::{CallEdge, SymbolId, SymbolStore};
-use super::types::{
-    InterproceduralEdge, CallSiteSummary
-};
+use std::collections::{HashMap, HashSet};
 
 /// Summary edge generator for interprocedural analysis.
 #[derive(Debug)]
@@ -29,12 +27,12 @@ impl SummaryEdgeGenerator {
         &mut self,
         call_edges: &[CallEdge],
         function_cfgs: &HashMap<SymbolId, ControlFlowGraph>,
-        _symbol_store: &SymbolStore
+        _symbol_store: &SymbolStore,
     ) -> Result<(), NTreeError> {
         for call_edge in call_edges {
             if call_edge.has_definitive_target() && !call_edge.targets.is_empty() {
                 match self.create_summary_edge(call_edge, function_cfgs) {
-                    Ok(_) => {},
+                    Ok(_) => {}
                     Err(e) => {
                         eprintln!("Warning: Failed to create summary edge for call: {}", e);
                         continue;
@@ -49,7 +47,7 @@ impl SummaryEdgeGenerator {
     fn create_summary_edge(
         &mut self,
         call_edge: &CallEdge,
-        function_cfgs: &HashMap<SymbolId, ControlFlowGraph>
+        function_cfgs: &HashMap<SymbolId, ControlFlowGraph>,
     ) -> Result<(), NTreeError> {
         let callsite_id = self.next_callsite_id;
         self.next_callsite_id += 1;
@@ -57,26 +55,37 @@ impl SummaryEdgeGenerator {
         let caller_sym = call_edge.caller_sym.clone();
         let callee_sym = call_edge.targets[0].clone();
 
-        let caller_node = match self.find_call_site_node(&caller_sym, &call_edge.site_span, function_cfgs) {
-            Some(node) => node,
-            None => return Err(NTreeError::InvalidInput(
-                format!("Could not find call site node for span: {}", call_edge.site_span)
-            )),
-        };
+        let caller_node =
+            match self.find_call_site_node(&caller_sym, &call_edge.site_span, function_cfgs) {
+                Some(node) => node,
+                None => {
+                    return Err(NTreeError::InvalidInput(format!(
+                        "Could not find call site node for span: {}",
+                        call_edge.site_span
+                    )))
+                }
+            };
 
-        let (callee_entry, callee_exits) = match self.get_function_entry_exit(&callee_sym, function_cfgs) {
-            Some(nodes) => nodes,
-            None => return Err(NTreeError::InvalidInput(
-                format!("Could not find entry/exit nodes for callee: {:?}", callee_sym)
-            )),
-        };
+        let (callee_entry, callee_exits) =
+            match self.get_function_entry_exit(&callee_sym, function_cfgs) {
+                Some(nodes) => nodes,
+                None => {
+                    return Err(NTreeError::InvalidInput(format!(
+                        "Could not find entry/exit nodes for callee: {:?}",
+                        callee_sym
+                    )))
+                }
+            };
 
-        let continuation_node = match self.find_continuation_node(&caller_sym, caller_node, function_cfgs) {
-            Some(node) => node,
-            None => return Err(NTreeError::InvalidInput(
-                "Could not find continuation node after call".to_string()
-            )),
-        };
+        let continuation_node =
+            match self.find_continuation_node(&caller_sym, caller_node, function_cfgs) {
+                Some(node) => node,
+                None => {
+                    return Err(NTreeError::InvalidInput(
+                        "Could not find continuation node after call".to_string(),
+                    ))
+                }
+            };
 
         let summary = CallSiteSummary::new(
             callsite_id,
@@ -112,7 +121,12 @@ impl SummaryEdgeGenerator {
         Ok(())
     }
 
-    fn find_call_site_node(&self, caller_sym: &SymbolId, site_span: &str, function_cfgs: &HashMap<SymbolId, ControlFlowGraph>) -> Option<usize> {
+    fn find_call_site_node(
+        &self,
+        caller_sym: &SymbolId,
+        site_span: &str,
+        function_cfgs: &HashMap<SymbolId, ControlFlowGraph>,
+    ) -> Option<usize> {
         if let Some(cfg) = function_cfgs.get(caller_sym) {
             for node in &cfg.nodes {
                 if node.label.contains(site_span) || self.span_matches(&node.label, site_span) {
@@ -126,7 +140,12 @@ impl SummaryEdgeGenerator {
         None
     }
 
-    fn find_continuation_node(&self, caller_sym: &SymbolId, call_node: usize, function_cfgs: &HashMap<SymbolId, ControlFlowGraph>) -> Option<usize> {
+    fn find_continuation_node(
+        &self,
+        caller_sym: &SymbolId,
+        call_node: usize,
+        function_cfgs: &HashMap<SymbolId, ControlFlowGraph>,
+    ) -> Option<usize> {
         if let Some(cfg) = function_cfgs.get(caller_sym) {
             for edge in &cfg.edges {
                 if edge.from == call_node {
@@ -137,7 +156,11 @@ impl SummaryEdgeGenerator {
         None
     }
 
-    fn get_function_entry_exit(&self, function_sym: &SymbolId, function_cfgs: &HashMap<SymbolId, ControlFlowGraph>) -> Option<(usize, Vec<usize>)> {
+    fn get_function_entry_exit(
+        &self,
+        function_sym: &SymbolId,
+        function_cfgs: &HashMap<SymbolId, ControlFlowGraph>,
+    ) -> Option<(usize, Vec<usize>)> {
         if let Some(cfg) = function_cfgs.get(function_sym) {
             if cfg.nodes.is_empty() {
                 return None;
@@ -149,9 +172,10 @@ impl SummaryEdgeGenerator {
 
             for node in &cfg.nodes {
                 let node_id = node.cfg_node;
-                if !has_outgoing.contains(&node_id) ||
-                   node.label.contains("return") ||
-                   node.label.contains("exit") {
+                if !has_outgoing.contains(&node_id)
+                    || node.label.contains("return")
+                    || node.label.contains("exit")
+                {
                     exits.push(node_id);
                 }
             }

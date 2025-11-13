@@ -161,7 +161,10 @@ impl DecisionTree {
 
     /// Get unreachable paths (dead code).
     pub fn unreachable_paths(&self) -> Vec<&DecisionPath> {
-        self.paths.iter().filter(|path| !path.is_reachable).collect()
+        self.paths
+            .iter()
+            .filter(|path| !path.is_reachable)
+            .collect()
     }
 }
 

@@ -1,6 +1,6 @@
-use std::path::PathBuf;
-use serde::{Deserialize, Serialize};
 use super::module_normalizer::ModuleNormalizer;
+use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
 
 /// Normalized module identifier across all languages.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
@@ -67,7 +67,12 @@ pub enum EdgeKind {
 
 impl Module {
     /// Create a new module.
-    pub fn new(id: ModuleId, path_roots: Vec<PathBuf>, language: String, module_type: ModuleType) -> Self {
+    pub fn new(
+        id: ModuleId,
+        path_roots: Vec<PathBuf>,
+        language: String,
+        module_type: ModuleType,
+    ) -> Self {
         Module {
             id,
             path_roots,
@@ -80,6 +85,11 @@ impl Module {
 impl ModuleEdge {
     /// Create a new module edge.
     pub fn new(from: ModuleId, to: ModuleId, kind: EdgeKind, span: String) -> Self {
-        ModuleEdge { from, to, kind, span }
+        ModuleEdge {
+            from,
+            to,
+            kind,
+            span,
+        }
     }
 }

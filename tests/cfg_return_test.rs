@@ -87,9 +87,7 @@ fn mid_return() {
     assert!(!cfg.jsonl.contains("\"label\":\"let dead = 2"));
 
     // Verify return connects to EXIT with exit edge
-    let has_exit_edge = lines
-        .iter()
-        .any(|line| line.contains("\"kind\":\"exit\""));
+    let has_exit_edge = lines.iter().any(|line| line.contains("\"kind\":\"exit\""));
     assert!(has_exit_edge);
 }
 

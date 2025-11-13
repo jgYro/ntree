@@ -50,7 +50,10 @@ mod cross_platform_tests {
 
         // Should find Python functions
         assert!(!functions.all().is_empty(), "Should find Python functions");
-        assert!(!complexity.all().is_empty(), "Should have complexity results");
+        assert!(
+            !complexity.all().is_empty(),
+            "Should have complexity results"
+        );
 
         // Check for Python class constructors
         let symbols = analysis.symbols();

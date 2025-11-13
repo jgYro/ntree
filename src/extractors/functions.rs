@@ -1,5 +1,5 @@
-use crate::models::FunctionSpan;
 use crate::language::LanguageConfig;
+use crate::models::FunctionSpan;
 use tree_sitter::Node;
 
 /// Extracts all functions from a syntax tree.
@@ -11,7 +11,11 @@ use tree_sitter::Node;
 /// - Async, const, and unsafe functions
 ///
 /// The body span always starts at the opening `{` and ends at the closing `}`.
-pub fn extract_functions(root_node: Node, source: &str, config: &LanguageConfig) -> Vec<FunctionSpan> {
+pub fn extract_functions(
+    root_node: Node,
+    source: &str,
+    config: &LanguageConfig,
+) -> Vec<FunctionSpan> {
     let mut functions = Vec::new();
     extract_functions_recursive(root_node, source, config, &mut functions);
     functions

@@ -1,7 +1,7 @@
+use crate::core::NTreeError;
+use crate::storage::{ExportEdge, ImportEdge};
 use std::path::PathBuf;
 use tree_sitter::Node;
-use crate::storage::{ImportEdge, ExportEdge};
-use crate::core::NTreeError;
 
 /// C++-specific import/export extractor.
 pub struct CppImportExtractor;

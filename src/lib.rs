@@ -12,60 +12,137 @@ pub use core::{create_tree_from_file, read_file, NTreeError};
 
 // Model exports
 pub use models::{
-    BasicBlock, BasicBlockEdge, BasicBlockGraph, CFGEdgeIR, CFGNodeIR, CfgEdge, CfgNode,
-    ControlFlowGraph, EarlyExitIR, EarlyExitKind, ForLoopIR, FunctionCFGIR, FunctionSpan,
-    LoopKind, TopLevelItem,
+    ActionType,
+    BasicBlock,
+    BasicBlockEdge,
+    BasicBlockGraph,
+    BranchType,
+    CFGEdgeIR,
+    CFGNodeIR,
+    CfgEdge,
+    CfgNode,
+    ConditionOperator,
+    ControlFlowGraph,
+    DataDependencyEdge,
     // Data flow analysis types
-    DataFlowGraph, DataFlowNode, DataDependencyEdge, DependencyType, VariableDefinition,
-    VariableLifecycle, VariableLifecycleSet, VariableEvent, VariableEventType, VariableScope,
-    DefUseChain, DefUseChainSet, DefUseSite, DefUseSiteType,
-    DecisionTree, DecisionTreeSet, DecisionTreeNode, DecisionAction, DecisionBranch,
-    DecisionCondition, DecisionPath, VariableState, ActionType, BranchType, ConditionOperator,
+    DataFlowGraph,
+    DataFlowNode,
+    DecisionAction,
+    DecisionBranch,
+    DecisionCondition,
+    DecisionPath,
+    DecisionTree,
+    DecisionTreeNode,
+    DecisionTreeSet,
+    DefUseChain,
+    DefUseChainSet,
+    DefUseSite,
+    DefUseSiteType,
+    DependencyType,
+    EarlyExitIR,
+    EarlyExitKind,
+    ForLoopIR,
+    FunctionCFGIR,
+    FunctionSpan,
+    LoopKind,
+    TopLevelItem,
+    VariableDefinition,
+    VariableEvent,
+    VariableEventType,
+    VariableLifecycle,
+    VariableLifecycleSet,
+    VariableScope,
+    VariableState,
 };
 
 // Export format exports
-pub use export::{export_mermaid, export_mermaid_validated, export_jsonl, validate_mermaid, escape_mermaid_label};
-
-// Simple public API
-pub use api::{SourceCode, AnalysisResult};
-
-// Essential functions for existing tests (not part of main API)
-pub use api::{
-    generate_basic_blocks, generate_cfgs, items_to_jsonl, list_top_level_items,
+pub use export::{
+    escape_mermaid_label, export_jsonl, export_mermaid, export_mermaid_validated, validate_mermaid,
 };
 
+// Simple public API
+pub use api::{AnalysisResult, SourceCode};
+
+// Essential functions for existing tests (not part of main API)
+pub use api::{generate_basic_blocks, generate_cfgs, items_to_jsonl, list_top_level_items};
+
 // Language exports
-pub use language::{SupportedLanguage, LanguageConfig, detect_language_config};
+pub use language::{detect_language_config, LanguageConfig, SupportedLanguage};
 
 // Storage exports
 pub use storage::{
-    FileRecord, ContentHash, FileWalker, ParseCache, CacheKey,
-    TopLevelSymbol, FunctionFacts, SymbolStore, SymbolId,
-    SymbolSearcher, ConstructorDetector,
-    // Module dependency graph
-    DependencyGraph, Module, ModuleId, ModuleEdge, ModuleType, EdgeKind,
-    DependencyAnalysis, ImportEdge, ExportEdge, ImportType, ExportType,
-    DataSet, JsonlExporter, ModuleNormalizer,
-    // Global symbol table
-    NameResolver, NameBinding, ResolutionOrigin, ExportTable,
-    // Interprocedural CFG
-    InterproceduralCFG, InterproceduralEdge, InterproceduralEdgeKind,
-    CallSiteSummary, EntryPoint, ReachabilityInfo, FunctionExit,
-    ExceptionalEdge, ExceptionExitKind,
-    // Incremental & cache
-    IncrementalCache, FuncSummary, EffectKind, ThrowsKind, ParamSummary, ReturnSummary, InvalidationEngine,
+    CacheKey,
+    CallSiteId,
+    CallSiteSummary,
     // Call resolution
-    ClassHierarchyAnalyzer, RapidTypeAnalyzer, TypeInstantiated, Resolution,
-    ResolutionAlgorithm, CallSiteId,
+    ClassHierarchyAnalyzer,
+    ConstructorDetector,
+    ContentHash,
+    ContractSpec,
+    DataSet,
+    DependencyAnalysis,
+    // Module dependency graph
+    DependencyGraph,
+    DependencyIndexer,
+    EdgeKind,
+    EffectKind,
+    EntryPoint,
+    ExceptionExitKind,
+    ExceptionalEdge,
+    ExportEdge,
+    ExportTable,
+    ExportType,
     // External libraries
-    ExternalLibraryHandler, ExternalSummary, TaintKind, ContractSpec, SecurityRiskLevel, DependencyIndexer,
+    ExternalLibraryHandler,
+    ExternalSummary,
+    FileRecord,
+    FileWalker,
+    FuncSummary,
+    FunctionExit,
+    FunctionFacts,
+    ImportEdge,
+    ImportType,
+    // Incremental & cache
+    IncrementalCache,
+    // Interprocedural CFG
+    InterproceduralCFG,
+    InterproceduralEdge,
+    InterproceduralEdgeKind,
+    InvalidationEngine,
+    JsonlExporter,
+    Module,
+    ModuleEdge,
+    ModuleId,
+    ModuleNormalizer,
+    ModuleType,
+    NameBinding,
+    // Global symbol table
+    NameResolver,
+    ParamSummary,
+    ParseCache,
     // Project detection
-    ProjectDetector, ProjectInfo, ProjectType,
+    ProjectDetector,
+    ProjectInfo,
+    ProjectType,
+    RapidTypeAnalyzer,
+    ReachabilityInfo,
+    Resolution,
+    ResolutionAlgorithm,
+    ResolutionOrigin,
+    ReturnSummary,
+    SecurityRiskLevel,
+    SymbolId,
+    SymbolSearcher,
+    SymbolStore,
+    TaintKind,
+    ThrowsKind,
+    TopLevelSymbol,
+    TypeInstantiated,
 };
 
 // Analyzer exports
 pub use analyzers::{
-    ComplexityAnalyzer, ComplexityResult, EarlyExitNormalizer, ForLoopNormalizer,
-    DataFlowAnalyzer, VariableLifecycleAnalyzer,
-    WorkspaceDataFlowAnalyzer, WorkspaceDataFlowResult, CrossFileVariable,
+    ComplexityAnalyzer, ComplexityResult, CrossFileVariable, DataFlowAnalyzer, EarlyExitNormalizer,
+    ForLoopNormalizer, VariableLifecycleAnalyzer, WorkspaceDataFlowAnalyzer,
+    WorkspaceDataFlowResult,
 };

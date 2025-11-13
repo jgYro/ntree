@@ -1,7 +1,7 @@
 use crate::core::NTreeError;
 use crate::models::{
-    VariableLifecycle, VariableEvent, VariableEventType, VariableScope, VariableLifecycleSet,
-    ControlFlowGraph, DataFlowGraph,
+    ControlFlowGraph, DataFlowGraph, VariableEvent, VariableEventType, VariableLifecycle,
+    VariableLifecycleSet, VariableScope,
 };
 use std::collections::{HashMap, HashSet};
 
@@ -75,7 +75,12 @@ impl VariableLifecycleAnalyzer {
     }
 
     /// Process a single CFG node for variable events.
-    fn process_node_for_variables(&mut self, node_id: &str, statement: &str, span: &str) -> Result<(), NTreeError> {
+    fn process_node_for_variables(
+        &mut self,
+        node_id: &str,
+        statement: &str,
+        span: &str,
+    ) -> Result<(), NTreeError> {
         let line = self.extract_line_number(span);
         let column = self.extract_column_number(span);
 
@@ -90,7 +95,8 @@ impl VariableLifecycleAnalyzer {
             };
 
             let current_scope = self.scope_stack.last().unwrap().clone();
-            let lifecycle = VariableLifecycle::new(var_name.clone(), definition_event, current_scope);
+            let lifecycle =
+                VariableLifecycle::new(var_name.clone(), definition_event, current_scope);
 
             // Try to infer type
             let enhanced_lifecycle = match self.infer_variable_type(statement) {
@@ -231,14 +237,23 @@ impl VariableLifecycleAnalyzer {
     /// Extract variables from expression.
     fn extract_variables_from_expression(&self, expression: &str) -> Vec<String> {
         let mut variables = Vec::new();
-        let cleaned = expression.replace([';', '(', ')', '+', '-', '*', '/', '&', '|', '!', '<', '>', '='], " ");
+        let cleaned = expression.replace(
+            [
+                ';', '(', ')', '+', '-', '*', '/', '&', '|', '!', '<', '>', '=',
+            ],
+            " ",
+        );
 
         for word in cleaned.split_whitespace() {
             let word = word.trim();
-            if !word.is_empty() &&
-               !word.chars().all(|c| c.is_ascii_digit()) &&
-               !matches!(word, "true" | "false" | "if" | "else" | "while" | "for" | "return" | "mut") &&
-               word.chars().all(|c| c.is_alphanumeric() || c == '_') {
+            if !word.is_empty()
+                && !word.chars().all(|c| c.is_ascii_digit())
+                && !matches!(
+                    word,
+                    "true" | "false" | "if" | "else" | "while" | "for" | "return" | "mut"
+                )
+                && word.chars().all(|c| c.is_alphanumeric() || c == '_')
+            {
                 variables.push(word.to_string());
             }
         }
@@ -322,14 +337,16 @@ impl VariableLifecycleAnalyzer {
 
     /// Extract line number from span.
     fn extract_line_number(&self, span: &str) -> u32 {
-        span.split(':').next()
+        span.split(':')
+            .next()
             .and_then(|s| s.parse().ok())
             .unwrap_or(0)
     }
 
     /// Extract column number from span.
     fn extract_column_number(&self, span: &str) -> u32 {
-        span.split(':').nth(1)
+        span.split(':')
+            .nth(1)
             .and_then(|s| s.parse().ok())
             .unwrap_or(0)
     }

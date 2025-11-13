@@ -1,5 +1,4 @@
 /// Intermediate Representation models for language-agnostic analysis.
-
 pub mod basic_block;
 pub mod basic_block_graph;
 pub mod cfg_ir;

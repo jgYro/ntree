@@ -1,7 +1,7 @@
+use crate::core::NTreeError;
+use crate::storage::TopLevelSymbol;
 use std::path::PathBuf;
 use tree_sitter::Node;
-use crate::storage::TopLevelSymbol;
-use crate::core::NTreeError;
 
 /// C++-specific symbol extractor.
 pub struct CppSymbolExtractor;

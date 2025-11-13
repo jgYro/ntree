@@ -118,16 +118,38 @@ mod annotation_tests {
             // All CFG IR records should include source and confidence fields
             let cfg_lines: Vec<&str> = jsonl
                 .lines()
-                .filter(|line| line.contains("\"type\":\"CFGNode\"") || line.contains("\"type\":\"CFGEdge\""))
+                .filter(|line| {
+                    line.contains("\"type\":\"CFGNode\"") || line.contains("\"type\":\"CFGEdge\"")
+                })
                 .collect();
 
-            assert!(!cfg_lines.is_empty(), "Should have CFG IR records for function {}", cfg_ir.function_name);
+            assert!(
+                !cfg_lines.is_empty(),
+                "Should have CFG IR records for function {}",
+                cfg_ir.function_name
+            );
 
             for line in cfg_lines {
-                assert!(line.contains("\"source\":"), "Line should contain source field: {}", line);
-                assert!(line.contains("\"confidence\":"), "Line should contain confidence field: {}", line);
-                assert!(line.contains("\"source\":\"tree-sitter\""), "Source should be tree-sitter: {}", line);
-                assert!(line.contains("\"confidence\":\"exact\""), "Confidence should be exact: {}", line);
+                assert!(
+                    line.contains("\"source\":"),
+                    "Line should contain source field: {}",
+                    line
+                );
+                assert!(
+                    line.contains("\"confidence\":"),
+                    "Line should contain confidence field: {}",
+                    line
+                );
+                assert!(
+                    line.contains("\"source\":\"tree-sitter\""),
+                    "Source should be tree-sitter: {}",
+                    line
+                );
+                assert!(
+                    line.contains("\"confidence\":\"exact\""),
+                    "Confidence should be exact: {}",
+                    line
+                );
             }
         }
     }
@@ -193,8 +215,12 @@ mod annotation_tests {
         // Verify exact structure
         let expected_fields = ["type", "func", "from", "to", "kind", "source", "confidence"];
         for field in expected_fields {
-            assert!(json.contains(&format!("\"{}\":", field)),
-                "JSON should contain field {}: {}", field, json);
+            assert!(
+                json.contains(&format!("\"{}\":", field)),
+                "JSON should contain field {}: {}",
+                field,
+                json
+            );
         }
     }
 }

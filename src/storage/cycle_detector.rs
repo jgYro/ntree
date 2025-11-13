@@ -1,5 +1,5 @@
-use std::collections::{HashMap, HashSet};
 use super::module_graph::ModuleId;
+use std::collections::{HashMap, HashSet};
 
 /// Cycle detection and topological sorting utilities.
 pub struct CycleDetector;
@@ -46,7 +46,9 @@ impl CycleDetector {
         if let Some(neighbors) = adjacency.get(node) {
             for neighbor in neighbors {
                 if !visited.contains(neighbor) {
-                    Self::dfs_cycle_detection(neighbor, adjacency, visited, rec_stack, cycles, path);
+                    Self::dfs_cycle_detection(
+                        neighbor, adjacency, visited, rec_stack, cycles, path,
+                    );
                 } else if rec_stack.contains(neighbor) {
                     // Found cycle
                     if let Some(cycle_start) = path.iter().position(|n| n == neighbor) {
@@ -75,12 +77,15 @@ impl CycleDetector {
 
         while !remaining.is_empty() {
             // Find a module with no dependencies in remaining set
-            let next = remaining.iter().find(|&&ref module| {
-                adjacency
-                    .get(module)
-                    .map(|deps| deps.iter().all(|dep| !remaining.contains(dep)))
-                    .unwrap_or(true)
-            }).cloned();
+            let next = remaining
+                .iter()
+                .find(|&&ref module| {
+                    adjacency
+                        .get(module)
+                        .map(|deps| deps.iter().all(|dep| !remaining.contains(dep)))
+                        .unwrap_or(true)
+                })
+                .cloned();
 
             match next {
                 Some(module) => {

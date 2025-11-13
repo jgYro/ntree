@@ -1,6 +1,6 @@
-use std::path::PathBuf;
-use serde::{Deserialize, Serialize};
 use super::symbol_core::SymbolId;
+use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
 
 /// Resolution confidence levels for name bindings.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -34,11 +34,7 @@ pub struct NameBinding {
 
 impl NameBinding {
     /// Create a new name binding.
-    pub fn new(
-        site_span: String,
-        file_path: PathBuf,
-        name: String,
-    ) -> Self {
+    pub fn new(site_span: String, file_path: PathBuf, name: String) -> Self {
         NameBinding {
             site_span,
             file_path,

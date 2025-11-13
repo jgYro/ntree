@@ -1,8 +1,8 @@
+use super::ast_utils::RustAstUtils;
+use crate::core::NTreeError;
+use crate::storage::{ExportEdge, ImportEdge, ImportType};
 use std::path::PathBuf;
 use tree_sitter::Node;
-use crate::core::NTreeError;
-use crate::storage::{ImportEdge, ExportEdge, ImportType};
-use super::ast_utils::RustAstUtils;
 
 /// Rust-specific import/export extractor.
 pub struct RustImportExtractor;

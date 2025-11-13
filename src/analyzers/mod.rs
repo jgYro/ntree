@@ -1,5 +1,4 @@
 /// Language-specific analyzers and language-agnostic IR normalization.
-
 pub mod complexity_analyzer;
 pub mod data_flow_analyzer;
 pub mod early_exit_normalizer;
@@ -13,4 +12,6 @@ pub use data_flow_analyzer::DataFlowAnalyzer;
 pub use early_exit_normalizer::EarlyExitNormalizer;
 pub use for_loop_normalizer::ForLoopNormalizer;
 pub use variable_lifecycle_analyzer::VariableLifecycleAnalyzer;
-pub use workspace_data_flow_analyzer::{WorkspaceDataFlowAnalyzer, WorkspaceDataFlowResult, CrossFileVariable};
+pub use workspace_data_flow_analyzer::{
+    CrossFileVariable, WorkspaceDataFlowAnalyzer, WorkspaceDataFlowResult,
+};

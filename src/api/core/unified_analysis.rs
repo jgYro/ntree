@@ -1,13 +1,13 @@
-use std::path::PathBuf;
-use std::collections::HashMap;
+use crate::analyzers::ComplexityResult;
+use crate::api::analysis::analysis_runner::AnalysisRunner;
+use crate::api::analysis::AnalysisOptions;
+use crate::api::analysis::{BasicBlockResult, CfgResult};
+use crate::api::results::workspace_methods::{WorkspaceMethods, WorkspaceStats};
 use crate::core::NTreeError;
 use crate::models::FunctionSpan;
-use crate::analyzers::ComplexityResult;
-use crate::api::analysis::{CfgResult, BasicBlockResult};
-use crate::storage::{SymbolStore, FileRecord, CallGraph, NameResolver};
-use crate::api::analysis::AnalysisOptions;
-use crate::api::results::workspace_methods::{WorkspaceMethods, WorkspaceStats};
-use crate::api::analysis::analysis_runner::AnalysisRunner;
+use crate::storage::{CallGraph, FileRecord, NameResolver, SymbolStore};
+use std::collections::HashMap;
+use std::path::PathBuf;
 /// Unified analysis results supporting both single file and workspace analysis.
 #[derive(Debug)]
 pub struct AnalysisResult {
@@ -101,7 +101,10 @@ impl AnalysisResult {
         Ok(result)
     }
     /// Workspace analysis.
-    fn from_workspace(workspace_path: PathBuf, options: AnalysisOptions) -> Result<Self, NTreeError> {
+    fn from_workspace(
+        workspace_path: PathBuf,
+        options: AnalysisOptions,
+    ) -> Result<Self, NTreeError> {
         let mut result = AnalysisResult {
             complexity_data: Vec::new(),
             cfg_data: Vec::new(),
@@ -130,6 +133,37 @@ impl AnalysisResult {
         result.file_records = files;
         result.files_by_language = by_lang;
         result.workspace_stats = Some(WorkspaceMethods::get_workspace_stats(&result.file_records));
+
+        // Run CFG generation for workspace (if enabled)
+        if options.cfg_generation {
+            for file_record in &result.file_records {
+                if let Ok(mut file_cfgs) = AnalysisRunner::run_cfg_generation(&file_record.path) {
+                    result.cfg_data.append(&mut file_cfgs);
+                }
+            }
+        }
+
+        // Run complexity analysis for workspace (if enabled)
+        if options.complexity_analysis {
+            for file_record in &result.file_records {
+                if let Ok(mut file_complexity) =
+                    AnalysisRunner::run_complexity_analysis(&file_record.path)
+                {
+                    result.complexity_data.append(&mut file_complexity);
+                }
+            }
+        }
+
+        // Run basic block generation for workspace (if enabled)
+        if options.basic_blocks {
+            for file_record in &result.file_records {
+                if let Ok(mut file_blocks) =
+                    AnalysisRunner::run_basic_block_generation(&file_record.path)
+                {
+                    result.basic_block_data.append(&mut file_blocks);
+                }
+            }
+        }
 
         // Workspace data flow analysis (if enabled)
         if let Some(workspace_data_flow) = WorkspaceMethods::analyze_workspace_data_flow(

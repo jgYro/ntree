@@ -1,6 +1,6 @@
-use std::path::Path;
-use crate::core::NTreeError;
 use super::LanguageConfig;
+use crate::core::NTreeError;
+use std::path::Path;
 
 /// Supported programming languages for analysis.
 #[derive(Debug, Clone, PartialEq)]
@@ -26,12 +26,15 @@ impl SupportedLanguage {
             Some("ts") => Ok(SupportedLanguage::TypeScript),
             Some("java") => Ok(SupportedLanguage::Java),
             Some("c") | Some("h") => Ok(SupportedLanguage::C),
-            Some("cpp") | Some("cc") | Some("cxx") | Some("hpp") | Some("hxx") => Ok(SupportedLanguage::Cpp),
+            Some("cpp") | Some("cc") | Some("cxx") | Some("hpp") | Some("hxx") => {
+                Ok(SupportedLanguage::Cpp)
+            }
             Some(ext) => Err(NTreeError::ParseError(format!(
-                "Unsupported file extension: .{}", ext
+                "Unsupported file extension: .{}",
+                ext
             ))),
             None => Err(NTreeError::ParseError(
-                "Unable to determine file extension".to_string()
+                "Unable to determine file extension".to_string(),
             )),
         }
     }

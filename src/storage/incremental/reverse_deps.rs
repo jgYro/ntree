@@ -1,6 +1,6 @@
-use std::collections::{HashMap, HashSet};
-use crate::storage::SymbolId;
 use crate::core::NTreeError;
+use crate::storage::SymbolId;
+use std::collections::{HashMap, HashSet};
 
 /// Reverse dependency index for efficient invalidation.
 #[derive(Debug)]
@@ -62,16 +62,25 @@ impl ReverseDependencyIndex {
 
     /// Get direct callers of a function.
     pub fn get_direct_callers(&self, function: &SymbolId) -> HashSet<SymbolId> {
-        self.reverse_calls.get(function).cloned().unwrap_or_default()
+        self.reverse_calls
+            .get(function)
+            .cloned()
+            .unwrap_or_default()
     }
 
     /// Get direct callees of a function.
     pub fn get_direct_callees(&self, function: &SymbolId) -> HashSet<SymbolId> {
-        self.forward_calls.get(function).cloned().unwrap_or_default()
+        self.forward_calls
+            .get(function)
+            .cloned()
+            .unwrap_or_default()
     }
 
     /// Get all transitive callers (functions that transitively depend on this function).
-    pub fn get_transitive_callers(&mut self, function: &SymbolId) -> Result<HashSet<SymbolId>, NTreeError> {
+    pub fn get_transitive_callers(
+        &mut self,
+        function: &SymbolId,
+    ) -> Result<HashSet<SymbolId>, NTreeError> {
         if let Some(cached) = self.transitive_cache.get(function) {
             return Ok(cached.clone());
         }
@@ -94,12 +103,16 @@ impl ReverseDependencyIndex {
             }
         }
 
-        self.transitive_cache.insert(function.clone(), transitive_callers.clone());
+        self.transitive_cache
+            .insert(function.clone(), transitive_callers.clone());
         Ok(transitive_callers)
     }
 
     /// Get functions that need recomputation when target function changes.
-    pub fn get_invalidation_set(&mut self, changed_function: &SymbolId) -> Result<HashSet<SymbolId>, NTreeError> {
+    pub fn get_invalidation_set(
+        &mut self,
+        changed_function: &SymbolId,
+    ) -> Result<HashSet<SymbolId>, NTreeError> {
         let mut invalidation_set = HashSet::new();
 
         // Include the changed function itself
@@ -113,7 +126,10 @@ impl ReverseDependencyIndex {
     }
 
     /// Update index from function summaries.
-    pub fn rebuild_from_summaries<'a>(&mut self, summaries: impl Iterator<Item = &'a super::func_summary::FuncSummary>) {
+    pub fn rebuild_from_summaries<'a>(
+        &mut self,
+        summaries: impl Iterator<Item = &'a super::func_summary::FuncSummary>,
+    ) {
         self.clear();
 
         for summary in summaries {
@@ -134,8 +150,18 @@ impl ReverseDependencyIndex {
     pub fn get_stats(&self) -> DependencyStats {
         let total_functions = self.forward_calls.len();
         let total_calls: usize = self.forward_calls.values().map(|s| s.len()).sum();
-        let max_fanin = self.reverse_calls.values().map(|s| s.len()).max().unwrap_or(0);
-        let max_fanout = self.forward_calls.values().map(|s| s.len()).max().unwrap_or(0);
+        let max_fanin = self
+            .reverse_calls
+            .values()
+            .map(|s| s.len())
+            .max()
+            .unwrap_or(0);
+        let max_fanout = self
+            .forward_calls
+            .values()
+            .map(|s| s.len())
+            .max()
+            .unwrap_or(0);
 
         DependencyStats {
             total_functions,

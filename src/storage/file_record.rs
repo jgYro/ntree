@@ -1,8 +1,8 @@
-use std::path::{Path, PathBuf};
-use serde::{Deserialize, Serialize};
-use sha2::{Sha256, Digest};
-use crate::language::SupportedLanguage;
 use crate::core::NTreeError;
+use crate::language::SupportedLanguage;
+use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
+use std::path::{Path, PathBuf};
 
 /// Content hash for change detection and cache invalidation.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]

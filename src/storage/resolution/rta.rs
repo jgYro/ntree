@@ -1,8 +1,8 @@
-use std::collections::{HashMap, HashSet};
-use crate::storage::SymbolId;
-use crate::core::NTreeError;
-use super::types::{TypeInstantiated, Resolution, CallSiteId};
 use super::cha::ClassHierarchyAnalyzer;
+use super::types::{CallSiteId, Resolution, TypeInstantiated};
+use crate::core::NTreeError;
+use crate::storage::SymbolId;
+use std::collections::{HashMap, HashSet};
 
 /// Rapid Type Analysis for precise OO call resolution.
 #[derive(Debug)]
@@ -51,7 +51,7 @@ impl RapidTypeAnalyzer {
         receiver_type: &SymbolId,
         method_name: &str,
         caller: SymbolId,
-        call_expr: String
+        call_expr: String,
     ) -> Result<Resolution, NTreeError> {
         // Start with CHA resolution
         let cha_resolution = self.cha_analyzer.resolve_virtual_call(
@@ -59,7 +59,7 @@ impl RapidTypeAnalyzer {
             receiver_type,
             method_name,
             caller.clone(),
-            call_expr.clone()
+            call_expr.clone(),
         )?;
 
         // Filter candidates by instantiated types

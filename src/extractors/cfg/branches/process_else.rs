@@ -1,7 +1,7 @@
-use crate::models::{CfgEdge, CfgNode, ControlFlowGraph};
-use super::super::core::{CfgContext, get_statement_text, is_statement_node};
-use super::process_if::process_if;
+use super::super::core::{get_statement_text, is_statement_node, CfgContext};
 use super::control_flow_handler::handle_control_flow_expression;
+use super::process_if::process_if;
+use crate::models::{CfgEdge, CfgNode, ControlFlowGraph};
 use tree_sitter::Node;
 
 /// Process else branch.
@@ -47,9 +47,9 @@ fn process_else_block(
         }
 
         // Handle control flow expressions
-        if let Some((new_current, new_first)) = handle_control_flow_expression(
-            cfg, ctx, stmt, source, cond_id, current, first, "false"
-        ) {
+        if let Some((new_current, new_first)) =
+            handle_control_flow_expression(cfg, ctx, stmt, source, cond_id, current, first, "false")
+        {
             current = new_current;
             first = new_first;
             continue;

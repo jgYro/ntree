@@ -1,8 +1,8 @@
-use crate::models::{
-    DataFlowGraph, VariableLifecycleSet, DefUseChainSet, DecisionTreeSet,
-    VariableLifecycle, DefUseChain, DecisionTree,
-};
 use crate::analyzers::CrossFileVariable;
+use crate::models::{
+    DataFlowGraph, DecisionTree, DecisionTreeSet, DefUseChain, DefUseChainSet, VariableLifecycle,
+    VariableLifecycleSet,
+};
 
 /// Result set for data flow graphs with filtering and export capabilities.
 pub struct DataFlowResultSet<'a> {
@@ -22,12 +22,15 @@ impl<'a> DataFlowResultSet<'a> {
 
     /// Get data flow graph for specific function.
     pub fn for_function(&self, function_name: &str) -> Option<&DataFlowGraph> {
-        self.data.iter().find(|graph| graph.function_name == function_name)
+        self.data
+            .iter()
+            .find(|graph| graph.function_name == function_name)
     }
 
     /// Get functions with data dependencies.
     pub fn functions_with_dependencies(&self) -> Vec<&str> {
-        self.data.iter()
+        self.data
+            .iter()
             .filter(|graph| !graph.edges.is_empty())
             .map(|graph| graph.function_name.as_str())
             .collect()
@@ -62,17 +65,29 @@ impl<'a> VariableLifecycleResultSet<'a> {
 
     /// Get variables that are mutated after definition.
     pub fn mutated_variables(&self) -> Vec<&VariableLifecycle> {
-        self.data.all().into_iter().filter(|lifecycle| lifecycle.is_mutated()).collect()
+        self.data
+            .all()
+            .into_iter()
+            .filter(|lifecycle| lifecycle.is_mutated())
+            .collect()
     }
 
     /// Get variables that are never used.
     pub fn unused_variables(&self) -> Vec<&VariableLifecycle> {
-        self.data.all().into_iter().filter(|lifecycle| !lifecycle.is_used()).collect()
+        self.data
+            .all()
+            .into_iter()
+            .filter(|lifecycle| !lifecycle.is_used())
+            .collect()
     }
 
     /// Get variables live at function exit.
     pub fn live_variables(&self) -> Vec<&VariableLifecycle> {
-        self.data.all().into_iter().filter(|lifecycle| lifecycle.live_at_exit).collect()
+        self.data
+            .all()
+            .into_iter()
+            .filter(|lifecycle| lifecycle.live_at_exit)
+            .collect()
     }
 }
 
@@ -104,7 +119,9 @@ impl<'a> DefUseChainResultSet<'a> {
 
     /// Get chains with multiple uses.
     pub fn heavily_used_definitions(&self, min_uses: usize) -> Vec<&DefUseChain> {
-        self.data.all().into_iter()
+        self.data
+            .all()
+            .into_iter()
             .filter(|chain| chain.use_count() >= min_uses)
             .collect()
     }
@@ -133,7 +150,9 @@ impl<'a> DecisionTreeResultSet<'a> {
 
     /// Get functions with unreachable paths.
     pub fn functions_with_dead_code(&self) -> Vec<&str> {
-        self.data.all().into_iter()
+        self.data
+            .all()
+            .into_iter()
             .filter(|tree| !tree.unreachable_paths().is_empty())
             .map(|tree| tree.function_name.as_str())
             .collect()
@@ -146,7 +165,9 @@ impl<'a> DecisionTreeResultSet<'a> {
 
     /// Get total number of reachable paths.
     pub fn reachable_paths(&self) -> usize {
-        self.data.all().iter()
+        self.data
+            .all()
+            .iter()
             .map(|tree| tree.reachable_paths().len())
             .sum()
     }
@@ -170,22 +191,22 @@ impl<'a> CrossFileVariableResultSet<'a> {
 
     /// Get variables imported from external modules.
     pub fn imported_variables(&self) -> Vec<&CrossFileVariable> {
-        self.data.iter()
+        self.data
+            .iter()
             .filter(|var| !var.usage_files.is_empty())
             .collect()
     }
 
     /// Get variables by definition file.
     pub fn from_file(&self, file_path: &str) -> Vec<&CrossFileVariable> {
-        self.data.iter()
+        self.data
+            .iter()
             .filter(|var| var.definition_file.to_string_lossy().contains(file_path))
             .collect()
     }
 
     /// Get total number of cross-file dependencies.
     pub fn total_cross_file_dependencies(&self) -> usize {
-        self.data.iter()
-            .map(|var| var.usage_files.len())
-            .sum()
+        self.data.iter().map(|var| var.usage_files.len()).sum()
     }
 }

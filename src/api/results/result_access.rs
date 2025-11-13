@@ -1,14 +1,19 @@
-use std::collections::HashMap;
-use crate::core::NTreeError;
-use crate::storage::{FileRecord, CallGraph, NameResolver, DependencyGraph};
-use crate::api::core::unified_analysis::AnalysisResult;
-use super::result_sets::{ComplexityResultSet, CfgResultSet};
-use super::function_results::{FunctionResultSet, BasicBlockResultSet};
+use super::advanced_result_sets::{
+    ExternalLibraryResultSet, IncrementalResultSet, InterproceduralResultSet,
+};
+use super::data_flow_result_sets::{
+    CrossFileVariableResultSet, DataFlowResultSet, DecisionTreeResultSet, DefUseChainResultSet,
+    VariableLifecycleResultSet,
+};
+use super::function_results::{BasicBlockResultSet, FunctionResultSet};
+use super::result_sets::{CfgResultSet, ComplexityResultSet};
 use super::symbol_methods::SymbolResultSet;
 use super::workspace_methods::WorkspaceStats;
-use super::advanced_result_sets::{InterproceduralResultSet, IncrementalResultSet, ExternalLibraryResultSet};
-use super::data_flow_result_sets::{DataFlowResultSet, VariableLifecycleResultSet, DefUseChainResultSet, DecisionTreeResultSet, CrossFileVariableResultSet};
+use crate::api::core::unified_analysis::AnalysisResult;
 use crate::api::export::export_utils::ExportUtils;
+use crate::core::NTreeError;
+use crate::storage::{CallGraph, DependencyGraph, FileRecord, NameResolver};
+use std::collections::HashMap;
 
 /// Implementation of result access methods for unified AnalysisResult.
 impl AnalysisResult {
@@ -61,7 +66,11 @@ impl AnalysisResult {
 
     /// Export all results to JSONL format.
     pub fn to_jsonl(&self) -> Result<String, NTreeError> {
-        ExportUtils::to_jsonl(&self.cfg_data, &self.basic_block_data, &self.complexity_data)
+        ExportUtils::to_jsonl(
+            &self.cfg_data,
+            &self.basic_block_data,
+            &self.complexity_data,
+        )
     }
 
     /// Check if this is workspace analysis mode.
@@ -139,5 +148,4 @@ impl AnalysisResult {
     pub fn cross_file_variables(&self) -> CrossFileVariableResultSet {
         CrossFileVariableResultSet::new(&self.cross_file_variables)
     }
-
 }

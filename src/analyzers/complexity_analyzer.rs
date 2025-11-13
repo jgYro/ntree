@@ -1,6 +1,6 @@
-use std::collections::{HashMap, HashSet};
-use serde::{Deserialize, Serialize};
 use crate::models::ir::FunctionCFGIR;
+use serde::{Deserialize, Serialize};
+use std::collections::{HashMap, HashSet};
 
 /// Complexity and reachability analysis result for a function.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -57,7 +57,10 @@ impl ComplexityAnalyzer {
         // Build adjacency list from edges
         let mut adjacency: HashMap<String, Vec<String>> = HashMap::new();
         for edge in &cfg.edges {
-            adjacency.entry(edge.from.clone()).or_insert_with(Vec::new).push(edge.to.clone());
+            adjacency
+                .entry(edge.from.clone())
+                .or_insert_with(Vec::new)
+                .push(edge.to.clone());
         }
 
         // Find ENTRY node or the first node if no explicit ENTRY

@@ -10,7 +10,11 @@ use tree_sitter::Node;
 ///
 /// # Returns
 /// List of top-level items with their types, names, and locations
-pub fn extract_top_level_items(file_path: &str, root_node: Node, source: &str) -> Vec<TopLevelItem> {
+pub fn extract_top_level_items(
+    file_path: &str,
+    root_node: Node,
+    source: &str,
+) -> Vec<TopLevelItem> {
     let mut items = Vec::new();
     let mut cursor = root_node.walk();
 

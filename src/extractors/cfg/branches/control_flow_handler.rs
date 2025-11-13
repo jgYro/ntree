@@ -1,6 +1,6 @@
-use crate::models::ControlFlowGraph;
 use super::super::core::CfgContext;
-use super::super::statements::{process_while, process_break, process_continue, process_match};
+use super::super::statements::{process_break, process_continue, process_match, process_while};
+use crate::models::ControlFlowGraph;
 use tree_sitter::Node;
 
 /// Handle control flow expressions in branches with proper edge connections.

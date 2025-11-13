@@ -1,6 +1,6 @@
-use crate::models::{CfgEdge, CfgNode, ControlFlowGraph, EarlyExitIR};
-use crate::analyzers::EarlyExitNormalizer;
 use super::super::core::CfgContext;
+use crate::analyzers::EarlyExitNormalizer;
+use crate::models::{CfgEdge, CfgNode, ControlFlowGraph, EarlyExitIR};
 use tree_sitter::Node;
 
 /// Process early-exit constructs (try operators and panic statements).

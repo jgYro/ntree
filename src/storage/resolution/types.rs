@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use crate::storage::SymbolId;
+use serde::{Deserialize, Serialize};
 
 /// Unique identifier for call sites.
 pub type CallSiteId = usize;
@@ -70,7 +70,12 @@ pub struct Resolution {
 
 impl Resolution {
     /// Create new resolution with direct target.
-    pub fn direct(callsite_id: CallSiteId, target: SymbolId, caller: SymbolId, call_expr: String) -> Self {
+    pub fn direct(
+        callsite_id: CallSiteId,
+        target: SymbolId,
+        caller: SymbolId,
+        call_expr: String,
+    ) -> Self {
         Resolution {
             callsite_id,
             targets: vec![target],
@@ -83,7 +88,12 @@ impl Resolution {
     }
 
     /// Create CHA resolution with multiple candidates.
-    pub fn cha(callsite_id: CallSiteId, targets: Vec<SymbolId>, caller: SymbolId, call_expr: String) -> Self {
+    pub fn cha(
+        callsite_id: CallSiteId,
+        targets: Vec<SymbolId>,
+        caller: SymbolId,
+        call_expr: String,
+    ) -> Self {
         let confidence = if targets.len() == 1 { 0.9 } else { 0.7 };
         Resolution {
             callsite_id,
@@ -97,7 +107,12 @@ impl Resolution {
     }
 
     /// Create RTA resolution with instantiation filtering.
-    pub fn rta(callsite_id: CallSiteId, targets: Vec<SymbolId>, caller: SymbolId, call_expr: String) -> Self {
+    pub fn rta(
+        callsite_id: CallSiteId,
+        targets: Vec<SymbolId>,
+        caller: SymbolId,
+        call_expr: String,
+    ) -> Self {
         let confidence = match targets.len() {
             1 => 0.95,
             2..=3 => 0.8,
@@ -115,7 +130,12 @@ impl Resolution {
     }
 
     /// Create heuristic resolution.
-    pub fn heuristic(callsite_id: CallSiteId, targets: Vec<SymbolId>, caller: SymbolId, call_expr: String) -> Self {
+    pub fn heuristic(
+        callsite_id: CallSiteId,
+        targets: Vec<SymbolId>,
+        caller: SymbolId,
+        call_expr: String,
+    ) -> Self {
         Resolution {
             callsite_id,
             targets,

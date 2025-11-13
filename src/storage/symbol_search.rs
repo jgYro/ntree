@@ -1,7 +1,7 @@
-use regex::Regex;
-use crate::core::NTreeError;
 use super::symbol_core::TopLevelSymbol;
 use super::symbol_store::SymbolStore;
+use crate::core::NTreeError;
+use regex::Regex;
 
 /// Query parameters for advanced symbol searching.
 #[derive(Debug, Clone)]
@@ -71,7 +71,12 @@ impl SymbolSearcher {
     ) -> Result<Vec<&'a TopLevelSymbol>, NTreeError> {
         let regex = match Regex::new(pattern) {
             Ok(r) => r,
-            Err(e) => return Err(NTreeError::ParseError(format!("Invalid regex pattern: {}", e))),
+            Err(e) => {
+                return Err(NTreeError::ParseError(format!(
+                    "Invalid regex pattern: {}",
+                    e
+                )))
+            }
         };
 
         let matches = store

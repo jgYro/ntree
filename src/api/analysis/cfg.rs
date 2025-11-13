@@ -4,7 +4,7 @@ use crate::extractors::cfg::ir_converter::CFGToIRConverter;
 use crate::extractors::cfg::processors::build_basic_blocks_from_block;
 use crate::language::{detect_language_config, LanguageConfig};
 use crate::models::FunctionCFGIR;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::path::Path;
 use tree_sitter::{Node, Parser};
 
@@ -134,9 +134,9 @@ pub fn generate_basic_blocks<P: AsRef<Path>>(path: P) -> Result<Vec<BasicBlockRe
     let config = detect_language_config(path_ref)?;
 
     let mut parser = Parser::new();
-    parser.set_language(&config.language).map_err(|e| {
-        NTreeError::ParseError(format!("Failed to set language: {:?}", e))
-    })?;
+    parser
+        .set_language(&config.language)
+        .map_err(|e| NTreeError::ParseError(format!("Failed to set language: {:?}", e)))?;
 
     let tree = match parser.parse(&source, None) {
         Some(tree) => tree,
@@ -174,9 +174,9 @@ pub fn generate_cfg_ir<P: AsRef<Path>>(path: P) -> Result<Vec<FunctionCFGIR>, NT
     let config = detect_language_config(path_ref)?;
 
     let mut parser = Parser::new();
-    parser.set_language(&config.language).map_err(|e| {
-        NTreeError::ParseError(format!("Failed to set language: {:?}", e))
-    })?;
+    parser
+        .set_language(&config.language)
+        .map_err(|e| NTreeError::ParseError(format!("Failed to set language: {:?}", e)))?;
 
     let tree = match parser.parse(&source, None) {
         Some(tree) => tree,
@@ -194,7 +194,8 @@ pub fn generate_cfg_ir<P: AsRef<Path>>(path: P) -> Result<Vec<FunctionCFGIR>, NT
 
             if let Some(body_node) = find_body_node(node, &config) {
                 let cfg = build_cfg_from_block(body_node, &source);
-                let ir = CFGToIRConverter::convert_to_ir(&cfg, function_name, Some(source_file.clone()));
+                let ir =
+                    CFGToIRConverter::convert_to_ir(&cfg, function_name, Some(source_file.clone()));
                 results.push(ir);
             }
         }

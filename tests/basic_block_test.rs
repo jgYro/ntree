@@ -54,7 +54,10 @@ fn test_coalescing() {
 
     // Basic blocks should have fewer nodes (coalesced statements)
     assert!(bb_block_count < cfg_node_count);
-    println!("CFG nodes: {}, Basic blocks: {}", cfg_node_count, bb_block_count);
+    println!(
+        "CFG nodes: {}, Basic blocks: {}",
+        cfg_node_count, bb_block_count
+    );
 
     // Verify basic block contains multiple statements
     assert!(bb_result.jsonl.contains("\"stmts\":["));

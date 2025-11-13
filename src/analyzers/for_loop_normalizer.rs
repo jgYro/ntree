@@ -1,5 +1,5 @@
-use crate::models::ForLoopIR;
 use crate::analyzers::language_specific::RustForLoopAnalyzer;
+use crate::models::ForLoopIR;
 use tree_sitter::Node;
 
 /// Language-agnostic for loop normalizer.

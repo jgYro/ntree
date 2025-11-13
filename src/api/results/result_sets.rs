@@ -1,6 +1,6 @@
-use crate::core::NTreeError;
 use crate::analyzers::ComplexityResult;
 use crate::api::analysis::CfgResult;
+use crate::core::NTreeError;
 
 /// Filtered view of complexity analysis results.
 #[derive(Debug)]
@@ -43,7 +43,10 @@ impl<'a> ComplexityResultSet<'a> {
                     jsonl.push('\n');
                 }
                 Err(e) => {
-                    return Err(NTreeError::ParseError(format!("JSON serialization failed: {}", e)))
+                    return Err(NTreeError::ParseError(format!(
+                        "JSON serialization failed: {}",
+                        e
+                    )))
                 }
             }
         }

@@ -73,15 +73,26 @@ fn test_minimal_configuration_excludes_data_flow() {
         .expect("Analysis should succeed");
 
     // Minimal should only have complexity and CFG
-    assert!(analysis.complexity().len() > 0, "Should have complexity analysis");
+    assert!(
+        analysis.complexity().len() > 0,
+        "Should have complexity analysis"
+    );
     assert!(analysis.cfgs().len() > 0, "Should have CFG analysis");
 
     // Data flow features should be empty in minimal mode
     let data_flow = analysis.data_flow();
     let variables = analysis.variables();
 
-    assert_eq!(data_flow.all().len(), 0, "Minimal mode should not include data flow");
-    assert_eq!(variables.all().len(), 0, "Minimal mode should not include variables");
+    assert_eq!(
+        data_flow.all().len(),
+        0,
+        "Minimal mode should not include data flow"
+    );
+    assert_eq!(
+        variables.all().len(),
+        0,
+        "Minimal mode should not include variables"
+    );
 }
 
 #[test]
@@ -165,7 +176,10 @@ fn test_def_use_chain_filtering() {
     if !all_chains.is_empty() {
         let function_name = &all_chains[0].function_name;
         let function_chains = def_use.for_function(function_name);
-        assert!(!function_chains.is_empty(), "Should find chains for function");
+        assert!(
+            !function_chains.is_empty(),
+            "Should find chains for function"
+        );
     }
 }
 
@@ -187,7 +201,10 @@ fn test_decision_tree_filtering() {
     let functions_with_dead_code = decisions.functions_with_dead_code();
 
     // Basic validation
-    assert!(reachable_paths <= total_paths, "Reachable paths should not exceed total");
+    assert!(
+        reachable_paths <= total_paths,
+        "Reachable paths should not exceed total"
+    );
     assert!(functions_with_dead_code.len() <= all_trees.len());
 
     // Test function-specific lookup
@@ -224,6 +241,9 @@ fn test_data_flow_graph_methods() {
         assert!(graph.is_some(), "Should find graph for function");
     }
 
-    println!("Data flow analysis - Functions with dependencies: {}", functions_with_deps.len());
+    println!(
+        "Data flow analysis - Functions with dependencies: {}",
+        functions_with_deps.len()
+    );
     println!("Data flow analysis - Total dependencies: {}", total_deps);
 }

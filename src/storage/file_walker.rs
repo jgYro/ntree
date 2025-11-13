@@ -1,8 +1,8 @@
-use std::path::{Path, PathBuf};
-use std::collections::HashMap;
-use jwalk::{WalkDir, DirEntry};
-use crate::core::NTreeError;
 use super::file_record::FileRecord;
+use crate::core::NTreeError;
+use jwalk::{DirEntry, WalkDir};
+use std::collections::HashMap;
+use std::path::{Path, PathBuf};
 
 /// File walker that discovers source files and respects ignore patterns.
 pub struct FileWalker {

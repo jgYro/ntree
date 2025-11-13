@@ -1,8 +1,8 @@
-use crate::core::NTreeError;
+use super::dependency_edges::{ExportEdge, ImportEdge};
 use super::file_record::FileRecord;
-use super::symbol_core::{TopLevelSymbol, FunctionFacts};
-use super::dependency_edges::{ImportEdge, ExportEdge};
 use super::jsonl_exporter::JsonlExporter;
+use super::symbol_core::{FunctionFacts, TopLevelSymbol};
+use crate::core::NTreeError;
 
 /// Complete dataset for export to JSONL or database.
 #[derive(Debug)]

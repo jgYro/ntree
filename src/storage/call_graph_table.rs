@@ -1,6 +1,6 @@
-use std::collections::HashMap;
+use super::call_edge::{CallConfidence, CallEdge};
 use super::symbol_core::SymbolId;
-use super::call_edge::{CallEdge, CallConfidence};
+use std::collections::HashMap;
 
 /// Call graph table mapping callers to their call sites.
 #[derive(Debug)]

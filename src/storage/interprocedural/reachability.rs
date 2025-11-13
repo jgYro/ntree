@@ -1,10 +1,8 @@
-use std::collections::{HashMap, HashSet, VecDeque};
+use super::types::{EntryPoint, InterproceduralEdge, InterproceduralEdgeKind, ReachabilityInfo};
 use crate::core::NTreeError;
 use crate::models::ControlFlowGraph;
 use crate::storage::SymbolId;
-use super::types::{
-    EntryPoint, ReachabilityInfo, InterproceduralEdge, InterproceduralEdgeKind
-};
+use std::collections::{HashMap, HashSet, VecDeque};
 
 /// Reachability analyzer for program-level CFG computation.
 #[derive(Debug)]
@@ -24,16 +22,25 @@ impl ReachabilityAnalyzer {
 
     /// Initialize reachability info for a function.
     pub fn add_function(&mut self, symbol_id: SymbolId) {
-        self.reachability.insert(symbol_id.clone(), ReachabilityInfo::new(symbol_id));
+        self.reachability
+            .insert(symbol_id.clone(), ReachabilityInfo::new(symbol_id));
     }
 
     /// Add entry point for program-level analysis.
-    pub fn add_entry_point(&mut self, sym_id: SymbolId, reason: String, function_cfgs: &HashMap<SymbolId, ControlFlowGraph>) -> Result<(), NTreeError> {
+    pub fn add_entry_point(
+        &mut self,
+        sym_id: SymbolId,
+        reason: String,
+        function_cfgs: &HashMap<SymbolId, ControlFlowGraph>,
+    ) -> Result<(), NTreeError> {
         let entry_node = match self.get_function_entry_exit(&sym_id, function_cfgs) {
             Some((entry, _)) => entry,
-            None => return Err(NTreeError::InvalidInput(
-                format!("No CFG found for entry function: {:?}", sym_id)
-            )),
+            None => {
+                return Err(NTreeError::InvalidInput(format!(
+                    "No CFG found for entry function: {:?}",
+                    sym_id
+                )))
+            }
         };
 
         let entry_point = EntryPoint::new(sym_id, reason, entry_node);
@@ -45,7 +52,7 @@ impl ReachabilityAnalyzer {
     pub fn compute_reachability(
         &mut self,
         function_cfgs: &HashMap<SymbolId, ControlFlowGraph>,
-        interprocedural_edges: &[InterproceduralEdge]
+        interprocedural_edges: &[InterproceduralEdge],
     ) -> Result<(), NTreeError> {
         for reachability in self.reachability.values_mut() {
             reachability.reachable = false;
@@ -66,7 +73,7 @@ impl ReachabilityAnalyzer {
         &mut self,
         entry: &EntryPoint,
         function_cfgs: &HashMap<SymbolId, ControlFlowGraph>,
-        interprocedural_edges: &[InterproceduralEdge]
+        interprocedural_edges: &[InterproceduralEdge],
     ) -> Result<(), NTreeError> {
         let mut visited_functions: HashSet<SymbolId> = HashSet::new();
         let mut visited_nodes: HashSet<usize> = HashSet::new();
@@ -100,8 +107,9 @@ impl ReachabilityAnalyzer {
             }
 
             for interproc_edge in interprocedural_edges {
-                if interproc_edge.from_node == current_node &&
-                   interproc_edge.kind == InterproceduralEdgeKind::Call {
+                if interproc_edge.from_node == current_node
+                    && interproc_edge.kind == InterproceduralEdgeKind::Call
+                {
                     if let Some(callee_sym) = &interproc_edge.callee_sym {
                         queue.push_back((callee_sym.clone(), interproc_edge.to_node));
                     }
@@ -112,7 +120,11 @@ impl ReachabilityAnalyzer {
         Ok(())
     }
 
-    fn get_function_entry_exit(&self, function_sym: &SymbolId, function_cfgs: &HashMap<SymbolId, ControlFlowGraph>) -> Option<(usize, Vec<usize>)> {
+    fn get_function_entry_exit(
+        &self,
+        function_sym: &SymbolId,
+        function_cfgs: &HashMap<SymbolId, ControlFlowGraph>,
+    ) -> Option<(usize, Vec<usize>)> {
         if let Some(cfg) = function_cfgs.get(function_sym) {
             if cfg.nodes.is_empty() {
                 return None;
@@ -124,9 +136,10 @@ impl ReachabilityAnalyzer {
 
             for node in &cfg.nodes {
                 let node_id = node.cfg_node;
-                if !has_outgoing.contains(&node_id) ||
-                   node.label.contains("return") ||
-                   node.label.contains("exit") {
+                if !has_outgoing.contains(&node_id)
+                    || node.label.contains("return")
+                    || node.label.contains("exit")
+                {
                     exits.push(node_id);
                 }
             }

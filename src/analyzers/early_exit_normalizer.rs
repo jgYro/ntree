@@ -1,5 +1,5 @@
-use crate::models::EarlyExitIR;
 use crate::analyzers::language_specific::rust::RustEarlyExitAnalyzer;
+use crate::models::EarlyExitIR;
 use tree_sitter::Node;
 
 /// Language-agnostic early-exit normalizer.
@@ -32,7 +32,11 @@ impl EarlyExitNormalizer {
     }
 
     /// Analyze Java early-exit constructs: throw new Exception().
-    fn analyze_java_early_exit(_node: Node, _source: &str, _exit_id: String) -> Option<EarlyExitIR> {
+    fn analyze_java_early_exit(
+        _node: Node,
+        _source: &str,
+        _exit_id: String,
+    ) -> Option<EarlyExitIR> {
         // TODO: Implement for Java support
         // Would handle: throw new RuntimeException("message")
         None
@@ -46,7 +50,11 @@ impl EarlyExitNormalizer {
     }
 
     /// Analyze Python early-exit constructs: raise statements.
-    fn analyze_python_early_exit(_node: Node, _source: &str, _exit_id: String) -> Option<EarlyExitIR> {
+    fn analyze_python_early_exit(
+        _node: Node,
+        _source: &str,
+        _exit_id: String,
+    ) -> Option<EarlyExitIR> {
         // TODO: Implement for Python support
         // Would handle: raise Exception("message")
         None

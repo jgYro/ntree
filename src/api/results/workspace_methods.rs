@@ -1,11 +1,10 @@
-use std::path::PathBuf;
-use std::collections::HashMap;
-use crate::core::NTreeError;
-use crate::storage::{FileWalker, FileRecord, SymbolStore, NameResolver, InterproceduralCFG};
+use crate::analyzers::{WorkspaceDataFlowAnalyzer, WorkspaceDataFlowResult};
 use crate::api::analysis::options::AnalysisOptions;
 use crate::api::extractors::language_extractors::LanguageExtractors;
-use crate::analyzers::{WorkspaceDataFlowAnalyzer, WorkspaceDataFlowResult};
-use crate::models::{DataFlowGraph, VariableLifecycleSet, DefUseChainSet, DecisionTreeSet};
+use crate::core::NTreeError;
+use crate::storage::{FileRecord, FileWalker, InterproceduralCFG, NameResolver, SymbolStore};
+use std::collections::HashMap;
+use std::path::PathBuf;
 
 /// Workspace-specific analysis methods.
 pub struct WorkspaceMethods;
@@ -45,7 +44,10 @@ impl WorkspaceMethods {
         symbol_store: &SymbolStore,
     ) -> Result<Option<WorkspaceDataFlowResult>, NTreeError> {
         // Only run if data flow analysis is enabled
-        if !options.data_flow_analysis && !options.variable_lifecycle_tracking && !options.def_use_chains {
+        if !options.data_flow_analysis
+            && !options.variable_lifecycle_tracking
+            && !options.def_use_chains
+        {
             return Ok(None);
         }
 

@@ -1,8 +1,8 @@
+use super::ast_utils::PythonAstUtils;
+use crate::core::NTreeError;
+use crate::storage::{ExportEdge, ImportEdge, ImportType};
 use std::path::PathBuf;
 use tree_sitter::Node;
-use crate::core::NTreeError;
-use crate::storage::{ImportEdge, ExportEdge, ImportType};
-use super::ast_utils::PythonAstUtils;
 
 /// Python-specific import/export extractor.
 pub struct PythonImportExtractor;
@@ -21,7 +21,8 @@ impl PythonImportExtractor {
         for child in root.children(&mut cursor) {
             match child.kind() {
                 "import_statement" => {
-                    if let Some(import) = Self::extract_import_statement(child, source, file_path)? {
+                    if let Some(import) = Self::extract_import_statement(child, source, file_path)?
+                    {
                         imports.push(import);
                     }
                 }

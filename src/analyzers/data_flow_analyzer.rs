@@ -1,7 +1,7 @@
 use crate::core::NTreeError;
 use crate::models::{
-    ControlFlowGraph, DataFlowGraph, DataFlowNode, DataDependencyEdge,
-    DependencyType, VariableDefinition,
+    ControlFlowGraph, DataDependencyEdge, DataFlowGraph, DataFlowNode, DependencyType,
+    VariableDefinition,
 };
 use std::collections::{HashMap, HashSet};
 
@@ -26,7 +26,11 @@ impl DataFlowAnalyzer {
     }
 
     /// Analyze data flow for a function CFG.
-    pub fn analyze_function(&mut self, function_name: &str, cfg: &ControlFlowGraph) -> Result<DataFlowGraph, NTreeError> {
+    pub fn analyze_function(
+        &mut self,
+        function_name: &str,
+        cfg: &ControlFlowGraph,
+    ) -> Result<DataFlowGraph, NTreeError> {
         self.current_function = function_name.to_string();
         self.data_flow_graph = DataFlowGraph::new(function_name.to_string());
         self.reaching_definitions.clear();
@@ -50,7 +54,7 @@ impl DataFlowAnalyzer {
                 cfg_node.cfg_node.to_string(),
                 cfg_node.label.clone(),
                 format!("{}:{}-{}:{}", 1, 1, 1, 1), // Default span since CFG doesn't have spans
-                1, // Default line number
+                1,                                  // Default line number
             );
 
             // Extract variable definitions and uses from the statement
@@ -74,11 +78,14 @@ impl DataFlowAnalyzer {
     fn compute_reaching_definitions(&mut self, cfg: &ControlFlowGraph) -> Result<(), NTreeError> {
         // Initialize reaching definitions
         for node in &cfg.nodes {
-            self.reaching_definitions.insert(node.cfg_node.to_string(), HashSet::new());
+            self.reaching_definitions
+                .insert(node.cfg_node.to_string(), HashSet::new());
         }
 
         // Find entry node
-        let entry_node = cfg.nodes.iter()
+        let entry_node = cfg
+            .nodes
+            .iter()
             .find(|n| n.label.contains("ENTRY"))
             .or_else(|| cfg.nodes.first());
 
@@ -97,7 +104,9 @@ impl DataFlowAnalyzer {
                 // Collect definitions from predecessors
                 for edge in &cfg.edges {
                     if edge.to == node.cfg_node {
-                        if let Some(pred_defs) = self.reaching_definitions.get(&edge.from.to_string()) {
+                        if let Some(pred_defs) =
+                            self.reaching_definitions.get(&edge.from.to_string())
+                        {
                             new_definitions.extend(pred_defs.clone());
                         }
                     }
@@ -124,16 +133,15 @@ impl DataFlowAnalyzer {
                     }
                 }
 
-                self.reaching_definitions.insert(node_id_str, new_definitions);
+                self.reaching_definitions
+                    .insert(node_id_str, new_definitions);
             }
         }
 
         // Set reaching definitions in data flow graph
         for (node_id, definitions) in &self.reaching_definitions {
-            self.data_flow_graph.set_reaching_definitions(
-                node_id.clone(),
-                definitions.iter().cloned().collect(),
-            );
+            self.data_flow_graph
+                .set_reaching_definitions(node_id.clone(), definitions.iter().cloned().collect());
         }
 
         Ok(())
@@ -243,7 +251,8 @@ impl DataFlowAnalyzer {
             if !word.is_empty() &&
                !word.chars().all(|c| c.is_ascii_digit()) && // Not a number
                !matches!(word, "true" | "false" | "if" | "else" | "while" | "for" | "return") &&
-               word.chars().all(|c| c.is_alphanumeric() || c == '_') {
+               word.chars().all(|c| c.is_alphanumeric() || c == '_')
+            {
                 variables.push(word.to_string());
             }
         }
@@ -253,8 +262,14 @@ impl DataFlowAnalyzer {
 
     /// Extract line number from span string.
     fn extract_line_number(&self, span: &str) -> u32 {
-        span.split(':').next()
+        span.split(':')
+            .next()
             .and_then(|s| s.parse().ok())
             .unwrap_or(0)
+    }
+
+    /// Get line number for a variable definition span.
+    pub fn get_variable_line(&self, variable: &VariableDefinition) -> u32 {
+        self.extract_line_number(&variable.span)
     }
 }

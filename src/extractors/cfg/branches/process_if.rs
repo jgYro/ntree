@@ -1,7 +1,7 @@
-use crate::models::{CfgEdge, CfgNode, ControlFlowGraph};
-use super::super::core::{CfgContext, get_if_condition, get_if_parts};
-use super::process_then::process_then_branch;
+use super::super::core::{get_if_condition, get_if_parts, CfgContext};
 use super::process_else::process_else_branch;
+use super::process_then::process_then_branch;
+use crate::models::{CfgEdge, CfgNode, ControlFlowGraph};
 use tree_sitter::Node;
 
 /// Process an if expression.

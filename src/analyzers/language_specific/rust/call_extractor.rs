@@ -1,6 +1,6 @@
-use tree_sitter::Node;
 use crate::core::NTreeError;
-use crate::storage::{CallEdge, SymbolId, CallType, CallConfidence};
+use crate::storage::{CallConfidence, CallEdge, CallType, SymbolId};
+use tree_sitter::Node;
 
 /// Rust-specific call site extractor.
 pub struct RustCallExtractor;
@@ -80,8 +80,10 @@ impl RustCallExtractor {
         let span = Self::extract_span(macro_node);
         let call_text = Self::extract_call_text(macro_node, source);
 
-        Some(CallEdge::new(caller_sym.clone(), span, call_text)
-            .with_direct_target(caller_sym.clone())) // Placeholder for macro resolution
+        Some(
+            CallEdge::new(caller_sym.clone(), span, call_text)
+                .with_direct_target(caller_sym.clone()),
+        ) // Placeholder for macro resolution
     }
 
     /// Classify Rust call type based on syntax.
@@ -101,7 +103,13 @@ impl RustCallExtractor {
     fn extract_span(node: Node) -> String {
         let start = node.start_position();
         let end = node.end_position();
-        format!("{}:{}–{}:{}", start.row + 1, start.column + 1, end.row + 1, end.column + 1)
+        format!(
+            "{}:{}–{}:{}",
+            start.row + 1,
+            start.column + 1,
+            end.row + 1,
+            end.column + 1
+        )
     }
 
     /// Extract call text.

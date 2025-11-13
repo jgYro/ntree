@@ -8,7 +8,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Analyze with focus on complexity
     let analysis = SourceCode::new(test_file)?
         .with_complexity_analysis(true)
-        .with_cfg_generation(true)  // Needed for complexity calculation
+        .with_cfg_generation(true) // Needed for complexity calculation
         .with_basic_blocks(false)
         .analyze()?;
 
@@ -24,7 +24,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Detailed complexity breakdown
     println!("\nComplexity Breakdown:");
-    println!("{:<20} {:<12} {:<15}", "Function", "Complexity", "Unreachable");
+    println!(
+        "{:<20} {:<12} {:<15}",
+        "Function", "Complexity", "Unreachable"
+    );
     println!("{}", "-".repeat(50));
 
     for result in analysis.complexity().all() {
@@ -34,10 +37,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             format!("{:?}", result.unreachable)
         };
 
-        println!("{:<20} {:<12} {:<15}",
-                 result.function,
-                 result.cyclomatic,
-                 unreachable_display);
+        println!(
+            "{:<20} {:<12} {:<15}",
+            result.function, result.cyclomatic, unreachable_display
+        );
     }
 
     // Functions with unreachable code
@@ -59,7 +62,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     } else {
         println!("⚠ Consider refactoring high complexity functions:");
         for result in high_complexity {
-            println!("  - {} (complexity: {})", result.function, result.cyclomatic);
+            println!(
+                "  - {} (complexity: {})",
+                result.function, result.cyclomatic
+            );
         }
     }
 

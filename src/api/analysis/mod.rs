@@ -9,11 +9,10 @@ pub use cfg::{
     BasicBlockResult, CfgResult,
 };
 pub use incremental::{
-    IncrementalAnalyzer, IncrementalAnalysisOptions, IncrementalResult, PerformanceMetrics,
+    IncrementalAnalysisOptions, IncrementalAnalyzer, IncrementalResult, PerformanceMetrics,
 };
 pub use interprocedural::{
-    InterproceduralResult, InterproceduralStats, InterproceduralOptions,
-    analyze_interprocedural_cfg, generate_summary_edges, compute_program_reachability,
-    analyze_exceptional_control_flow,
+    analyze_exceptional_control_flow, analyze_interprocedural_cfg, compute_program_reachability,
+    generate_summary_edges, InterproceduralOptions, InterproceduralResult, InterproceduralStats,
 };
 pub use options::AnalysisOptions;

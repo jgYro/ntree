@@ -1,6 +1,6 @@
-use ntree::{SourceCode, AnalysisResult};
-use tempfile::TempDir;
+use ntree::SourceCode;
 use std::fs;
+use tempfile::TempDir;
 
 /// Test the simple, clean public API.
 #[test]
@@ -8,7 +8,9 @@ fn test_simple_api_usage() {
     let temp_dir = TempDir::new().expect("Failed to create temp dir");
     let test_file = temp_dir.path().join("test.rs");
 
-    fs::write(&test_file, r#"
+    fs::write(
+        &test_file,
+        r#"
 fn main() {
     println!("Hello, world!");
     let result = calculate(5, 10);
@@ -30,7 +32,9 @@ fn process_data(value: i32) {
         _ => println!("Small"),
     }
 }
-"#).expect("Failed to write test file");
+"#,
+    )
+    .expect("Failed to write test file");
 
     // Simple API: just SourceCode::new() and analyze()
     let analysis = SourceCode::new(&test_file)
@@ -55,13 +59,18 @@ fn process_data(value: i32) {
     // Advanced features through result methods
     let interproc = analysis.interprocedural();
     let stats = interproc.call_stats();
-    println!("Call graph: {} functions, {} call sites",
-             stats.total_functions, stats.total_call_sites);
+    println!(
+        "Call graph: {} functions, {} call sites",
+        stats.total_functions, stats.total_call_sites
+    );
 
     let incremental = analysis.incremental();
     let metrics = incremental.performance_metrics();
-    println!("Performance: {} total functions, cache hit ratio: {:.1}%",
-             metrics.total_functions, incremental.cache_hit_ratio() * 100.0);
+    println!(
+        "Performance: {} total functions, cache hit ratio: {:.1}%",
+        metrics.total_functions,
+        incremental.cache_hit_ratio() * 100.0
+    );
 
     let external = analysis.external_libraries();
     let libs = external.referenced_libraries();
@@ -69,8 +78,11 @@ fn process_data(value: i32) {
 
     // Security analysis
     let security = external.security_analysis();
-    println!("Security: {} sources, {} sinks",
-             security.taint_sources.len(), security.taint_sinks.len());
+    println!(
+        "Security: {} sources, {} sinks",
+        security.taint_sources.len(),
+        security.taint_sinks.len()
+    );
 }
 
 #[test]

@@ -23,7 +23,11 @@ pub fn get_if_condition(if_node: Node, source: &str) -> String {
     if let Some(if_pos) = text.find("if") {
         if let Some(brace_pos) = text.find('{') {
             let cond = &text[if_pos + 2..brace_pos];
-            return cond.trim().trim_start_matches('(').trim_end_matches(')').to_string();
+            return cond
+                .trim()
+                .trim_start_matches('(')
+                .trim_end_matches(')')
+                .to_string();
         }
     }
 
@@ -71,7 +75,8 @@ pub fn get_statement_text(node: Node, source: &str) -> String {
     if !cleaned.ends_with(';')
         && !cleaned.starts_with("if")
         && !cleaned.starts_with("return")
-        && !cleaned.contains("return ") {
+        && !cleaned.contains("return ")
+    {
         format!("{};", cleaned)
     } else {
         cleaned

@@ -1,11 +1,11 @@
+use super::dependency_edges::ImportEdge;
+use super::export_table::ExportTable;
+use super::module_graph::ModuleId;
+use super::name_binding::NameBinding;
+use super::symbol_core::SymbolId;
+use crate::core::NTreeError;
 use std::collections::HashMap;
 use std::path::PathBuf;
-use crate::core::NTreeError;
-use super::symbol_core::SymbolId;
-use super::module_graph::ModuleId;
-use super::export_table::ExportTable;
-use super::name_binding::NameBinding;
-use super::dependency_edges::ImportEdge;
 
 /// Cross-file name resolver with confidence tracking.
 #[derive(Debug)]
@@ -70,7 +70,8 @@ impl NameResolver {
             }
             None => {
                 // import module (module name becomes alias)
-                let module_name = import.target_module
+                let module_name = import
+                    .target_module
                     .split('.')
                     .last()
                     .unwrap_or(&import.target_module)

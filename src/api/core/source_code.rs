@@ -1,7 +1,7 @@
-use std::path::{Path, PathBuf};
-use crate::core::NTreeError;
-use crate::api::analysis::AnalysisOptions;
 use super::unified_analysis::AnalysisResult;
+use crate::api::analysis::AnalysisOptions;
+use crate::core::NTreeError;
+use std::path::{Path, PathBuf};
 
 /// Builder for source code analysis with fluent configuration API.
 #[derive(Debug, Clone)]
@@ -119,7 +119,7 @@ impl SourceCode {
     pub fn analyze(self) -> Result<AnalysisResult, NTreeError> {
         if !self.options.has_any_enabled() {
             return Err(NTreeError::ParseError(
-                "No analyses enabled. Configure at least one analysis type.".to_string()
+                "No analyses enabled. Configure at least one analysis type.".to_string(),
             ));
         }
 

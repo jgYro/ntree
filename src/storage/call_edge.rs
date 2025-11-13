@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use super::symbol_core::SymbolId;
+use serde::{Deserialize, Serialize};
 
 /// Call site resolution confidence levels.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]

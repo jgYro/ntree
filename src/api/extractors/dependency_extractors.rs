@@ -1,23 +1,21 @@
-use std::path::PathBuf;
+use crate::analyzers::language_specific::{
+    c::CImportExtractor, cpp::CppImportExtractor, java::JavaImportExtractor,
+    javascript::JavaScriptImportExtractor, python::PythonImportExtractor,
+    rust::RustImportExtractor, typescript::TypeScriptImportExtractor,
+};
 use crate::core::NTreeError;
 use crate::language::SupportedLanguage;
-use crate::storage::{ImportEdge, ExportEdge};
-use crate::analyzers::language_specific::{
-    python::PythonImportExtractor,
-    rust::RustImportExtractor,
-    javascript::JavaScriptImportExtractor,
-    typescript::TypeScriptImportExtractor,
-    java::JavaImportExtractor,
-    c::CImportExtractor,
-    cpp::CppImportExtractor,
-};
+use crate::storage::{ExportEdge, ImportEdge};
+use std::path::PathBuf;
 
 /// Language-specific dependency extraction utilities.
 pub struct DependencyExtractors;
 
 impl DependencyExtractors {
     /// Extract imports and exports from file.
-    pub fn extract_dependencies(file_path: &PathBuf) -> Result<(Vec<ImportEdge>, Vec<ExportEdge>), NTreeError> {
+    pub fn extract_dependencies(
+        file_path: &PathBuf,
+    ) -> Result<(Vec<ImportEdge>, Vec<ExportEdge>), NTreeError> {
         // Explicit language routing for import/export extraction
         match SupportedLanguage::from_path(file_path)? {
             SupportedLanguage::Rust => Self::extract_rust_dependencies(file_path),
@@ -31,7 +29,9 @@ impl DependencyExtractors {
     }
 
     /// Extract Rust dependencies.
-    fn extract_rust_dependencies(file_path: &PathBuf) -> Result<(Vec<ImportEdge>, Vec<ExportEdge>), NTreeError> {
+    fn extract_rust_dependencies(
+        file_path: &PathBuf,
+    ) -> Result<(Vec<ImportEdge>, Vec<ExportEdge>), NTreeError> {
         match crate::create_tree_from_file(file_path) {
             Ok(root) => {
                 let source = std::fs::read_to_string(file_path)?;
@@ -42,7 +42,9 @@ impl DependencyExtractors {
     }
 
     /// Extract Python dependencies.
-    fn extract_python_dependencies(file_path: &PathBuf) -> Result<(Vec<ImportEdge>, Vec<ExportEdge>), NTreeError> {
+    fn extract_python_dependencies(
+        file_path: &PathBuf,
+    ) -> Result<(Vec<ImportEdge>, Vec<ExportEdge>), NTreeError> {
         match crate::create_tree_from_file(file_path) {
             Ok(root) => {
                 let source = std::fs::read_to_string(file_path)?;
@@ -53,7 +55,9 @@ impl DependencyExtractors {
     }
 
     /// Extract JavaScript dependencies.
-    fn extract_javascript_dependencies(file_path: &PathBuf) -> Result<(Vec<ImportEdge>, Vec<ExportEdge>), NTreeError> {
+    fn extract_javascript_dependencies(
+        file_path: &PathBuf,
+    ) -> Result<(Vec<ImportEdge>, Vec<ExportEdge>), NTreeError> {
         match crate::create_tree_from_file(file_path) {
             Ok(root) => {
                 let source = std::fs::read_to_string(file_path)?;
@@ -64,7 +68,9 @@ impl DependencyExtractors {
     }
 
     /// Extract TypeScript dependencies.
-    fn extract_typescript_dependencies(file_path: &PathBuf) -> Result<(Vec<ImportEdge>, Vec<ExportEdge>), NTreeError> {
+    fn extract_typescript_dependencies(
+        file_path: &PathBuf,
+    ) -> Result<(Vec<ImportEdge>, Vec<ExportEdge>), NTreeError> {
         match crate::create_tree_from_file(file_path) {
             Ok(root) => {
                 let source = std::fs::read_to_string(file_path)?;
@@ -75,7 +81,9 @@ impl DependencyExtractors {
     }
 
     /// Extract Java dependencies.
-    fn extract_java_dependencies(file_path: &PathBuf) -> Result<(Vec<ImportEdge>, Vec<ExportEdge>), NTreeError> {
+    fn extract_java_dependencies(
+        file_path: &PathBuf,
+    ) -> Result<(Vec<ImportEdge>, Vec<ExportEdge>), NTreeError> {
         match crate::create_tree_from_file(file_path) {
             Ok(root) => {
                 let source = std::fs::read_to_string(file_path)?;
@@ -86,7 +94,9 @@ impl DependencyExtractors {
     }
 
     /// Extract C dependencies.
-    fn extract_c_dependencies(file_path: &PathBuf) -> Result<(Vec<ImportEdge>, Vec<ExportEdge>), NTreeError> {
+    fn extract_c_dependencies(
+        file_path: &PathBuf,
+    ) -> Result<(Vec<ImportEdge>, Vec<ExportEdge>), NTreeError> {
         match crate::create_tree_from_file(file_path) {
             Ok(root) => {
                 let source = std::fs::read_to_string(file_path)?;
@@ -97,7 +107,9 @@ impl DependencyExtractors {
     }
 
     /// Extract C++ dependencies.
-    fn extract_cpp_dependencies(file_path: &PathBuf) -> Result<(Vec<ImportEdge>, Vec<ExportEdge>), NTreeError> {
+    fn extract_cpp_dependencies(
+        file_path: &PathBuf,
+    ) -> Result<(Vec<ImportEdge>, Vec<ExportEdge>), NTreeError> {
         match crate::create_tree_from_file(file_path) {
             Ok(root) => {
                 let source = std::fs::read_to_string(file_path)?;

@@ -1,6 +1,6 @@
-use crate::models::{CfgEdge, CfgNode, ControlFlowGraph, ForLoopIR};
 use super::super::core::{CfgContext, LabelNormalizer};
 use super::super::processors::process_block;
+use crate::models::{CfgEdge, CfgNode, ControlFlowGraph, ForLoopIR};
 use tree_sitter::Node;
 
 /// Build CFG structure for a for loop.
@@ -22,17 +22,27 @@ pub fn build_for_loop_cfg(
 
     // Create after-loop node
     let after_id = ctx.alloc_id();
-    cfg.add_node(CfgNode::new(after_id, LabelNormalizer::loop_after_label("for_loop")));
+    cfg.add_node(CfgNode::new(
+        after_id,
+        LabelNormalizer::loop_after_label("for_loop"),
+    ));
 
     // Push loop context for break/continue handling
     ctx.push_loop(condition_id, after_id);
 
     // Create body start node
     let body_start_id = ctx.alloc_id();
-    cfg.add_node(CfgNode::new(body_start_id, LabelNormalizer::loop_body_label("for_loop")));
+    cfg.add_node(CfgNode::new(
+        body_start_id,
+        LabelNormalizer::loop_body_label("for_loop"),
+    ));
 
     // Connect condition to body start (true branch)
-    cfg.add_edge(CfgEdge::new(condition_id, body_start_id, "true".to_string()));
+    cfg.add_edge(CfgEdge::new(
+        condition_id,
+        body_start_id,
+        "true".to_string(),
+    ));
 
     // Process body
     let body_exits = process_block(cfg, ctx, body, source, body_start_id);

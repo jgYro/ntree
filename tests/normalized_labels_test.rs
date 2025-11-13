@@ -32,7 +32,9 @@ fn test_for() {
     let cfg = &cfgs[0];
 
     // Verify normalized labels instead of language-specific syntax
-    assert!(cfg.jsonl.contains("\"for_loop(cond: items.has_next, pattern: item)\""));
+    assert!(cfg
+        .jsonl
+        .contains("\"for_loop(cond: items.has_next, pattern: item)\""));
     assert!(cfg.jsonl.contains("\"for_loop_body\""));
     assert!(cfg.jsonl.contains("\"after_for_loop\""));
 

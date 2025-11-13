@@ -34,7 +34,18 @@ impl FunctionSpan {
     ///
     /// # Returns
     /// A string in format "line:col–line:col" using 1-based coordinates
-    pub fn format_span(start_line: usize, start_col: usize, end_line: usize, end_col: usize) -> String {
-        format!("{}:{}–{}:{}", start_line + 1, start_col + 1, end_line + 1, end_col + 1)
+    pub fn format_span(
+        start_line: usize,
+        start_col: usize,
+        end_line: usize,
+        end_col: usize,
+    ) -> String {
+        format!(
+            "{}:{}–{}:{}",
+            start_line + 1,
+            start_col + 1,
+            end_line + 1,
+            end_col + 1
+        )
     }
 }

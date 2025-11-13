@@ -1,8 +1,8 @@
-use std::collections::{HashMap, HashSet};
-use std::path::PathBuf;
+use super::{FuncSummary, IncrementalCache, ReverseDependencyIndex};
 use crate::core::NTreeError;
-use crate::storage::{SymbolId, FileRecord, ContentHash};
-use super::{IncrementalCache, ReverseDependencyIndex, FuncSummary};
+use crate::storage::{ContentHash, FileRecord, SymbolId};
+use std::collections::HashSet;
+use std::path::PathBuf;
 
 /// Invalidation engine for incremental analysis.
 #[derive(Debug)]
@@ -23,15 +23,22 @@ impl InvalidationEngine {
     }
 
     /// Process file changes and determine what needs recomputation.
-    pub fn process_file_changes(&mut self, file_records: &[FileRecord]) -> Result<InvalidationResult, NTreeError> {
+    pub fn process_file_changes(
+        &mut self,
+        file_records: &[FileRecord],
+    ) -> Result<InvalidationResult, NTreeError> {
         let mut changed_files = Vec::new();
         let mut affected_functions = HashSet::new();
 
         // Detect changed files
         for file_record in file_records {
-            if self.cache.has_file_changed(&file_record.path, &file_record.content_hash) {
+            if self
+                .cache
+                .has_file_changed(&file_record.path, &file_record.content_hash)
+            {
                 changed_files.push(file_record.path.clone());
-                self.cache.mark_file_dirty(file_record.path.clone(), file_record.content_hash.clone());
+                self.cache
+                    .mark_file_dirty(file_record.path.clone(), file_record.content_hash.clone());
 
                 // Get functions in this file
                 let file_functions = self.cache.get_affected_functions(&file_record.path);
@@ -63,7 +70,8 @@ impl InvalidationEngine {
     pub fn add_function_summary(&mut self, summary: FuncSummary) {
         // Update reverse dependency index
         for callee in summary.get_callees() {
-            self.reverse_deps.add_call(summary.sym_id.clone(), callee.clone());
+            self.reverse_deps
+                .add_call(summary.sym_id.clone(), callee.clone());
         }
 
         // Add to cache
@@ -93,7 +101,8 @@ impl InvalidationEngine {
 
     /// Rebuild reverse dependency index from current summaries.
     pub fn rebuild_reverse_deps(&mut self) {
-        self.reverse_deps.rebuild_from_summaries(self.cache.get_all_summaries());
+        self.reverse_deps
+            .rebuild_from_summaries(self.cache.get_all_summaries());
     }
 
     /// Get cache statistics.

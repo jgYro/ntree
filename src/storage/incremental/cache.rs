@@ -1,8 +1,7 @@
+use super::func_summary::FuncSummary;
+use crate::storage::{ContentHash, FileRecord, SymbolId};
 use std::collections::HashMap;
 use std::path::PathBuf;
-use crate::core::NTreeError;
-use crate::storage::{SymbolId, ContentHash, FileRecord};
-use super::func_summary::FuncSummary;
 
 /// Incremental cache for fast recomputation after edits.
 #[derive(Debug)]
@@ -65,7 +64,8 @@ impl IncrementalCache {
                 .or_insert_with(Vec::new)
                 .push(summary.sym_id.clone());
         }
-        self.function_summaries.insert(summary.sym_id.clone(), summary);
+        self.function_summaries
+            .insert(summary.sym_id.clone(), summary);
     }
 
     /// Get function summary by symbol ID.
@@ -84,7 +84,10 @@ impl IncrementalCache {
 
     /// Get functions affected by file changes.
     pub fn get_affected_functions(&self, file_path: &PathBuf) -> Vec<SymbolId> {
-        self.file_symbols.get(file_path).cloned().unwrap_or_default()
+        self.file_symbols
+            .get(file_path)
+            .cloned()
+            .unwrap_or_default()
     }
 
     /// Get all function summaries.

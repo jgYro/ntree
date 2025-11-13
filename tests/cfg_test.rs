@@ -180,5 +180,7 @@ fn simple() {
     let cfg = &cfgs[0];
 
     // Verify edge format matches spec (at least has next edge from ENTRY)
-    assert!(cfg.jsonl.contains("\"cfg_edge\":{\"from\":0,\"to\":1,\"kind\":\"next\"}"));
+    assert!(cfg
+        .jsonl
+        .contains("\"cfg_edge\":{\"from\":0,\"to\":1,\"kind\":\"next\"}"));
 }

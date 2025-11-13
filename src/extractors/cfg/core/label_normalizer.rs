@@ -11,12 +11,18 @@ impl LabelNormalizer {
                 let init = for_ir.init.as_deref().unwrap_or("init");
                 let condition = for_ir.condition.as_deref().unwrap_or("condition");
                 let update = for_ir.update.as_deref().unwrap_or("update");
-                format!("for_loop(init: {}, cond: {}, update: {})", init, condition, update)
+                format!(
+                    "for_loop(init: {}, cond: {}, update: {})",
+                    init, condition, update
+                )
             }
             LoopKind::ForIterator => {
                 let pattern = for_ir.pattern.as_deref().unwrap_or("item");
                 let iter_expr = for_ir.iter_expr.as_deref().unwrap_or("iterator");
-                format!("for_loop(cond: {}.has_next, pattern: {})", iter_expr, pattern)
+                format!(
+                    "for_loop(cond: {}.has_next, pattern: {})",
+                    iter_expr, pattern
+                )
             }
         }
     }

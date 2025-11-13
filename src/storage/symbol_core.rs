@@ -1,5 +1,5 @@
-use std::path::PathBuf;
 use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
 
 /// Unique identifier for a symbol across the codebase.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
@@ -87,9 +87,9 @@ impl FunctionFacts {
             span: function_span.span.clone(),
             body_span: function_span.body.clone(),
             complexity: complexity_result.cyclomatic,
-            loc: 0, // TODO: Calculate from span
+            loc: 0,            // TODO: Calculate from span
             return_type: None, // TODO: Extract from AST
-            is_async: false, // TODO: Detect from AST
+            is_async: false,   // TODO: Detect from AST
             is_private: symbol.name.starts_with('_'),
         }
     }

@@ -1,12 +1,10 @@
+use ntree::api::{IncrementalAnalysisOptions, IncrementalAnalyzer, InterproceduralOptions};
 use ntree::{
-    IncrementalAnalyzer, IncrementalAnalysisOptions, InterproceduralOptions,
-    FuncSummary, EffectKind, ThrowsKind, ParamSummary, ReturnSummary,
-    ExternalSummary, TaintKind, ContractSpec,
-    ClassHierarchyAnalyzer, RapidTypeAnalyzer, Resolution, ResolutionAlgorithm,
-    SymbolId,
+    ClassHierarchyAnalyzer, ContractSpec, EffectKind, ExternalSummary, FuncSummary, ParamSummary,
+    Resolution, ResolutionAlgorithm, ReturnSummary, SymbolId, TaintKind, ThrowsKind,
 };
-use tempfile::TempDir;
 use std::fs;
+use tempfile::TempDir;
 
 fn create_test_symbol(id: u32, name: &str) -> SymbolId {
     SymbolId::from_string(format!("test_{}_{}", id, name))
@@ -49,13 +47,15 @@ fn test_external_summary() {
     let summary = ExternalSummary::new("std::println!".to_string(), "std".to_string())
         .with_effect(EffectKind::IoOperation)
         .with_taint(TaintKind::Sink)
-        .with_contract(ContractSpec::new()
-            .with_side_effect("Writes to stdout".to_string()));
+        .with_contract(ContractSpec::new().with_side_effect("Writes to stdout".to_string()));
 
     assert!(summary.is_taint_sink());
     assert!(!summary.is_taint_source());
     assert!(summary.has_side_effects());
-    assert_eq!(summary.security_risk_level(), ntree::SecurityRiskLevel::High);
+    assert_eq!(
+        summary.security_risk_level(),
+        ntree::SecurityRiskLevel::High
+    );
 }
 
 #[test]
@@ -70,7 +70,11 @@ fn test_cha_analyzer() {
     // Set up hierarchy
     cha.add_inheritance(derived_type.clone(), base_type.clone());
     cha.add_method(base_type.clone(), "speak".to_string(), base_method.clone());
-    cha.add_method(derived_type.clone(), "speak".to_string(), override_method.clone());
+    cha.add_method(
+        derived_type.clone(),
+        "speak".to_string(),
+        override_method.clone(),
+    );
     cha.add_override(base_method, override_method);
 
     let stats = cha.get_stats();
@@ -92,7 +96,12 @@ fn test_resolution_types() {
 
     // CHA resolution with multiple candidates
     let target2 = create_test_symbol(3, "target2");
-    let cha = Resolution::cha(2, vec![target.clone(), target2], caller.clone(), "bar()".to_string());
+    let cha = Resolution::cha(
+        2,
+        vec![target.clone(), target2],
+        caller.clone(),
+        "bar()".to_string(),
+    );
     assert!(!cha.is_definitive());
     assert!(cha.is_ambiguous());
     assert_eq!(cha.algorithm, ResolutionAlgorithm::CHA);
@@ -150,16 +159,22 @@ fn test_taint_analysis() {
     // Medium risk: taint source
     let source_summary = ExternalSummary::new("input".to_string(), "builtins".to_string())
         .with_taint(TaintKind::Source);
-    assert_eq!(source_summary.security_risk_level(), SecurityRiskLevel::Medium);
+    assert_eq!(
+        source_summary.security_risk_level(),
+        SecurityRiskLevel::Medium
+    );
 
     // Low risk: has side effects but not taint-related
     let side_effect_summary = ExternalSummary::new("printf".to_string(), "libc".to_string())
         .with_effect(EffectKind::IoOperation);
-    assert_eq!(side_effect_summary.security_risk_level(), SecurityRiskLevel::Low);
+    assert_eq!(
+        side_effect_summary.security_risk_level(),
+        SecurityRiskLevel::Low
+    );
 
     // No risk: pure function
-    let pure_summary = ExternalSummary::new("abs".to_string(), "math".to_string())
-        .with_effect(EffectKind::Pure);
+    let pure_summary =
+        ExternalSummary::new("abs".to_string(), "math".to_string()).with_effect(EffectKind::Pure);
     assert_eq!(pure_summary.security_risk_level(), SecurityRiskLevel::None);
 }
 
@@ -249,7 +264,7 @@ fn test_incremental_workspace_analysis() {
             println!("Cache hit: {}", result.cache_hit);
             let metrics = result.get_performance_metrics();
             println!("Performance: {:?}", metrics);
-        },
+        }
         Err(e) => {
             println!("Incremental analysis failed (expected): {}", e);
             // This is expected during development

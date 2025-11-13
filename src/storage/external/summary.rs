@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use super::super::incremental::func_summary::EffectKind;
+use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 
 /// Taint analysis kinds for security analysis.

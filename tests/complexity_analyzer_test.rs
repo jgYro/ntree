@@ -1,16 +1,26 @@
 use ntree::analyzers::ComplexityAnalyzer;
-use ntree::{FunctionCFGIR, CFGNodeIR, CFGEdgeIR};
+use ntree::{CFGEdgeIR, CFGNodeIR, FunctionCFGIR};
 
 #[cfg(test)]
 mod complexity_tests {
     use super::*;
 
     fn create_test_node(func: &str, id: &str, label: &str) -> CFGNodeIR {
-        CFGNodeIR::new(func.to_string(), id.to_string(), label.to_string(), "test_span".to_string())
+        CFGNodeIR::new(
+            func.to_string(),
+            id.to_string(),
+            label.to_string(),
+            "test_span".to_string(),
+        )
     }
 
     fn create_test_edge(func: &str, from: &str, to: &str, kind: &str) -> CFGEdgeIR {
-        CFGEdgeIR::new(func.to_string(), from.to_string(), to.to_string(), kind.to_string())
+        CFGEdgeIR::new(
+            func.to_string(),
+            from.to_string(),
+            to.to_string(),
+            kind.to_string(),
+        )
     }
 
     #[test]
@@ -189,11 +199,11 @@ mod complexity_tests {
         cfg.add_edge(create_test_edge("check", "N3", "N5", "next"));
         cfg.add_edge(create_test_edge("check", "N4", "N5", "next"));
         cfg.add_edge(create_test_edge("check", "N5", "N6", "next"));
-        cfg.add_edge(create_test_edge("check", "N6", "N3", "loop_back"));  // Add back edge for complexity
+        cfg.add_edge(create_test_edge("check", "N6", "N3", "loop_back")); // Add back edge for complexity
         cfg.add_edge(create_test_edge("check", "N6", "N8", "exit"));
-        cfg.add_edge(create_test_edge("check", "N5", "N8", "alternate"));  // Add another edge for more complexity
-        cfg.add_edge(create_test_edge("check", "N3", "N8", "shortcut"));   // One more edge to get complexity 3
-        // N7 and N9 have no incoming edges, making them unreachable
+        cfg.add_edge(create_test_edge("check", "N5", "N8", "alternate")); // Add another edge for more complexity
+        cfg.add_edge(create_test_edge("check", "N3", "N8", "shortcut")); // One more edge to get complexity 3
+                                                                         // N7 and N9 have no incoming edges, making them unreachable
 
         let result = analyzer.analyze(&cfg).expect("Analysis should succeed");
 

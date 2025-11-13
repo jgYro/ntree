@@ -1,12 +1,12 @@
-use std::collections::HashMap;
+use super::interprocedural::{
+    CallSiteSummary, EntryPoint, ExceptionalEdge, FunctionExit, InterproceduralEdge,
+    ReachabilityInfo,
+};
+use super::interprocedural::{ExceptionAnalyzer, ReachabilityAnalyzer, SummaryEdgeGenerator};
 use crate::core::NTreeError;
 use crate::models::ControlFlowGraph;
 use crate::storage::{CallEdge, SymbolId, SymbolStore};
-use super::interprocedural::{
-    InterproceduralEdge, CallSiteSummary, EntryPoint, ReachabilityInfo,
-    FunctionExit, ExceptionalEdge
-};
-use super::interprocedural::{SummaryEdgeGenerator, ReachabilityAnalyzer, ExceptionAnalyzer};
+use std::collections::HashMap;
 
 /// Interprocedural Control Flow Graph manager.
 #[derive(Debug)]
@@ -43,21 +43,23 @@ impl InterproceduralCFG {
     pub fn generate_summary_edges(
         &mut self,
         call_edges: &[CallEdge],
-        symbol_store: &SymbolStore
+        symbol_store: &SymbolStore,
     ) -> Result<(), NTreeError> {
-        self.summary_generator.generate_summary_edges(call_edges, &self.function_cfgs, symbol_store)
+        self.summary_generator
+            .generate_summary_edges(call_edges, &self.function_cfgs, symbol_store)
     }
 
     /// Add entry point for program-level analysis.
     pub fn add_entry_point(&mut self, sym_id: SymbolId, reason: String) -> Result<(), NTreeError> {
-        self.reachability_analyzer.add_entry_point(sym_id, reason, &self.function_cfgs)
+        self.reachability_analyzer
+            .add_entry_point(sym_id, reason, &self.function_cfgs)
     }
 
     /// Compute reachability from all entry points.
     pub fn compute_reachability(&mut self) -> Result<(), NTreeError> {
         self.reachability_analyzer.compute_reachability(
             &self.function_cfgs,
-            self.summary_generator.get_interprocedural_edges()
+            self.summary_generator.get_interprocedural_edges(),
         )
     }
 
@@ -65,7 +67,7 @@ impl InterproceduralCFG {
     pub fn generate_exceptional_edges(&mut self) -> Result<(), NTreeError> {
         self.exception_analyzer.generate_exceptional_edges(
             &self.function_cfgs,
-            self.summary_generator.get_call_sites()
+            self.summary_generator.get_call_sites(),
         )
     }
 

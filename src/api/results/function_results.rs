@@ -1,5 +1,5 @@
-use crate::models::FunctionSpan;
 use crate::api::analysis::BasicBlockResult;
+use crate::models::FunctionSpan;
 
 /// Filtered view of function analysis results.
 #[derive(Debug)]
@@ -23,7 +23,10 @@ impl<'a> FunctionResultSet<'a> {
 
     /// Get all function names.
     pub fn names(&self) -> Vec<&str> {
-        self.data.iter().map(|func| func.function.as_str()).collect()
+        self.data
+            .iter()
+            .map(|func| func.function.as_str())
+            .collect()
     }
 
     /// Get all results as a slice.

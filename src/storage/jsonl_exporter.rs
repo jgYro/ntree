@@ -1,9 +1,9 @@
-use serde_json;
-use crate::core::NTreeError;
-use super::file_record::FileRecord;
-use super::symbol_core::{TopLevelSymbol, FunctionFacts};
-use super::dependency_edges::{ImportEdge, ExportEdge};
 use super::data_export::DataSet;
+use super::dependency_edges::{ExportEdge, ImportEdge};
+use super::file_record::FileRecord;
+use super::symbol_core::{FunctionFacts, TopLevelSymbol};
+use crate::core::NTreeError;
+use serde_json;
 
 /// JSONL export utilities for all data types.
 pub struct JsonlExporter;
@@ -45,7 +45,12 @@ impl JsonlExporter {
                 Ok(json) => {
                     jsonl.push_str(&format!("{{\"type\":\"Symbol\",\"data\":{}}}\n", json));
                 }
-                Err(e) => return Err(NTreeError::ParseError(format!("Symbol export failed: {}", e))),
+                Err(e) => {
+                    return Err(NTreeError::ParseError(format!(
+                        "Symbol export failed: {}",
+                        e
+                    )))
+                }
             }
         }
         Ok(jsonl)
@@ -57,9 +62,17 @@ impl JsonlExporter {
         for fact in facts {
             match serde_json::to_string(fact) {
                 Ok(json) => {
-                    jsonl.push_str(&format!("{{\"type\":\"FunctionFacts\",\"data\":{}}}\n", json));
+                    jsonl.push_str(&format!(
+                        "{{\"type\":\"FunctionFacts\",\"data\":{}}}\n",
+                        json
+                    ));
                 }
-                Err(e) => return Err(NTreeError::ParseError(format!("FunctionFacts export failed: {}", e))),
+                Err(e) => {
+                    return Err(NTreeError::ParseError(format!(
+                        "FunctionFacts export failed: {}",
+                        e
+                    )))
+                }
             }
         }
         Ok(jsonl)
@@ -73,7 +86,12 @@ impl JsonlExporter {
                 Ok(json) => {
                     jsonl.push_str(&format!("{{\"type\":\"ImportEdge\",\"data\":{}}}\n", json));
                 }
-                Err(e) => return Err(NTreeError::ParseError(format!("ImportEdge export failed: {}", e))),
+                Err(e) => {
+                    return Err(NTreeError::ParseError(format!(
+                        "ImportEdge export failed: {}",
+                        e
+                    )))
+                }
             }
         }
         Ok(jsonl)
@@ -87,7 +105,12 @@ impl JsonlExporter {
                 Ok(json) => {
                     jsonl.push_str(&format!("{{\"type\":\"ExportEdge\",\"data\":{}}}\n", json));
                 }
-                Err(e) => return Err(NTreeError::ParseError(format!("ExportEdge export failed: {}", e))),
+                Err(e) => {
+                    return Err(NTreeError::ParseError(format!(
+                        "ExportEdge export failed: {}",
+                        e
+                    )))
+                }
             }
         }
         Ok(jsonl)

@@ -22,8 +22,14 @@ mod integration_tests {
         let _basic_blocks = result.basic_blocks();
 
         // Basic sanity checks
-        assert!(!functions.all().is_empty(), "Should find functions in test file");
-        assert!(!complexity.all().is_empty(), "Should have complexity results");
+        assert!(
+            !functions.all().is_empty(),
+            "Should find functions in test file"
+        );
+        assert!(
+            !complexity.all().is_empty(),
+            "Should have complexity results"
+        );
         assert!(!cfgs.all().is_empty(), "Should have CFG results");
     }
 
@@ -41,9 +47,15 @@ mod integration_tests {
         let cfgs = result.cfgs();
         let basic_blocks = result.basic_blocks();
 
-        assert!(!complexity.all().is_empty(), "Should have complexity results");
+        assert!(
+            !complexity.all().is_empty(),
+            "Should have complexity results"
+        );
         assert!(cfgs.all().is_empty(), "Should not have CFG results");
-        assert!(basic_blocks.all().is_empty(), "Should not have basic block results");
+        assert!(
+            basic_blocks.all().is_empty(),
+            "Should not have basic block results"
+        );
     }
 
     #[test]

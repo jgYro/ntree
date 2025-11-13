@@ -1,11 +1,11 @@
 use crate::models::{CfgEdge, CfgNode, ControlFlowGraph};
 use tree_sitter::Node;
 
-mod core;
 mod branches;
+mod core;
 pub mod ir_converter;
-mod statements;
 pub mod processors;
+mod statements;
 
 use core::CfgContext;
 use processors::process_block;

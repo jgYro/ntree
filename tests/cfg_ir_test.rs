@@ -1,5 +1,6 @@
-use ntree::{generate_cfg_ir, generate_cfg_ir_jsonl, generate_cfgs};
+use ntree::api::{generate_cfg_ir, generate_cfg_ir_jsonl};
 use ntree::extractors::cfg::ir_converter::CFGToIRConverter;
+use ntree::generate_cfgs;
 use std::io::Write;
 use tempfile::NamedTempFile;
 
@@ -110,8 +111,16 @@ fn test_function() {
     assert_eq!(original.node_count(), parsed.node_count());
     assert_eq!(original.edge_count(), parsed.edge_count());
 
-    println!("Original: {} nodes, {} edges", original.node_count(), original.edge_count());
-    println!("Parsed:   {} nodes, {} edges", parsed.node_count(), parsed.edge_count());
+    println!(
+        "Original: {} nodes, {} edges",
+        original.node_count(),
+        original.edge_count()
+    );
+    println!(
+        "Parsed:   {} nodes, {} edges",
+        parsed.node_count(),
+        parsed.edge_count()
+    );
 
     // Verify nodes match
     for (orig_node, parsed_node) in original.nodes.iter().zip(parsed.nodes.iter()) {
