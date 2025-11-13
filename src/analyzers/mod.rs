@@ -4,6 +4,7 @@ pub mod data_flow_analyzer;
 pub mod early_exit_normalizer;
 pub mod for_loop_normalizer;
 pub mod language_specific;
+pub mod variable_lifecycle;
 pub mod variable_lifecycle_analyzer;
 pub mod workspace_data_flow_analyzer;
 
