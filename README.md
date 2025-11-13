@@ -316,9 +316,9 @@ CFGs export as Mermaid flowcharts:
 ```mermaid
 graph TD
     N1["ENTRY"]
-    N2["let x = 5;"]
+    N2["let x = 5"]
     N3["if x > 0"]
-    N4["println!(\"positive\")"]
+    N4["print positive"]
     N5["EXIT"]
     N1 --> N2
     N2 --> N3
