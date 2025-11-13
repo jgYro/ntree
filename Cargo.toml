@@ -2,6 +2,8 @@
 name = "ntree"
 version = "0.1.0"
 edition = "2021"
+license-file = "LICENSE"
+authors = ["jgYro"]
 
 [dependencies]
 tree-sitter = "0.25.10"
