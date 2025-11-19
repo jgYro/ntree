@@ -1,4 +1,5 @@
-use ntree::{functions_to_jsonl, list_functions, FunctionSpan};
+use ntree::api::{functions_to_jsonl, list_functions};
+use ntree::FunctionSpan;
 use std::fs;
 
 #[test]

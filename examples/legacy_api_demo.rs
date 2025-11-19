@@ -1,7 +1,7 @@
-use ntree::{
+use ntree::api::{
     functions_to_jsonl, generate_cfg_ir, generate_cfgs, list_functions, list_top_level_items,
-    ComplexityAnalyzer,
 };
+use ntree::ComplexityAnalyzer;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("=== Legacy API Demo (still supported) ===\n");

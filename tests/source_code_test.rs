@@ -1,4 +1,5 @@
-use ntree::{AnalysisOptions, SourceCode};
+use ntree::api::AnalysisOptions;
+use ntree::SourceCode;
 use std::path::Path;
 
 #[cfg(test)]

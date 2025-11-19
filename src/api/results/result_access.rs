@@ -18,35 +18,35 @@ use std::collections::HashMap;
 /// Implementation of result access methods for unified AnalysisResult.
 impl AnalysisResult {
     /// Get complexity analysis results.
-    pub fn complexity(&self) -> ComplexityResultSet {
+    pub fn complexity(&self) -> ComplexityResultSet<'_> {
         ComplexityResultSet {
             data: &self.complexity_data,
         }
     }
 
     /// Get CFG analysis results.
-    pub fn cfgs(&self) -> CfgResultSet {
+    pub fn cfgs(&self) -> CfgResultSet<'_> {
         CfgResultSet {
             data: &self.cfg_data,
         }
     }
 
     /// Get function information.
-    pub fn functions(&self) -> FunctionResultSet {
+    pub fn functions(&self) -> FunctionResultSet<'_> {
         FunctionResultSet {
             data: &self.function_data,
         }
     }
 
     /// Get basic block information.
-    pub fn basic_blocks(&self) -> BasicBlockResultSet {
+    pub fn basic_blocks(&self) -> BasicBlockResultSet<'_> {
         BasicBlockResultSet {
             data: &self.basic_block_data,
         }
     }
 
     /// Get symbol search interface.
-    pub fn symbols(&self) -> SymbolResultSet {
+    pub fn symbols(&self) -> SymbolResultSet<'_> {
         SymbolResultSet::new(&self.symbol_store)
     }
 
@@ -110,42 +110,42 @@ impl AnalysisResult {
     }
 
     /// Get interprocedural analysis results (summary edges, reachability).
-    pub fn interprocedural(&self) -> InterproceduralResultSet {
+    pub fn interprocedural(&self) -> InterproceduralResultSet<'_> {
         InterproceduralResultSet::new(self)
     }
 
     /// Get incremental analysis interface for cache and performance.
-    pub fn incremental(&self) -> IncrementalResultSet {
+    pub fn incremental(&self) -> IncrementalResultSet<'_> {
         IncrementalResultSet::new(self)
     }
 
     /// Get external library analysis results.
-    pub fn external_libraries(&self) -> ExternalLibraryResultSet {
+    pub fn external_libraries(&self) -> ExternalLibraryResultSet<'_> {
         ExternalLibraryResultSet::new(self)
     }
 
     /// Get data flow analysis results.
-    pub fn data_flow(&self) -> DataFlowResultSet {
+    pub fn data_flow(&self) -> DataFlowResultSet<'_> {
         DataFlowResultSet::new(&self.data_flow_graphs)
     }
 
     /// Get variable lifecycle tracking results.
-    pub fn variables(&self) -> VariableLifecycleResultSet {
+    pub fn variables(&self) -> VariableLifecycleResultSet<'_> {
         VariableLifecycleResultSet::new(&self.variable_lifecycles)
     }
 
     /// Get def-use chain analysis results.
-    pub fn def_use_chains(&self) -> DefUseChainResultSet {
+    pub fn def_use_chains(&self) -> DefUseChainResultSet<'_> {
         DefUseChainResultSet::new(&self.def_use_chains)
     }
 
     /// Get decision tree mapping results.
-    pub fn decision_trees(&self) -> DecisionTreeResultSet {
+    pub fn decision_trees(&self) -> DecisionTreeResultSet<'_> {
         DecisionTreeResultSet::new(&self.decision_trees)
     }
 
     /// Get cross-file variable analysis results (workspace mode only).
-    pub fn cross_file_variables(&self) -> CrossFileVariableResultSet {
+    pub fn cross_file_variables(&self) -> CrossFileVariableResultSet<'_> {
         CrossFileVariableResultSet::new(&self.cross_file_variables)
     }
 }

@@ -1,4 +1,4 @@
-use ntree::api::{IncrementalAnalysisOptions, IncrementalAnalyzer, InterproceduralOptions};
+use ntree::api::{IncrementalAnalysisOptions, IncrementalAnalyzer};
 use ntree::{
     ClassHierarchyAnalyzer, ContractSpec, EffectKind, ExternalSummary, FuncSummary, ParamSummary,
     Resolution, ResolutionAlgorithm, ReturnSummary, SymbolId, TaintKind, ThrowsKind,
