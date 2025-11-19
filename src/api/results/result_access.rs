@@ -148,4 +148,11 @@ impl AnalysisResult {
     pub fn cross_file_variables(&self) -> CrossFileVariableResultSet<'_> {
         CrossFileVariableResultSet::new(&self.cross_file_variables)
     }
+
+    /// Get deep external call chains (if deep call tracking was enabled).
+    /// Returns the internal functions called by external library functions.
+    /// For example, what functions `requests.get()` calls internally.
+    pub fn deep_external_calls(&self) -> Option<&crate::api::analysis::deep_call_tracker::DeepCallTracker> {
+        self.deep_call_tracker.as_ref()
+    }
 }

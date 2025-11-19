@@ -1,5 +1,6 @@
 pub mod analysis_runner;
 pub mod cfg;
+pub mod deep_call_tracker;
 pub mod incremental;
 pub mod interprocedural;
 pub mod options;

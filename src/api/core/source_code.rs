@@ -14,6 +14,7 @@ pub struct SourceCode {
     enable_cha: bool,
     enable_rta: bool,
     enable_external_libs: bool,
+    enable_deep_external_calls: bool,
 }
 
 impl SourceCode {
@@ -39,6 +40,7 @@ impl SourceCode {
             enable_cha: false,
             enable_rta: false,
             enable_external_libs: false,
+            enable_deep_external_calls: false,
         })
     }
 
@@ -123,7 +125,31 @@ impl SourceCode {
             ));
         }
 
-        AnalysisResult::from_source_code(self.path, self.options, self.is_workspace)
+        let workspace_path = if self.is_workspace {
+            Some(self.path.clone())
+        } else {
+            None
+        };
+        
+        let mut result = AnalysisResult::from_source_code(self.path, self.options, self.is_workspace)?;
+
+        // Perform deep external call tracking if enabled
+        if self.enable_deep_external_calls {
+            use crate::api::analysis::deep_call_tracker::DeepCallTracker;
+            let mut tracker = if let Some(path) = workspace_path {
+                DeepCallTracker::with_workspace_path(path)
+            } else {
+                DeepCallTracker::new()
+            };
+            if let Err(e) = tracker.analyze_external_calls(&result.call_graph, &result.symbol_store) {
+                // Log error but don't fail the entire analysis
+                eprintln!("Warning: Deep call tracking failed: {}", e);
+            } else {
+                result.deep_call_tracker = Some(tracker);
+            }
+        }
+
+        Ok(result)
     }
 
     /// Get the current path (file or directory).
@@ -157,6 +183,19 @@ impl SourceCode {
     /// Enable external library analysis and security scanning.
     pub fn with_external_library_analysis(mut self, enabled: bool) -> Self {
         self.enable_external_libs = enabled;
+        self
+    }
+
+    /// Enable deep call tracking into external library source code.
+    /// When enabled, ntree will attempt to analyze external library source
+    /// code (if available) to track internal function calls.
+    /// For example, tracking what functions `requests.get()` calls internally.
+    pub fn with_deep_external_call_tracking(mut self, enabled: bool) -> Self {
+        self.enable_deep_external_calls = enabled;
+        // Deep tracking requires external library analysis
+        if enabled {
+            self.enable_external_libs = true;
+        }
         self
     }
 }
