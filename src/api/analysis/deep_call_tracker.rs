@@ -96,10 +96,11 @@ impl DeepCallTracker {
                     (Vec::new(), Vec::new(), Vec::new(), Vec::new())
                 };
 
-                // For requests library, always check for default certificate bundle
-                if library == "requests" {
-                    if let Some(cert_path) = Self::find_default_certificate_bundle() {
-                        let cert_entry = format!("Default certificate bundle: {}", cert_path);
+                // Find all certificates from the call chain for any library
+                // This searches for certificates generically, not just certifi
+                if let Some(ref path) = library_path {
+                    let found_certs = self.find_certificates_from_call_chain(path, &call_expressions);
+                    for cert_entry in found_certs {
                         if !certificates.contains(&cert_entry) {
                             certificates.push(cert_entry);
                         }
@@ -109,9 +110,9 @@ impl DeepCallTracker {
                 let source_file = library_path.as_ref().map(|p| {
                     // Try to find the specific file containing the function
                     if let Some(file) = self.find_function_file(&library, &call_edge.callee_expr_text, p) {
-                        file.to_string_lossy().to_string()
+                        Self::normalize_path_display(&file)
                     } else {
-                        p.to_string_lossy().to_string()
+                        Self::normalize_path_display(p)
                     }
                 });
 
@@ -347,18 +348,8 @@ impl DeepCallTracker {
             }
             
             // Look for certifi or default certificate bundle references
-            if trimmed.contains("certifi") || trimmed.contains("where()") ||
-               trimmed.contains("DEFAULT_CA_BUNDLE") || trimmed.contains("REQUESTS_CA_BUNDLE") ||
-               trimmed.contains("SSL_CERT_FILE") || trimmed.contains("CURL_CA_BUNDLE") ||
-               trimmed.contains("from certifi") || trimmed.contains("import certifi") {
-                // Try to find the actual certificate bundle path
-                if let Some(cert_path) = Self::find_default_certificate_bundle() {
-                    let cert_entry = format!("Default certificate bundle: {}", cert_path);
-                    if !certs.contains(&cert_entry) {
-                        certs.push(cert_entry);
-                    }
-                }
-            }
+            // Note: Certificate finding is now handled by find_certificates_from_call_chain
+            // This section only extracts certificate paths directly from source code
             
             // Look for cert= or verify= with actual file paths (not variables)
             if trimmed.contains("cert=") {
@@ -392,76 +383,106 @@ impl DeepCallTracker {
         certs
     }
 
-    /// Find default certificate bundle location used by requests/urllib3.
-    fn find_default_certificate_bundle() -> Option<String> {
-        // Check environment variables first
-        if let Ok(ca_bundle) = std::env::var("REQUESTS_CA_BUNDLE") {
-            if std::path::Path::new(&ca_bundle).exists() {
-                return Some(ca_bundle);
+    /// Normalize a path string to use proper OS separators and remove extended path prefix.
+    fn normalize_path_display(path: &PathBuf) -> String {
+        // Try to canonicalize first to resolve any relative paths and normalize separators
+        if let Ok(canonical) = path.canonicalize() {
+            let path_str = canonical.to_string_lossy().to_string();
+            // Remove Windows extended path prefix (\\?\) for cleaner display
+            if path_str.starts_with(r"\\?\") {
+                return path_str[4..].to_string();
             }
+            return path_str;
         }
-        if let Ok(ssl_cert) = std::env::var("SSL_CERT_FILE") {
-            if std::path::Path::new(&ssl_cert).exists() {
-                return Some(ssl_cert);
-            }
-        }
-        if let Ok(curl_ca) = std::env::var("CURL_CA_BUNDLE") {
-            if std::path::Path::new(&curl_ca).exists() {
-                return Some(curl_ca);
-            }
-        }
+        // Fallback: use the path as-is, which will have proper OS separators from PathBuf
+        path.to_string_lossy().to_string()
+    }
+
+    /// Find all certificates from the call chain by searching for certificate files and SSL/TLS libraries.
+    /// This works generically for any library that uses certificates, not just certifi.
+    fn find_certificates_from_call_chain(&self, library_path: &PathBuf, call_expressions: &[String]) -> Vec<String> {
+        use std::collections::HashSet;
+        let mut certificates = Vec::new();
+        let mut seen_paths = HashSet::new(); // Track canonical paths to avoid duplicates
         
-        // Try to execute Python to get certifi location (most reliable method)
-        // Try python, python3, py commands
-        let python_commands = vec!["python", "python3", "py"];
-        for cmd in python_commands {
-            if let Ok(output) = std::process::Command::new(cmd)
-                .arg("-c")
-                .arg("import certifi; print(certifi.where())")
-                .output() {
-                if output.status.success() {
-                    if let Ok(cert_path) = String::from_utf8(output.stdout) {
-                        let cert_path = cert_path.trim();
-                        if !cert_path.is_empty() && std::path::Path::new(cert_path).exists() {
-                            return Some(cert_path.to_string());
+        // Helper to add certificate if not seen before
+        let mut add_cert = |cert_entry: String, cert_path: &PathBuf| {
+            // Use canonical path for deduplication
+            if let Ok(canonical) = cert_path.canonicalize() {
+                let path_str = canonical.to_string_lossy().to_string();
+                if !seen_paths.contains(&path_str) {
+                    seen_paths.insert(path_str);
+                    certificates.push(cert_entry);
+                }
+            } else if !seen_paths.contains(&cert_path.to_string_lossy().to_string()) {
+                let path_str = cert_path.to_string_lossy().to_string();
+                seen_paths.insert(path_str);
+                certificates.push(cert_entry);
+            }
+        };
+        
+        // 1. Search for certificate files mentioned in call expressions
+        for call in call_expressions {
+            if let Some(cert_path) = Self::extract_file_path(call) {
+                if !cert_path.contains("self.") && !cert_path.contains("print") &&
+                   (cert_path.contains("/") || cert_path.contains("\\") || 
+                    cert_path.starts_with("\"") || cert_path.starts_with("'")) {
+                    let clean_path = cert_path.trim_matches('"').trim_matches('\'').to_string();
+                    if let Ok(resolved) = std::path::Path::new(&clean_path).canonicalize() {
+                        if resolved.exists() {
+                            let cert_entry = format!("Certificate file: {}", Self::normalize_path_display(&resolved));
+                            add_cert(cert_entry, &resolved);
                         }
                     }
                 }
             }
         }
         
-        // Fallback: Try common Python installation locations
-        let python_versions = ["Python312", "Python311", "Python310", "Python39", "Python38",
-                                "python3.12", "python3.11", "python3.10", "python3.9", "python3.8"];
+        // 2. Search for certifi library (Python's standard certificate bundle)
+        if let Some(certifi_lib_path) = self.find_library_source("certifi") {
+            let cert_file = certifi_lib_path.join("cacert.pem");
+            if cert_file.exists() {
+                let cert_entry = format!("Default certificate bundle: {}", Self::normalize_path_display(&cert_file));
+                add_cert(cert_entry, &cert_file);
+            }
+        }
         
-        // Windows - check LOCALAPPDATA (standard Python)
-        if let Ok(appdata) = std::env::var("LOCALAPPDATA") {
-            for version in &python_versions {
-                let cert_path = std::path::Path::new(&appdata)
-                    .join("Programs")
-                    .join("Python")
-                    .join(version)
-                    .join("lib")
-                    .join("site-packages")
-                    .join("certifi")
-                    .join("cacert.pem");
-                if cert_path.exists() {
-                    return Some(cert_path.to_string_lossy().to_string());
+        // 3. Search for other common SSL/TLS certificate libraries
+        let ssl_libraries = ["urllib3", "ssl", "OpenSSL", "cryptography"];
+        for ssl_lib in &ssl_libraries {
+            if let Some(ssl_lib_path) = self.find_library_source(ssl_lib) {
+                let cert_extensions = ["cacert.pem", "cert.pem", "ca-bundle.crt", "ca-certificates.crt"];
+                for ext in &cert_extensions {
+                    let cert_file = ssl_lib_path.join(ext);
+                    if cert_file.exists() {
+                        let cert_entry = format!("Certificate from {}: {}", ssl_lib, Self::normalize_path_display(&cert_file));
+                        add_cert(cert_entry, &cert_file);
+                    }
                 }
             }
+        }
+        
+        // 4. Search for certificates relative to the current library's location
+        if let Some(site_packages) = library_path.parent() {
+            // Check for certifi in the same site-packages
+            let cert_file = site_packages.join("certifi").join("cacert.pem");
+            if cert_file.exists() {
+                let cert_entry = format!("Default certificate bundle: {}", Self::normalize_path_display(&cert_file));
+                add_cert(cert_entry, &cert_file);
+            }
             
-            // Windows Store Python location
-            let store_path = std::path::Path::new(&appdata)
-                .join("Packages");
-            if store_path.exists() {
-                use jwalk::WalkDir;
-                for entry in WalkDir::new(&store_path).max_depth(6) {
-                    if let Ok(entry) = entry {
-                        let entry_path = entry.path();
-                        let path_str = entry_path.to_string_lossy();
-                        if path_str.contains("certifi") && path_str.ends_with("cacert.pem") {
-                            if entry_path.exists() {
-                                return Some(entry_path.to_string_lossy().to_string());
+            // Look for any certificate files in site-packages (limited depth to avoid scanning too much)
+            use jwalk::WalkDir;
+            for entry in WalkDir::new(site_packages).max_depth(2) {
+                if let Ok(entry) = entry {
+                    let path = entry.path();
+                    if path.is_file() {
+                        if let Some(file_name) = path.file_name() {
+                            let file_str = file_name.to_string_lossy();
+                            if file_str.ends_with(".pem") || file_str.ends_with(".crt") || 
+                               file_str.ends_with(".cer") || file_str.ends_with(".key") {
+                                let cert_entry = format!("Certificate file: {}", Self::normalize_path_display(&path.to_path_buf()));
+                                add_cert(cert_entry, &path.to_path_buf());
                             }
                         }
                     }
@@ -469,104 +490,23 @@ impl DeepCallTracker {
             }
         }
         
-        // Windows - check Program Files
-        if let Ok(program_files) = std::env::var("ProgramFiles") {
-            for version in &python_versions {
-                let cert_path = std::path::Path::new(&program_files)
-                    .join("Python")
-                    .join(version)
-                    .join("lib")
-                    .join("site-packages")
-                    .join("certifi")
-                    .join("cacert.pem");
-                if cert_path.exists() {
-                    return Some(cert_path.to_string_lossy().to_string());
-                }
-            }
-        }
-        
-        // Linux/Mac
-        if let Ok(home) = std::env::var("HOME") {
-            for version in &python_versions {
-                let cert_path = std::path::Path::new(&home)
-                    .join(".local")
-                    .join("lib")
-                    .join(version)
-                    .join("site-packages")
-                    .join("certifi")
-                    .join("cacert.pem");
-                if cert_path.exists() {
-                    return Some(cert_path.to_string_lossy().to_string());
-                }
-            }
-        }
-        
-        // Try to find certifi in virtual environments
-        if let Ok(current_dir) = std::env::current_dir() {
-            let mut search_dir = current_dir.clone();
-            for _ in 0..5 {
-                let venv_cert = search_dir.join(".venv")
-                    .join("lib")
-                    .join("site-packages")
-                    .join("certifi")
-                    .join("cacert.pem");
-                if venv_cert.exists() {
-                    return Some(venv_cert.to_string_lossy().to_string());
-                }
-                
-                // Also check Windows venv location
-                let venv_cert_win = search_dir.join(".venv")
-                    .join("Lib")
-                    .join("site-packages")
-                    .join("certifi")
-                    .join("cacert.pem");
-                if venv_cert_win.exists() {
-                    return Some(venv_cert_win.to_string_lossy().to_string());
-                }
-                
-                if let Some(parent) = search_dir.parent() {
-                    search_dir = parent.to_path_buf();
-                } else {
-                    break;
-                }
-            }
-        }
-        
-        None
+        certificates
     }
 
-    /// Extract library name from call expression (e.g., "requests.get" -> "requests").
+
+    /// Extract library name from call expression by parsing the code structure.
+    /// Examples: "requests.get(url)" -> "requests", "print(requests.get(url).text)" -> "requests"
     fn extract_library_name(call_expr: &str) -> Option<String> {
-        // Handle nested calls like "print(requests.get(url).text)" -> "requests"
-        // Look for patterns like "requests.get", "requests.get(", etc.
+        // Skip built-in functions that shouldn't be treated as libraries
+        let builtins = ["print", "len", "str", "int", "float", "bool", "list", "dict", "tuple", "set"];
         
         // For Python: look for "module.function" or "module.function(" patterns
-        // Common Python libraries: requests, numpy, pandas, os, sys, etc.
-        let common_libs = ["requests", "numpy", "pandas", "os", "sys", "json", "math", "random", "datetime", "collections"];
-        
-        // First, try to find a common library name in the expression
-        for lib in &common_libs {
-            // Look for patterns like "lib.function" or "lib.function("
-            let pattern1 = format!("{}.", lib);
-            let pattern2 = format!("{}.get", lib);
-            let pattern3 = format!("{}.post", lib);
-            let pattern4 = format!("{}.put", lib);
-            
-            if call_expr.contains(&pattern1) || 
-               call_expr.contains(&pattern2) || 
-               call_expr.contains(&pattern3) || 
-               call_expr.contains(&pattern4) {
-                return Some(lib.to_string());
-            }
-        }
-        
-        // Fallback: try to extract from dot notation
-        // For "requests.get(url)" -> "requests"
-        // For "print(requests.get(url).text)" -> find "requests.get"
+        // Find the first dot that's part of a library.function pattern
         if let Some(dot_pos) = call_expr.find('.') {
             // Look backwards from the dot to find the start of the identifier
             let before_dot = &call_expr[..dot_pos];
-            // Find the last non-alphanumeric character before the dot
+            
+            // Find the start of the identifier (alphanumeric or underscore)
             let mut start = 0;
             for (i, ch) in before_dot.char_indices().rev() {
                 if ch.is_alphanumeric() || ch == '_' {
@@ -575,16 +515,49 @@ impl DeepCallTracker {
                     break;
                 }
             }
+            
             // Extract the library name
             let lib_name = &before_dot[start..];
-            if !lib_name.is_empty() && lib_name.chars().next().unwrap().is_alphabetic() {
+            
+            // Validate it's a valid identifier and not a builtin
+            if !lib_name.is_empty() && 
+               lib_name.chars().next().unwrap().is_alphabetic() &&
+               !builtins.contains(&lib_name) {
                 return Some(lib_name.to_string());
+            }
+        }
+        
+        // For nested calls like "print(requests.get(url).text)", find the inner call
+        // Look for patterns like "library.function(" within parentheses
+        if let Some(open_paren) = call_expr.find('(') {
+            let before_paren = &call_expr[..open_paren];
+            if let Some(dot_pos) = before_paren.rfind('.') {
+                let before_dot = &before_paren[..dot_pos];
+                let mut start = 0;
+                for (i, ch) in before_dot.char_indices().rev() {
+                    if ch.is_alphanumeric() || ch == '_' {
+                        start = i;
+                    } else {
+                        break;
+                    }
+                }
+                let lib_name = &before_dot[start..];
+                if !lib_name.is_empty() && 
+                   lib_name.chars().next().unwrap().is_alphabetic() &&
+                   !builtins.contains(&lib_name) {
+                    return Some(lib_name.to_string());
+                }
             }
         }
         
         // For Rust: "std::vec::Vec::new" -> "std"
         if call_expr.contains("::") {
-            return call_expr.split("::").next().map(|s| s.trim().to_string());
+            if let Some(first_part) = call_expr.split("::").next() {
+                let trimmed = first_part.trim();
+                if !trimmed.is_empty() && trimmed.chars().next().unwrap().is_alphabetic() {
+                    return Some(trimmed.to_string());
+                }
+            }
         }
         
         None
@@ -783,13 +756,16 @@ impl DeepCallTracker {
                     }
                 }
                 
-                // Check if this file uses certifi or default certificate bundles
-                // requests uses certifi for default certificates - always check for requests library
-                if library == "requests" || content.contains("certifi") || 
-                   content.contains("DEFAULT_CA_BUNDLE") || content.contains("from certifi") ||
-                   content.contains("import certifi") {
-                    if let Some(cert_path) = Self::find_default_certificate_bundle() {
-                        let cert_entry = format!("Default certificate bundle: {}", cert_path);
+                // Check if this file uses certificates or SSL/TLS libraries
+                // Search for certificates generically from any SSL/TLS library
+                if content.contains("certifi") || content.contains("DEFAULT_CA_BUNDLE") ||
+                   content.contains("from certifi") || content.contains("import certifi") ||
+                   content.contains("certs.where()") || content.contains("certifi.where()") ||
+                   content.contains("ssl") || content.contains("SSL") || content.contains("TLS") ||
+                   content.contains("cert") || content.contains("verify") || content.contains("ca_bundle") {
+                    // Find all certificates from the call chain
+                    let found_certs = self.find_certificates_from_call_chain(library_path, &[]);
+                    for cert_entry in found_certs {
                         if !certificates.contains(&cert_entry) {
                             certificates.push(cert_entry);
                         }
@@ -803,6 +779,14 @@ impl DeepCallTracker {
                 use std::collections::HashSet;
                 let mut seen_calls = HashSet::new();
                 let mut seen_expressions = HashSet::new();
+                
+                // Extract certificates from call expressions as we process them
+                let call_certs = Self::extract_certificates_from_calls(&calls);
+                for cert in call_certs {
+                    if !certificates.contains(&cert) {
+                        certificates.push(cert);
+                    }
+                }
                 
                 // Process each call recursively
                 for call in &calls {
@@ -873,6 +857,14 @@ impl DeepCallTracker {
                                 }
                             }
                         }
+                    }
+                }
+                
+                // Find certificates from call chain using the collected call expressions
+                let found_certs = self.find_certificates_from_call_chain(library_path, &call_expressions);
+                for cert_entry in found_certs {
+                    if !certificates.contains(&cert_entry) {
+                        certificates.push(cert_entry);
                     }
                 }
             }
@@ -974,8 +966,14 @@ impl DeepCallTracker {
             }
         }
 
-        // Extract certificates from call expressions
-        certificates = Self::extract_certificates_from_calls(&call_expressions);
+        // Certificates have already been extracted during call tree creation
+        // Additional extraction from call expressions if not already done
+        let additional_certs = Self::extract_certificates_from_calls(&call_expressions);
+        for cert in additional_certs {
+            if !certificates.contains(&cert) {
+                certificates.push(cert);
+            }
+        }
         
         // Remove from analyzed set after processing (to allow re-analysis in different contexts)
         self.analyzed_functions.remove(&func_id);
